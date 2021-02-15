@@ -19,7 +19,7 @@ tasks.withType<Test> {
 }
 
 application {
-    mainClassName = ""
+    //mainClassName = ""
 }
 
 repositories {
