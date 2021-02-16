@@ -22,16 +22,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
     public native String rtmidi_api_display_name(int api);
 
     @Override
-    public native int rtmidi_compiled_api_by_name(Pointer name);
-
-    @Override
     public native int rtmidi_compiled_api_by_name(String name);
-
-    @Override
-    public native void rtmidi_error(int type, Pointer errorString);
-
-    @Override
-    public native void rtmidi_error(int type, String errorString);
 
     @Override
     public native void rtmidi_open_port(RtMidiWrapper device, int portNumber, String portName);

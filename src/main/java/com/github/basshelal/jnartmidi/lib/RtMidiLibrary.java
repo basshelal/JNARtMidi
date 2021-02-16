@@ -212,40 +212,9 @@ public interface RtMidiLibrary extends Library {
     /**
      * ! See \ref RtMidi::getCompiledApiByName().<br>
      * Original signature : <code>RtMidiApi rtmidi_compiled_api_by_name(const char*)</code><br>
-     * <i>native declaration : rtmidi_c.h:73</i><br>
-     *
-     * @deprecated use the safer methods {@link #rtmidi_compiled_api_by_name(java.lang.String)} and {@link #rtmidi_compiled_api_by_name(com.sun.jna.Pointer)} instead
-     */
-    @Deprecated
-    public int rtmidi_compiled_api_by_name(Pointer name);
-
-    /**
-     * ! See \ref RtMidi::getCompiledApiByName().<br>
-     * Original signature : <code>RtMidiApi rtmidi_compiled_api_by_name(const char*)</code><br>
      * <i>native declaration : rtmidi_c.h:73</i>
      */
     public int rtmidi_compiled_api_by_name(String name);
-
-    // TODO: 16/02/2021 Delete when tested safe! Not RtMidi public API
-
-    /**
-     * ! \internal Report an error.<br>
-     * Original signature : <code>void rtmidi_error(RtMidiErrorType, const char*)</code><br>
-     * <i>native declaration : rtmidi_c.h:78</i><br>
-     *
-     * @deprecated use the safer methods {@link #rtmidi_error(int, java.lang.String)} and {@link #rtmidi_error(int, com.sun.jna.Pointer)} instead
-     */
-    @Deprecated
-    public void rtmidi_error(int type, Pointer errorString);
-
-    // TODO: 16/02/2021 Delete when tested safe! Not RtMidi public API
-
-    /**
-     * ! \internal Report an error.<br>
-     * Original signature : <code>void rtmidi_error(RtMidiErrorType, const char*)</code><br>
-     * <i>native declaration : rtmidi_c.h:78</i>
-     */
-    public void rtmidi_error(int type, String errorString);
 
     /**
      * \brief Open a MIDI port.<br>
