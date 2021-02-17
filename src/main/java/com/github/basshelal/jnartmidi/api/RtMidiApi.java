@@ -14,15 +14,12 @@ public class RtMidiApi {
 
     private final String name;
     private final String displayName;
-
-    private RtMidiApi(String name, String displayName) {
-        this.name = name;
-        this.displayName = displayName;
-    }
+    private final int number;
 
     private RtMidiApi(int api) {
         this.name = RtMidiLibrary.getInstance().rtmidi_api_name(api);
         this.displayName = RtMidiLibrary.getInstance().rtmidi_api_display_name(api);
+        this.number = api;
     }
 
     public static RtMidiApi fromInt(int api) {
@@ -45,6 +42,8 @@ public class RtMidiApi {
     public String getName() { return name; }
 
     public String getDisplayName() { return displayName; }
+
+    public int getNumber() { return number; }
 
     @Override
     public boolean equals(Object o) {

@@ -157,25 +157,21 @@ public interface RtMidiLibrary extends Library {
         /**
          * Create a zero-valued Size.
          */
-        public NativeSize() {
-            this(0);
-        }
+        public NativeSize() { this(0); }
 
         /**
          * Create a Size with the given value.
          */
-        public NativeSize(long value) {
-            super(SIZE, value);
-        }
+        public NativeSize(long value) { super(SIZE, value); }
     }
 
     /**
      * size_t *
      */
     public class NativeSizeByReference extends ByReference {
-        public NativeSizeByReference() {
-            this(new NativeSize(0));
-        }
+        public NativeSizeByReference() { this(0); }
+
+        public NativeSizeByReference(int value) { this(new NativeSize(value)); }
 
         public NativeSizeByReference(NativeSize value) {
             super(NativeSize.SIZE);
@@ -183,12 +179,9 @@ public interface RtMidiLibrary extends Library {
         }
 
         public NativeSize getValue() {
-            if (NativeSize.SIZE == 4)
-                return new NativeSize(getPointer().getInt(0));
-            else if (NativeSize.SIZE == 8)
-                return new NativeSize(getPointer().getLong(0));
-            else
-                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
+            if (NativeSize.SIZE == 4) return new NativeSize(getPointer().getInt(0));
+            else if (NativeSize.SIZE == 8) return new NativeSize(getPointer().getLong(0));
+            else throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
         }
 
         public void setValue(NativeSize value) {

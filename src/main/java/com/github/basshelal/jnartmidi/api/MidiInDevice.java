@@ -14,6 +14,10 @@ public class MidiInDevice extends MidiDevice {
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
     }
 
+    public MidiInDevice(RtMidiApi api, String name, int queueSizeLimit) {
+        this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create(api.getNumber(), name, queueSizeLimit);
+    }
+
     @Override
     public void destroy() {
         this.removeCallback();
@@ -37,7 +41,7 @@ public class MidiInDevice extends MidiDevice {
 
     public void setCallback(Callback callback) {
         this.callback = callback;
-        this.messageBuffer = new int[3];
+        this.messageBuffer = new int[3]; // TODO: 17/02/2021 Resize buffer if too small??
         this.libCallback = (double timeStamp, StringArray message, RtMidiLibrary.NativeSize messageSize, Pointer userData) -> {
             for (int i = 0; i < messageSize.intValue(); i++) {
                 if (i == 0) this.messageBuffer[i] = message.getByte(i) & 0xF0;
@@ -47,6 +51,8 @@ public class MidiInDevice extends MidiDevice {
         };
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(wrapper, this.libCallback, null);
     }
+
+    // TODO: 17/02/2021 setCallback with MidiMessage type for more high level programming
 
     public void removeCallback() {
         RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(wrapper);

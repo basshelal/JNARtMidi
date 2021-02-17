@@ -1,5 +1,8 @@
 package com.github.basshelal.jnartmidi.lib;
 
+import com.github.basshelal.jnartmidi.api.MidiInDevice;
+import com.github.basshelal.jnartmidi.api.RtMidiApi;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -42,9 +45,19 @@ public class TestRtMidiLibrary {
         assertEquals("Dummy", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
+    @Test
+    void test() throws InterruptedException {
+        MidiInDevice in = new MidiInDevice(RtMidiApi.LINUX_ALSA, "My In Device", 1000);
+        in.openPort(2, "My Port");
+
+        // >$ aconnect -l
+
+        Thread.sleep(Long.MAX_VALUE);
+    }
+
     @DisplayName("RtMidiIn Create Default")
     @Test
-    public void test() throws InterruptedException {
+    public void test1() throws InterruptedException {
         RtMidiWrapper wrapper = lib.rtmidi_in_create_default();
         System.out.println(wrapper);
         int count = lib.rtmidi_get_port_count(wrapper);

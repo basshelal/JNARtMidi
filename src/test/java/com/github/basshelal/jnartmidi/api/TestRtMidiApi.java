@@ -79,6 +79,8 @@ public class TestRtMidiApi {
             System.out.println(Arrays.toString(message));
         });
 
+        // >$ aseqdump -p portNumber
+
         Thread.sleep(Long.MAX_VALUE);
     }
 
