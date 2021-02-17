@@ -17,9 +17,9 @@ import java.nio.ByteBuffer;
  */
 public interface RtMidiLibrary extends Library {
 
-    String LIBRARY_NAME = "bin/librtmidi.so";
+    public static final String LIBRARY_NAME = "bin/librtmidi.so";
 
-    public static final String JNA_LIBRARY_NAME = "rtmidi";
+    public static RtMidiLibrary getInstance() { return RtMidiLibraryNative.getInstance(); }
 
     //=============================================================================================
     //====================================     Types     ==========================================
@@ -165,6 +165,38 @@ public interface RtMidiLibrary extends Library {
          */
         public NativeSize(long value) {
             super(SIZE, value);
+        }
+    }
+
+    /**
+     * size_t *
+     */
+    public class NativeSizeByReference extends ByReference {
+        public NativeSizeByReference() {
+            this(new NativeSize(0));
+        }
+
+        public NativeSizeByReference(NativeSize value) {
+            super(NativeSize.SIZE);
+            setValue(value);
+        }
+
+        public NativeSize getValue() {
+            if (NativeSize.SIZE == 4)
+                return new NativeSize(getPointer().getInt(0));
+            else if (NativeSize.SIZE == 8)
+                return new NativeSize(getPointer().getLong(0));
+            else
+                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
+        }
+
+        public void setValue(NativeSize value) {
+            if (NativeSize.SIZE == 4)
+                getPointer().setInt(0, value.intValue());
+            else if (NativeSize.SIZE == 8)
+                getPointer().setLong(0, value.longValue());
+            else
+                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
         }
     }
 
@@ -369,37 +401,5 @@ public interface RtMidiLibrary extends Library {
      * <i>native declaration : rtmidi_c.h:196</i>
      */
     public int rtmidi_out_send_message(RtMidiWrapper device, byte[] message, int length);
-
-    /**
-     * size_t *
-     */
-    public class NativeSizeByReference extends ByReference {
-        public NativeSizeByReference() {
-            this(new NativeSize(0));
-        }
-
-        public NativeSizeByReference(NativeSize value) {
-            super(NativeSize.SIZE);
-            setValue(value);
-        }
-
-        public NativeSize getValue() {
-            if (NativeSize.SIZE == 4)
-                return new NativeSize(getPointer().getInt(0));
-            else if (NativeSize.SIZE == 8)
-                return new NativeSize(getPointer().getLong(0));
-            else
-                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
-        }
-
-        public void setValue(NativeSize value) {
-            if (NativeSize.SIZE == 4)
-                getPointer().setInt(0, value.intValue());
-            else if (NativeSize.SIZE == 8)
-                getPointer().setLong(0, value.longValue());
-            else
-                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
-        }
-    }
 
 }
