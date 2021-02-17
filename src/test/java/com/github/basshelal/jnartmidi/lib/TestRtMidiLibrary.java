@@ -42,4 +42,19 @@ public class TestRtMidiLibrary {
         assertEquals("Dummy", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
+    @DisplayName("RtMidiIn Create Default")
+    @Test
+    public void test() throws InterruptedException {
+        RtMidiWrapper wrapper = lib.rtmidi_in_create_default();
+        System.out.println(wrapper);
+        int count = lib.rtmidi_get_port_count(wrapper);
+        System.out.println(count);
+        System.out.println(lib.rtmidi_get_port_name(wrapper, 0));
+        System.out.println(lib.rtmidi_get_port_name(wrapper, 1));
+
+        lib.rtmidi_open_port(wrapper, 1, "My Port");
+
+        Thread.sleep(Long.MAX_VALUE);
+    }
+
 }

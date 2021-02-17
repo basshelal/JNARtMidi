@@ -65,4 +65,14 @@ public class TestRtMidiApi {
         if (Platform.isMac()) assertTrue(list.contains(RtMidiApi.MACOSX_CORE));
     }
 
+    @DisplayName("MidiInDevice")
+    @Test
+    public void testMidiIn() {
+        MidiInDevice in = new MidiInDevice();
+        MidiOutDevice out = new MidiOutDevice();
+
+        System.out.println(in.portCount());
+        System.out.println(out.portCount());
+    }
+
 }
