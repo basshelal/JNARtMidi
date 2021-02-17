@@ -42,6 +42,13 @@ public class RtMidiWrapper extends Structure {
         super(peer);
     }
 
+    public void reset() {
+        ptr = Pointer.NULL;
+        data = Pointer.NULL;
+        ok = 0;
+        msg = "";
+    }
+
     public static class ByReference extends RtMidiWrapper implements Structure.ByReference {
 
     }

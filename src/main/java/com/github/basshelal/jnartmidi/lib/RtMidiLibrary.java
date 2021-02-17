@@ -8,7 +8,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByReference;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 // java -jar jnaerator.jar -library rtmidi rtmidi_c.h librtmidi.so -o . -v -noJar -noComp -f -runtime JNA
 
@@ -25,13 +24,6 @@ public interface RtMidiLibrary extends Library {
     //=============================================================================================
     //====================================     Types     ==========================================
     //=============================================================================================
-
-    /**
-     * ! See \ref RtMidiOut::sendMessage().<br>
-     * Original signature : <code>int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)</code><br>
-     * <i>native declaration : rtmidi_c.h:196</i>
-     */
-    public int rtmidi_out_send_message(RtMidiWrapper device, byte[] message, int length);
 
     /**
      * ! \brief MIDI API specifier arguments.  See \ref RtMidi::Api.<br>
@@ -193,7 +185,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>int rtmidi_get_compiled_api(RtMidiApi*, unsigned int)</code><br>
      * <i>native declaration : rtmidi_c.h:58</i>
      */
-    public int rtmidi_get_compiled_api(IntBuffer apis, int apis_size);
+    public int rtmidi_get_compiled_api(int[] apis, int apis_size);
 
     /**
      * ! See \ref RtMidi::getApiName().<br>
@@ -370,6 +362,13 @@ public interface RtMidiLibrary extends Library {
      * <i>native declaration : rtmidi_c.h:191</i>
      */
     public int rtmidi_out_get_current_api(RtMidiWrapper device);
+
+    /**
+     * ! See \ref RtMidiOut::sendMessage().<br>
+     * Original signature : <code>int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)</code><br>
+     * <i>native declaration : rtmidi_c.h:196</i>
+     */
+    public int rtmidi_out_send_message(RtMidiWrapper device, byte[] message, int length);
 
     /**
      * size_t *

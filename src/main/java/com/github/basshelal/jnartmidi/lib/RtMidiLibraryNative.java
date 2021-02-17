@@ -4,7 +4,6 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public class RtMidiLibraryNative implements RtMidiLibrary {
 
@@ -13,7 +12,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
     }
 
     @Override
-    public native int rtmidi_get_compiled_api(IntBuffer apis, int apis_size);
+    public native int rtmidi_get_compiled_api(int[] apis, int apis_size);
 
     @Override
     public native String rtmidi_api_name(int api);
