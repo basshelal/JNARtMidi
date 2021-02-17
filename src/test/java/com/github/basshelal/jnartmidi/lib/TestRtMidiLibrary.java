@@ -53,6 +53,13 @@ public class TestRtMidiLibrary {
         System.out.println(lib.rtmidi_get_port_name(wrapper, 1));
 
         lib.rtmidi_open_port(wrapper, 1, "My Port");
+        RtMidiWrapper s = lib.rtmidi_in_create(RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA, "My Client", 1000);
+        System.out.println(s);
+        int counts = lib.rtmidi_get_port_count(s);
+        System.out.println(counts);
+        System.out.println(lib.rtmidi_get_port_name(s, 0));
+        System.out.println(lib.rtmidi_get_port_name(s, 1));
+        lib.rtmidi_open_port(s, 1, "My  s  Port");
 
         Thread.sleep(Long.MAX_VALUE);
     }

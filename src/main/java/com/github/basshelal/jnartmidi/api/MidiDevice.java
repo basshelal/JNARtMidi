@@ -3,6 +3,8 @@ package com.github.basshelal.jnartmidi.api;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
 
+import java.util.Objects;
+
 public abstract class MidiDevice {
 
     protected RtMidiWrapper wrapper;
@@ -33,8 +35,43 @@ public abstract class MidiDevice {
 
 
     public class Port {
-        private String name;
+        private final String name;
+        private final int number;
         private boolean isOpen;
+
+        public Port(String name, int number, boolean isOpen) {
+            this.name = name;
+            this.number = number;
+            this.isOpen = isOpen;
+        }
+
+        public String getName() { return name; }
+
+        public int getNumber() { return number; }
+
+        public void setOpen(boolean open) { isOpen = open; }
+
+        public boolean isOpen() { return isOpen; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Port)) return false;
+            Port port = (Port) o;
+            return getNumber() == port.getNumber() && isOpen() == port.isOpen() && getName().equals(port.getName());
+        }
+
+        @Override
+        public int hashCode() { return Objects.hash(getName(), getNumber(), isOpen()); }
+
+        @Override
+        public String toString() {
+            return "Port{" +
+                    "name='" + name + '\'' +
+                    ", number=" + number +
+                    ", isOpen=" + isOpen +
+                    '}';
+        }
     }
 
 }

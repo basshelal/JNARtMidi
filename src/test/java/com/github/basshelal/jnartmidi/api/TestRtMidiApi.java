@@ -67,12 +67,19 @@ public class TestRtMidiApi {
 
     @DisplayName("MidiInDevice")
     @Test
-    public void testMidiIn() {
+    public void testMidiIn() throws InterruptedException {
         MidiInDevice in = new MidiInDevice();
-        MidiOutDevice out = new MidiOutDevice();
+
+        System.out.println(Arrays.toString(in.getPorts()));
 
         System.out.println(in.portCount());
-        System.out.println(out.portCount());
+        in.openPort(2, "My Midi In Port");
+
+        in.setCallback((int[] message, double deltaTime) -> {
+            System.out.println(Arrays.toString(message));
+        });
+
+        Thread.sleep(Long.MAX_VALUE);
     }
 
 }

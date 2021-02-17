@@ -5,6 +5,7 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.StringArray;
 import com.sun.jna.ptr.ByReference;
 
 import java.nio.ByteBuffer;
@@ -136,7 +137,7 @@ public interface RtMidiLibrary extends Library {
      * <i>native declaration : rtmidi_c.h:45</i>
      */
     public interface RtMidiCCallback extends Callback {
-        void invoke(double timeStamp, byte[] message, NativeSize messageSize, Pointer userData);
+        void invoke(double timeStamp, StringArray message, NativeSize messageSize, Pointer userData);
     }
 
     /**
