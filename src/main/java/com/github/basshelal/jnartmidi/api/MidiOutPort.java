@@ -5,7 +5,7 @@ import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 public class MidiOutPort extends MidiPort {
 
     public MidiOutPort() {
-        super();
+        super(null);
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
     }
 

@@ -70,8 +70,7 @@ public class TestRtMidiApi {
     @Test
     public void testMidiIn() throws InterruptedException {
         MidiInPort in = new MidiInPort();
-
-        System.out.println(in.portCount());
+        
         in.openPort(2, "My Midi In Port");
 
         in.setCallback((int[] message, double deltaTime) -> {

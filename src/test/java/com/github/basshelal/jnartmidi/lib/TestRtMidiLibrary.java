@@ -57,30 +57,38 @@ public class TestRtMidiLibrary {
         in.openPort(2, "My Port");
         MidiInPort in1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device Again", 1000);
         in1.openPort(2, "My Port Again");
-        System.out.println(in1.portName(2));
 
 
         MidiOutPort test = new MidiOutPort();
         test.openPort(2, "TTTTTTTTTTTTTTTTTTT");
 
-        MidiInPort.Callback callback = (int[] message, double deltaTime) -> {
+        MidiInPort.ArrayCallback callback = (int[] message, double deltaTime) -> {
             System.out.println(System.currentTimeMillis() + "\n" + Arrays.toString(message) + "\n");
         };
 
         in.setCallback(callback);
         in1.setCallback(callback);
 
-        test.sendMessage();
-        test.sendMessage();
-        test.sendMessage();
 
-        System.out.println(Arrays.toString(RtMidi.midiInDevices()));
-        System.out.println(Arrays.toString(RtMidi.midiOutDevices()));
+        MidiInPort testin = new MidiInPort();
+        testin.openPort(3, "TestIN");
+        testin.setCallback(callback);
+
+
+        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
+        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
+        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
+        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
 
 
         // >$ aconnect -l
 
-        Thread.sleep(Long.MAX_VALUE);
+        while (true) {
+            test.sendMessage();
+            Thread.sleep(100);
+        }
+
+        //  Thread.sleep(Long.MAX_VALUE);
     }
 
     @DisplayName("RtMidiIn Create Default")

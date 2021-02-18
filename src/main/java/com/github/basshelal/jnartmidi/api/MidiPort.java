@@ -3,28 +3,17 @@ package com.github.basshelal.jnartmidi.api;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
 
+import java.util.Objects;
+
 public abstract class MidiPort {
 
-    protected final String name;
-    protected final int number;
+    protected final Info info;
     protected boolean isOpen = false;
     protected boolean isVirtual = false;
 
     protected RtMidiWrapper wrapper;
 
-    protected MidiPort() {
-        // TODO: 18/02/2021 Delete!
-        this("", 0);
-    }
-
-    protected MidiPort(String name, int number) {
-        this.name = name;
-        this.number = number;
-    }
-
-    public int portCount() {
-        return RtMidiLibrary.getInstance().rtmidi_get_port_count(this.wrapper);
-    }
+    public MidiPort(Info info) { this.info = info; }
 
     public void openPort(int number, String name) {
         RtMidiLibrary.getInstance().rtmidi_open_port(wrapper, number, name);
@@ -45,12 +34,54 @@ public abstract class MidiPort {
         this.isVirtual = false;
     }
 
-    public String portName(int number) {
-        return RtMidiLibrary.getInstance().rtmidi_get_port_name(wrapper, number);
-    }
+    public Info getInfo() { return info; }
+
+    public boolean isOpen() { return isOpen; }
+
+    public boolean isVirtual() { return isVirtual; }
 
     public abstract void destroy();
 
     public abstract RtMidiApi getApi();
+
+    public static class Info {
+        protected final String name;
+        protected final int number;
+        protected final Type type;
+
+        public Info(String name, int number, Type type) {
+            this.name = name;
+            this.number = number;
+            this.type = type;
+        }
+
+        public String getName() { return name; }
+
+        public int getNumber() { return number; }
+
+        public Type getType() { return type; }
+
+        @Override
+        public int hashCode() { return Objects.hash(getName(), getNumber(), getType()); }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Info)) return false;
+            Info info = (Info) o;
+            return getType() == info.getType() && getName().equals(info.getName()) && getNumber() == info.getNumber();
+        }
+
+        @Override
+        public String toString() {
+            return "MidiPort.Info{" +
+                    "name='" + name + "'" +
+                    ", number=" + number +
+                    ", type=" + type +
+                    "}";
+        }
+
+        public enum Type {IN, OUT, UNKNOWN}
+    }
 
 }

@@ -42,10 +42,6 @@ public class RtMidiWrapper extends Structure {
         super(peer);
     }
 
-    public void destroy() {
-        RtMidiLibrary.getInstance().rtmidi_in_free(this);
-    }
-
     public static class ByReference extends RtMidiWrapper implements Structure.ByReference {
 
     }
