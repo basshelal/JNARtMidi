@@ -1,8 +1,13 @@
 package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
+import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
 
+// TODO: 18/02/2021 Switch to singleton?
 public class RtMidi {
+
+    private static RtMidiWrapper midiInWrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+    private static RtMidiWrapper midiOutWrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
 
     private RtMidi() {}
 
@@ -18,6 +23,30 @@ public class RtMidi {
             }
             return result;
         }
+    }
+
+    // TODO: 18/02/2021 Check
+    public static MidiInDevice[] midiInDevices() {
+        RtMidiWrapper midiInWrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiInWrapper);
+        MidiInDevice[] result = new MidiInDevice[deviceCount];
+        for (int i = 0; i < deviceCount; i++) {
+            result[i] = new MidiInDevice(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiInWrapper, i), i);
+        }
+        midiInWrapper.destroy();
+        return result;
+    }
+
+    // TODO: 18/02/2021 Check
+    public static MidiOutDevice[] midiOutDevices() {
+        RtMidiWrapper midiOutWrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiOutWrapper);
+        MidiOutDevice[] result = new MidiOutDevice[deviceCount];
+        for (int i = 0; i < deviceCount; i++) {
+            result[i] = new MidiOutDevice(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiOutWrapper, i), i);
+        }
+        midiOutWrapper.destroy();
+        return result;
     }
 
 }

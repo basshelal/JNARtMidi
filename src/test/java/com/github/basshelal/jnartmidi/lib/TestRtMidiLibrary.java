@@ -1,12 +1,16 @@
 package com.github.basshelal.jnartmidi.lib;
 
-import com.github.basshelal.jnartmidi.api.MidiInDevice;
+import com.github.basshelal.jnartmidi.api.MidiInPort;
+import com.github.basshelal.jnartmidi.api.MidiOutPort;
+import com.github.basshelal.jnartmidi.api.RtMidi;
 import com.github.basshelal.jnartmidi.api.RtMidiApi;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,8 +51,30 @@ public class TestRtMidiLibrary {
 
     @Test
     void test() throws InterruptedException {
-        MidiInDevice in = new MidiInDevice(RtMidiApi.LINUX_ALSA, "My In Device", 1000);
+        MidiInPort in = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device", 1000);
         in.openPort(2, "My Port");
+        MidiInPort in1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device Again", 1000);
+        in1.openPort(2, "My Port Again");
+        System.out.println(in1.portName(2));
+
+
+        MidiOutPort test = new MidiOutPort();
+        test.openPort(4, "TTTTTTTTTTTTTTTTTTT");
+
+        MidiInPort.Callback callback = (int[] message, double deltaTime) -> {
+            System.out.println(System.currentTimeMillis() + "\n" + Arrays.toString(message) + "\n");
+        };
+
+        in.setCallback(callback);
+        in1.setCallback(callback);
+
+        test.sendMessage();
+        test.sendMessage();
+        test.sendMessage();
+
+        System.out.println(Arrays.toString(RtMidi.midiInDevices()));
+        System.out.println(Arrays.toString(RtMidi.midiOutDevices()));
+
 
         // >$ aconnect -l
 
@@ -73,6 +99,10 @@ public class TestRtMidiLibrary {
         System.out.println(lib.rtmidi_get_port_name(s, 0));
         System.out.println(lib.rtmidi_get_port_name(s, 1));
         lib.rtmidi_open_port(s, 1, "My  s  Port");
+
+
+        lib.rtmidi_in_ignore_types(s, true, true, true);
+
 
         Thread.sleep(Long.MAX_VALUE);
     }

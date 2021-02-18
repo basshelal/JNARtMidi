@@ -48,7 +48,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
 
     public native void rtmidi_in_cancel_callback(RtMidiWrapper device);
 
-    public native void rtmidi_in_ignore_types(RtMidiWrapper device, byte midiSysex, byte midiTime, byte midiSense);
+    public native void rtmidi_in_ignore_types(RtMidiWrapper device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
     public native double rtmidi_in_get_message(RtMidiWrapper device, ByteBuffer message, NativeSizeByReference size);
 

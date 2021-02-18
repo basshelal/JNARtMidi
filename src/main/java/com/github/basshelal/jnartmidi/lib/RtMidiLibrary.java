@@ -152,7 +152,7 @@ public interface RtMidiLibrary extends Library {
         /**
          * Size of a size_t integer, in bytes.
          */
-        public static int SIZE = Native.SIZE_T_SIZE;//Platform.is64Bit() ? 8 : 4;
+        public static int SIZE = Native.SIZE_T_SIZE; // Platform.is64Bit() ? 8 : 4;
 
         /**
          * Create a zero-valued Size.
@@ -336,7 +336,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>void rtmidi_in_ignore_types(RtMidiInPtr, bool, bool, bool)</code><br>
      * <i>native declaration : rtmidi_c.h:154</i>
      */
-    public void rtmidi_in_ignore_types(RtMidiWrapper device, byte midiSysex, byte midiTime, byte midiSense);
+    public void rtmidi_in_ignore_types(RtMidiWrapper device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
     /**
      * Fill the user-provided array with the data bytes for the next available<br>

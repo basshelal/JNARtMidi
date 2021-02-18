@@ -52,7 +52,7 @@ public class TestRtMidiApi {
 
     @DisplayName("Available APIs")
     @Test
-    void testAvailableAPIs() throws RtMidiException {
+    public void testAvailableAPIs() throws RtMidiException {
         RtMidiApi[] apis = RtMidi.getAvailableApis();
         List<RtMidiApi> list = Arrays.asList(apis);
 
@@ -68,9 +68,7 @@ public class TestRtMidiApi {
     @DisplayName("MidiInDevice")
     @Test
     public void testMidiIn() throws InterruptedException {
-        MidiInDevice in = new MidiInDevice();
-
-        System.out.println(Arrays.toString(in.getPorts()));
+        MidiInPort in = new MidiInPort();
 
         System.out.println(in.portCount());
         in.openPort(2, "My Midi In Port");
