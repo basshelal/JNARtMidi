@@ -80,7 +80,7 @@ public class TestRtMidiLibrary {
 
         MidiInPort.ArrayCallback callback = (message, deltaTime) -> {
             System.out.println(Arrays.toString(message));
-            System.out.println(out.sendMessage(message));
+            out.sendMessage(message);
         };
 
         port.setCallback(callback);

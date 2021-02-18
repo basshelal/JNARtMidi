@@ -2,7 +2,6 @@ package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Pointer;
-import com.sun.jna.StringArray;
 
 public class MidiInPort extends MidiPort {
 
@@ -34,14 +33,28 @@ public class MidiInPort extends MidiPort {
         return RtMidiApi.fromInt(result);
     }
 
+    private void checkHasCallback() throws RtMidiException {
+        if (this.cCallback != null || this.arrayCallback != null || this.midiMessageCallback != null)
+            throw new RtMidiException("Cannot set callback there is an existing callback registered, " +
+                    "call removeCallback() to remove.");
+    }
+
     public void setCallback(RtMidiLibrary.RtMidiCCallback callback) {
-        // TODO: 18/02/2021 Implement!
+        this.checkHasCallback();
+        this.cCallback = callback;
+        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.wrapper, this.cCallback, null);
     }
 
     public void setCallback(ArrayCallback callback) {
+        this.checkHasCallback();
         this.arrayCallback = callback;
-        this.messageBuffer = new int[3]; // TODO: 17/02/2021 Resize buffer if too small??
-        this.cCallback = (double timeStamp, StringArray message, RtMidiLibrary.NativeSize messageSize, Pointer userData) -> {
+        // prevent memalloc in callback by guessing buffer size
+        this.messageBuffer = new int[3];
+        this.cCallback = (final double timeStamp, final Pointer message,
+                          final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
+            // memalloc in realtime code! Dangerous but necessary and extremely rare
+            if (this.messageBuffer == null || this.messageBuffer.length < messageSize.intValue())
+                this.messageBuffer = new int[messageSize.intValue()];
             for (int i = 0; i < messageSize.intValue(); i++) {
                 if (i == 0) this.messageBuffer[i] = message.getByte(i) & 0xF0;
                 else this.messageBuffer[i] = message.getByte(i);
@@ -52,7 +65,14 @@ public class MidiInPort extends MidiPort {
     }
 
     public void setCallback(MidiMessageCallback callback) {
-        // TODO: 18/02/2021 Implement!
+        this.checkHasCallback();
+        this.midiMessageCallback = callback;
+        this.midiMessage = new MidiMessage();
+        this.cCallback = (final double timeStamp, final Pointer message,
+                          final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
+            // TODO: 18/02/2021 Implement!
+        };
+        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.wrapper, this.cCallback, null);
     }
 
     public void removeCallback() {
@@ -60,22 +80,27 @@ public class MidiInPort extends MidiPort {
         this.messageBuffer = null;
         this.cCallback = null;
         this.arrayCallback = null;
+        this.midiMessageCallback = null;
+        this.midiMessage = null;
     }
 
     public void ignoreTypes(boolean midiSysex, boolean midiTime, boolean midiSense) {
         RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.wrapper, midiSysex, midiTime, midiSense);
     }
 
-    public double getMessage() {
-        // TODO: 17/02/2021 Implement!
-        return 0.0;
+    // TODO: 18/02/2021 Check!
+    public double getMessage(byte[] buffer) {
+        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, buffer, new RtMidiLibrary.NativeSize(buffer.length));
+        return result;
     }
 
     public interface ArrayCallback {
+        // RealTimeCritical
         public void invoke(int[] message, double deltaTime);
     }
 
     public interface MidiMessageCallback {
+        // RealTimeCritical
         public void invoke(MidiMessage message);
     }
 

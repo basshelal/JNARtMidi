@@ -3,8 +3,6 @@ package com.github.basshelal.jnartmidi.lib;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import java.nio.ByteBuffer;
-
 public class RtMidiLibraryNative implements RtMidiLibrary {
 
     private static RtMidiLibrary INSTANCE = null;
@@ -50,7 +48,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
 
     public native void rtmidi_in_ignore_types(RtMidiWrapper device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
-    public native double rtmidi_in_get_message(RtMidiWrapper device, ByteBuffer message, NativeSizeByReference size);
+    public native double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, NativeSize size);
 
     public native RtMidiWrapper rtmidi_out_create_default();
 

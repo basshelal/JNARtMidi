@@ -5,10 +5,7 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.StringArray;
 import com.sun.jna.ptr.ByReference;
-
-import java.nio.ByteBuffer;
 
 // java -jar jnaerator.jar -library rtmidi rtmidi_c.h librtmidi.so -o . -v -noJar -noComp -f -runtime JNA
 
@@ -137,7 +134,8 @@ public interface RtMidiLibrary extends Library {
      * <i>native declaration : rtmidi_c.h:45</i>
      */
     public interface RtMidiCCallback extends Callback {
-        void invoke(double timeStamp, StringArray message, NativeSize messageSize, Pointer userData);
+        // RealTimeCritical
+        public void invoke(final double timeStamp, final Pointer message, final NativeSize messageSize, final Pointer userData);
     }
 
     /**
@@ -350,7 +348,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)</code><br>
      * <i>native declaration : rtmidi_c.h:166</i>
      */
-    public double rtmidi_in_get_message(RtMidiWrapper device, ByteBuffer message, NativeSizeByReference size);
+    public double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, NativeSize size);
 
     //=============================================================================================
     //================================     RtMidiOut API     ======================================

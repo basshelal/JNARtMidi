@@ -11,9 +11,9 @@ public class MidiOutPort extends MidiPort {
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
     }
 
-    public MidiOutPort() {
-        super(null);
-        this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+    public MidiOutPort(RtMidiApi api, String name, Info info) {
+        super(info);
+        this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create(api.getNumber(), name);
     }
 
     @Override

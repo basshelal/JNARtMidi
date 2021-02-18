@@ -2,6 +2,8 @@ package com.github.basshelal.jnartmidi.api;
 
 public class MidiMessage {
 
+    private byte[] buffer;
+
     // System common messages
 
     /**
