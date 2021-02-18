@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  */
 public interface RtMidiLibrary extends Library {
 
-    public static final String LIBRARY_NAME = "bin/librtmidi.so";
+    public static final String LIBRARY_NAME = "rtmidi";
 
     public static RtMidiLibrary getInstance() { return RtMidiLibraryNative.getInstance(); }
 

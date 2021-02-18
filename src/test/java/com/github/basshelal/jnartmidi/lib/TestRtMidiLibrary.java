@@ -4,6 +4,7 @@ import com.github.basshelal.jnartmidi.api.MidiInPort;
 import com.github.basshelal.jnartmidi.api.MidiOutPort;
 import com.github.basshelal.jnartmidi.api.RtMidi;
 import com.github.basshelal.jnartmidi.api.RtMidiApi;
+import com.github.basshelal.jnartmidi.api.RtMidiLibraryLoader;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +21,7 @@ public class TestRtMidiLibrary {
 
     @BeforeAll
     public static void setup() {
+        RtMidiLibraryLoader.addSearchPath("bin/linux-x86-64");
         lib = RtMidiLibrary.getInstance();
     }
 
@@ -50,7 +52,7 @@ public class TestRtMidiLibrary {
     }
 
     @Test
-    void test() throws InterruptedException {
+    public void test() throws InterruptedException {
         MidiInPort in = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device", 1000);
         in.openPort(2, "My Port");
         MidiInPort in1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device Again", 1000);
@@ -59,7 +61,7 @@ public class TestRtMidiLibrary {
 
 
         MidiOutPort test = new MidiOutPort();
-        test.openPort(4, "TTTTTTTTTTTTTTTTTTT");
+        test.openPort(2, "TTTTTTTTTTTTTTTTTTT");
 
         MidiInPort.Callback callback = (int[] message, double deltaTime) -> {
             System.out.println(System.currentTimeMillis() + "\n" + Arrays.toString(message) + "\n");

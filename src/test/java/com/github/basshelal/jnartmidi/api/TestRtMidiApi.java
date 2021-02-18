@@ -20,6 +20,7 @@ public class TestRtMidiApi {
 
     @BeforeAll
     public static void setup() {
+        RtMidiLibraryLoader.addSearchPath("bin/linux-x86-64");
         lib = RtMidiLibrary.getInstance();
     }
 
