@@ -15,13 +15,13 @@ public abstract class MidiPort {
 
     public MidiPort(Info info) { this.info = info; }
 
-    public void openPort(int number, String name) {
-        RtMidiLibrary.getInstance().rtmidi_open_port(wrapper, number, name);
+    public void open() {
+        RtMidiLibrary.getInstance().rtmidi_open_port(wrapper, this.getInfo().getNumber(), this.getInfo().getName());
         this.isOpen = true;
         this.isVirtual = false;
     }
 
-    public void openVirtualPort(String name) {
+    public void openVirtual(String name) {
         // TODO: 18/02/2021 Fail if unsupported ie Windows
         RtMidiLibrary.getInstance().rtmidi_open_virtual_port(wrapper, name);
         this.isOpen = true;
@@ -39,6 +39,15 @@ public abstract class MidiPort {
     public boolean isOpen() { return isOpen; }
 
     public boolean isVirtual() { return isVirtual; }
+
+    @Override
+    public String toString() {
+        return "MidiPort{" +
+                "info=" + info +
+                ", isOpen=" + isOpen +
+                ", isVirtual=" + isVirtual +
+                '}';
+    }
 
     public abstract void destroy();
 

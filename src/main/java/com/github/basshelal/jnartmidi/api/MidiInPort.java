@@ -12,13 +12,13 @@ public class MidiInPort extends MidiPort {
     private int[] messageBuffer;
     private MidiMessage midiMessage;
 
-    public MidiInPort() {
-        super(null);
+    public MidiInPort(Info info) {
+        super(info);
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
     }
 
-    public MidiInPort(RtMidiApi api, String name, int queueSizeLimit) {
-        super(null);
+    public MidiInPort(RtMidiApi api, String name, int queueSizeLimit, Info info) {
+        super(info);
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create(api.getNumber(), name, queueSizeLimit);
     }
 

@@ -2,6 +2,7 @@ package com.github.basshelal.jnartmidi.lib;
 
 import com.github.basshelal.jnartmidi.api.MidiInPort;
 import com.github.basshelal.jnartmidi.api.MidiOutPort;
+import com.github.basshelal.jnartmidi.api.MidiPort;
 import com.github.basshelal.jnartmidi.api.RtMidi;
 import com.github.basshelal.jnartmidi.api.RtMidiApi;
 import com.github.basshelal.jnartmidi.api.RtMidiLibraryLoader;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,67 +54,50 @@ public class TestRtMidiLibrary {
         assertEquals("Dummy", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
+    @DisplayName("Midi In Ports")
     @Test
-    public void test() throws InterruptedException {
-        MidiInPort in = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device", 1000);
-        in.openPort(2, "My Port");
-        MidiInPort in1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "My In Device Again", 1000);
-        in1.openPort(2, "My Port Again");
+    public void testMidiInPorts() throws InterruptedException {
+        MidiPort.Info[] infos = RtMidi.midiInPorts();
 
+        System.out.println("Midi In Ports:");
+        for (MidiPort.Info info : infos) { System.out.println(info); }
 
-        MidiOutPort test = new MidiOutPort();
-        test.openPort(2, "TTTTTTTTTTTTTTTTTTT");
+        List<MidiInPort> ports = Arrays.stream(infos).map(MidiInPort::new).collect(Collectors.toList());
 
-        MidiInPort.ArrayCallback callback = (int[] message, double deltaTime) -> {
-            System.out.println(System.currentTimeMillis() + "\n" + Arrays.toString(message) + "\n");
+        System.out.println("Ports:");
+        for (MidiInPort port : ports) { System.out.println(port); }
+
+        MidiInPort port = ports.get(2);
+
+        port.open();
+
+        MidiInPort port1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "MY INPUT", 1000, infos[2]);
+
+        port1.open();
+
+        MidiOutPort out = new MidiOutPort(RtMidi.midiOutPorts()[1]);
+        out.open();
+
+        MidiInPort.ArrayCallback callback = (message, deltaTime) -> {
+            System.out.println(Arrays.toString(message));
+            System.out.println(out.sendMessage(message));
         };
 
-        in.setCallback(callback);
-        in1.setCallback(callback);
+        port.setCallback(callback);
+        // port1.setCallback(callback);
+
+        System.out.println("Midi Out Ports:");
+        for (MidiPort.Info info : RtMidi.midiOutPorts()) { System.out.println(info); }
+
+        System.out.println("Midi In Ports:");
+        for (MidiPort.Info info : RtMidi.midiInPorts()) { System.out.println(info); }
 
 
-        MidiInPort testin = new MidiInPort();
-        testin.openPort(3, "TestIN");
-        testin.setCallback(callback);
-
-
-        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
-        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
-        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
-        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
-
-
-        // >$ aconnect -l
-
-        while (true) {
-            test.sendMessage();
-            Thread.sleep(100);
-        }
-
-        //  Thread.sleep(Long.MAX_VALUE);
-    }
-
-    @DisplayName("RtMidiIn Create Default")
-    @Test
-    public void test1() throws InterruptedException {
-        RtMidiWrapper wrapper = lib.rtmidi_in_create_default();
-        System.out.println(wrapper);
-        int count = lib.rtmidi_get_port_count(wrapper);
-        System.out.println(count);
-        System.out.println(lib.rtmidi_get_port_name(wrapper, 0));
-        System.out.println(lib.rtmidi_get_port_name(wrapper, 1));
-
-        lib.rtmidi_open_port(wrapper, 1, "My Port");
-        RtMidiWrapper s = lib.rtmidi_in_create(RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA, "My Client", 1000);
-        System.out.println(s);
-        int counts = lib.rtmidi_get_port_count(s);
-        System.out.println(counts);
-        System.out.println(lib.rtmidi_get_port_name(s, 0));
-        System.out.println(lib.rtmidi_get_port_name(s, 1));
-        lib.rtmidi_open_port(s, 1, "My  s  Port");
-
-
-        lib.rtmidi_in_ignore_types(s, true, true, true);
+        MidiInPort korg = new MidiInPort(RtMidi.midiInPorts()[3]);
+        korg.open();
+        korg.setCallback((message, deltaTime) -> {
+            System.out.println(Arrays.toString(message) + "\tKORG");
+        });
 
 
         Thread.sleep(Long.MAX_VALUE);

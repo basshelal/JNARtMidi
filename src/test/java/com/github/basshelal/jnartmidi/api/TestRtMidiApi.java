@@ -50,7 +50,6 @@ public class TestRtMidiApi {
         assertEquals(RtMidiApi.RTMIDI_DUMMY.getDisplayName(), lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
-
     @DisplayName("Available APIs")
     @Test
     public void testAvailableAPIs() throws RtMidiException {
@@ -64,22 +63,6 @@ public class TestRtMidiApi {
         }
         if (Platform.isWindows()) assertTrue(list.contains(RtMidiApi.WINDOWS_MM));
         if (Platform.isMac()) assertTrue(list.contains(RtMidiApi.MACOSX_CORE));
-    }
-
-    @DisplayName("MidiInDevice")
-    @Test
-    public void testMidiIn() throws InterruptedException {
-        MidiInPort in = new MidiInPort();
-        
-        in.openPort(2, "My Midi In Port");
-
-        in.setCallback((int[] message, double deltaTime) -> {
-            System.out.println(Arrays.toString(message));
-        });
-
-        // >$ aseqdump -p portNumber
-
-        Thread.sleep(Long.MAX_VALUE);
     }
 
 }

@@ -4,6 +4,13 @@ import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 
 public class MidiOutPort extends MidiPort {
 
+    private byte[] messageBuffer;
+
+    public MidiOutPort(Info info) {
+        super(info);
+        this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+    }
+
     public MidiOutPort() {
         super(null);
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
@@ -20,8 +27,12 @@ public class MidiOutPort extends MidiPort {
         return RtMidiApi.fromInt(result);
     }
 
-    public int sendMessage() {
-        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, new byte[3], 3);
+    public int sendMessage(int[] message) {
+        if (this.messageBuffer == null || this.messageBuffer.length < message.length)
+            this.messageBuffer = new byte[message.length];
+        for (int i = 0; i < message.length; i++)
+            this.messageBuffer[i] = (byte) message[i];
+        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, this.messageBuffer, 3);
     }
 
 }

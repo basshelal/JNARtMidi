@@ -26,9 +26,7 @@ public class RtMidiWrapper extends Structure {
      */
     public String msg;
 
-    public RtMidiWrapper() {
-        super();
-    }
+    public RtMidiWrapper() { super(); }
 
     public RtMidiWrapper(Pointer ptr, Pointer data, byte ok, String msg) {
         super();
@@ -38,16 +36,7 @@ public class RtMidiWrapper extends Structure {
         this.msg = msg;
     }
 
-    public RtMidiWrapper(Pointer peer) {
-        super(peer);
-    }
+    public RtMidiWrapper(Pointer peer) { super(peer); }
 
-    public static class ByReference extends RtMidiWrapper implements Structure.ByReference {
-
-    }
-
-    public static class ByValue extends RtMidiWrapper implements Structure.ByValue {
-
-    }
 }
 
