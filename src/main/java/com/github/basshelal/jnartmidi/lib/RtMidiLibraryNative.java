@@ -24,40 +24,40 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
 
     public native int rtmidi_compiled_api_by_name(String name);
 
-    public native void rtmidi_open_port(RtMidiWrapper device, int portNumber, String portName);
+    public native void rtmidi_open_port(RtMidiPtr device, int portNumber, String portName);
 
-    public native void rtmidi_open_virtual_port(RtMidiWrapper device, String portName);
+    public native void rtmidi_open_virtual_port(RtMidiPtr device, String portName);
 
-    public native void rtmidi_close_port(RtMidiWrapper device);
+    public native void rtmidi_close_port(RtMidiPtr device);
 
-    public native int rtmidi_get_port_count(RtMidiWrapper device);
+    public native int rtmidi_get_port_count(RtMidiPtr device);
 
-    public native String rtmidi_get_port_name(RtMidiWrapper device, int portNumber);
+    public native String rtmidi_get_port_name(RtMidiPtr device, int portNumber);
 
-    public native RtMidiWrapper rtmidi_in_create_default();
+    public native RtMidiInPtr rtmidi_in_create_default();
 
-    public native RtMidiWrapper rtmidi_in_create(int api, String clientName, int queueSizeLimit);
+    public native RtMidiInPtr rtmidi_in_create(int api, String clientName, int queueSizeLimit);
 
-    public native void rtmidi_in_free(RtMidiWrapper device);
+    public native void rtmidi_in_free(RtMidiInPtr device);
 
-    public native int rtmidi_in_get_current_api(RtMidiWrapper device);
+    public native int rtmidi_in_get_current_api(RtMidiInPtr device);
 
-    public native void rtmidi_in_set_callback(RtMidiWrapper device, RtMidiCCallback callback, Pointer userData);
+    public native void rtmidi_in_set_callback(RtMidiInPtr device, RtMidiCCallback callback, Pointer userData);
 
-    public native void rtmidi_in_cancel_callback(RtMidiWrapper device);
+    public native void rtmidi_in_cancel_callback(RtMidiInPtr device);
 
-    public native void rtmidi_in_ignore_types(RtMidiWrapper device, boolean midiSysex, boolean midiTime, boolean midiSense);
+    public native void rtmidi_in_ignore_types(RtMidiInPtr device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
-    public native double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, int size);
+    public native double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, int size);
 
-    public native RtMidiWrapper rtmidi_out_create_default();
+    public native RtMidiOutPtr rtmidi_out_create_default();
 
-    public native RtMidiWrapper rtmidi_out_create(int api, String clientName);
+    public native RtMidiOutPtr rtmidi_out_create(int api, String clientName);
 
-    public native void rtmidi_out_free(RtMidiWrapper device);
+    public native void rtmidi_out_free(RtMidiOutPtr device);
 
-    public native int rtmidi_out_get_current_api(RtMidiWrapper device);
+    public native int rtmidi_out_get_current_api(RtMidiOutPtr device);
 
-    public native int rtmidi_out_send_message(RtMidiWrapper device, byte[] message, int length);
+    public native int rtmidi_out_send_message(RtMidiOutPtr device, byte[] message, int length);
 
 }

@@ -8,7 +8,7 @@ import com.sun.jna.Structure;
  * <i>native declaration : rtmidi_c.h:7</i><br>
  */
 @Structure.FieldOrder({"ptr", "data", "ok", "msg"})
-public class RtMidiWrapper extends Structure {
+public class RtMidiPtr extends Structure {
     /**
      * C type : void*
      */
@@ -26,9 +26,9 @@ public class RtMidiWrapper extends Structure {
      */
     public String msg;
 
-    public RtMidiWrapper() { super(); }
+    public RtMidiPtr() { super(); }
 
-    public RtMidiWrapper(Pointer ptr, Pointer data, boolean ok, String msg) {
+    public RtMidiPtr(Pointer ptr, Pointer data, boolean ok, String msg) {
         super();
         this.ptr = ptr;
         this.data = data;
@@ -36,9 +36,9 @@ public class RtMidiWrapper extends Structure {
         this.msg = msg;
     }
 
-    public RtMidiWrapper(Pointer peer) { super(peer); }
+    public RtMidiPtr(Pointer peer) { super(peer); }
 
-    public RtMidiWrapper(RtMidiWrapper wrapper) {
+    public RtMidiPtr(RtMidiPtr wrapper) {
         this(wrapper.getPointer());
         this.ptr = wrapper.ptr;
         this.data = wrapper.data;

@@ -13,8 +13,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
+import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
+import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
+import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
+import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.getInstance;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -30,10 +35,24 @@ public class TestRtMidiLibrary {
 
     // TODO: 20/02/2021 Make helper methods to avoid DRY
 
+    private RtMidiInPtr inCreateDefault() {
+        RtMidiInPtr in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+        return in;
+    }
+
+    private RtMidiOutPtr outCreateDefault() {
+        RtMidiOutPtr out = lib.rtmidi_out_create_default();
+        assertNotNull(out);
+        assertTrue(out.ok);
+        return out;
+    }
+
     @BeforeAll
     public static void setup() {
         RtMidiLibraryLoader.addSearchPath("bin/" + Platform.RESOURCE_PREFIX);
-        lib = RtMidiLibrary.getInstance();
+        lib = getInstance();
     }
 
     @AfterAll
@@ -103,12 +122,8 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_open_port")
     @Test
     public void testOpenPort() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
 
         int inPortCount = lib.rtmidi_get_port_count(in);
         int outPortCount = lib.rtmidi_get_port_count(out);
@@ -167,12 +182,8 @@ public class TestRtMidiLibrary {
                 "Platform " + Platform.RESOURCE_PREFIX +
                         " does not support virtual ports, skipping test");
 
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
 
         int inPortCount = lib.rtmidi_get_port_count(in);
         int outPortCount = lib.rtmidi_get_port_count(out);
@@ -235,12 +246,8 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_get_port_count")
     @Test
     public void testGetPortCount() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
 
         int inCount = lib.rtmidi_get_port_count(in);
         int outCount = lib.rtmidi_get_port_count(out);
@@ -255,12 +262,8 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_get_port_name")
     @Test
     public void testGetPortName() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
 
         int inCount = lib.rtmidi_get_port_count(in);
         int outCount = lib.rtmidi_get_port_count(out);
@@ -285,7 +288,7 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_in_create_default")
     @Test
     public void testInCreateDefault() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        RtMidiInPtr in = lib.rtmidi_in_create_default();
         assertNotNull(in);
         assertTrue(in.ok);
         lib.rtmidi_in_free(in);
@@ -301,7 +304,7 @@ public class TestRtMidiLibrary {
         String clientName = "Test JNARtMidi Client";
         int queueSizeLimit = 1024;
 
-        RtMidiWrapper in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
+        RtMidiInPtr in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
         assertNotNull(in);
         assertTrue(in.ok);
         lib.rtmidi_in_free(in);
@@ -310,11 +313,9 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_in_free")
     @Test
     public void testInFree() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
+        RtMidiInPtr in = inCreateDefault();
 
-        RtMidiWrapper copy = new RtMidiWrapper(in);
+        RtMidiPtr copy = new RtMidiPtr(in);
 
         assertEquals(copy.ptr, in.ptr);
         assertEquals(copy.data, in.data);
@@ -337,7 +338,7 @@ public class TestRtMidiLibrary {
         String clientName = "Test JNARtMidi Client";
         int queueSizeLimit = 1024;
 
-        RtMidiWrapper in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
+        RtMidiInPtr in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
         assertNotNull(in);
         assertTrue(in.ok);
 
@@ -350,13 +351,11 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_in_set_callback")
     @Test
     public void testInSetCallback() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
+        RtMidiInPtr in = inCreateDefault();
 
         // TODO: 20/02/2021 Implement
 
-        RtMidiLibrary.RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
+        RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
 
         };
 
@@ -392,7 +391,7 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_out_create_default")
     @Test
     public void testOutCreateDefault() {
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
+        RtMidiOutPtr out = lib.rtmidi_out_create_default();
         assertNotNull(out);
         assertTrue(out.ok);
         lib.rtmidi_out_free(out);
@@ -407,7 +406,7 @@ public class TestRtMidiLibrary {
 
         String clientName = "Test JNARtMidi Client";
 
-        RtMidiWrapper out = lib.rtmidi_out_create(apis[0], clientName);
+        RtMidiOutPtr out = lib.rtmidi_out_create(apis[0], clientName);
         assertNotNull(out);
         assertTrue(out.ok);
         lib.rtmidi_out_free(out);
@@ -416,11 +415,9 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_out_free")
     @Test
     public void testOutFree() {
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiOutPtr out = outCreateDefault();
 
-        RtMidiWrapper copy = new RtMidiWrapper(out);
+        RtMidiPtr copy = new RtMidiPtr(out);
 
         assertEquals(copy.ptr, out.ptr);
         assertEquals(copy.data, out.data);
@@ -442,7 +439,7 @@ public class TestRtMidiLibrary {
 
         String clientName = "Test JNARtMidi Client";
 
-        RtMidiWrapper out = lib.rtmidi_out_create(apis[0], clientName);
+        RtMidiOutPtr out = lib.rtmidi_out_create(apis[0], clientName);
         assertNotNull(out);
         assertTrue(out.ok);
 
@@ -454,12 +451,8 @@ public class TestRtMidiLibrary {
     @DisplayName("rtmidi_out_send_message")
     @Test
     public void testOutSendMessage() {
-        RtMidiWrapper in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
-        RtMidiWrapper out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
 
         int inPortCount = lib.rtmidi_get_port_count(in);
         int outPortCount = lib.rtmidi_get_port_count(out);
@@ -484,10 +477,11 @@ public class TestRtMidiLibrary {
 
         int inPortIndex = newInPortCount - 1;
 
-        assertTrue(inPortIndex >= 0);
-
         String inPortName = "Test JNARtMidi In Port at " + (new Random()).nextInt();
         lib.rtmidi_open_port(in, inPortIndex, inPortName);
+
+        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
+        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
 
         // send the out message
 
@@ -499,9 +493,10 @@ public class TestRtMidiLibrary {
 
         byte[] receivedMessage = new byte[message.length];
 
-        // TODO: 20/02/2021 Segfault! try in without createDefault
 
-        lib.rtmidi_in_get_message(in, receivedMessage, receivedMessage.length);
+        System.out.println(in.ptr);
+
+        //  lib.rtmidi_in_get_message(in, receivedMessage, receivedMessage.length);
 
         assertArrayEquals(message, receivedMessage);
 

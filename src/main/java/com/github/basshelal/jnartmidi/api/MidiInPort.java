@@ -1,6 +1,7 @@
 package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
+import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import com.sun.jna.Pointer;
 
 public class MidiInPort extends MidiPort {
@@ -10,6 +11,7 @@ public class MidiInPort extends MidiPort {
     private MidiMessageCallback midiMessageCallback;
     private int[] messageBuffer;
     private MidiMessage midiMessage;
+    private final RtMidiInPtr wrapper;
 
     public MidiInPort(Info info) {
         super(info);

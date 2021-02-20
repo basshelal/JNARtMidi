@@ -1,10 +1,12 @@
 package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
+import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 
 public class MidiOutPort extends MidiPort {
 
     private byte[] messageBuffer;
+    private final RtMidiOutPtr wrapper;
 
     public MidiOutPort(Info info) {
         super(info);

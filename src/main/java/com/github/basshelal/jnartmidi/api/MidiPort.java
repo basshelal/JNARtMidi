@@ -1,7 +1,7 @@
 package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
-import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
+import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
 
 import java.util.Objects;
 
@@ -11,7 +11,7 @@ public abstract class MidiPort {
     protected boolean isOpen = false;
     protected boolean isVirtual = false;
 
-    protected RtMidiWrapper wrapper;
+    protected RtMidiPtr wrapper;
 
     public MidiPort(Info info) { this.info = info; }
 

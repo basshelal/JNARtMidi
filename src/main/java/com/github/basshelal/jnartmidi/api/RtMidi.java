@@ -1,7 +1,8 @@
 package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
-import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
+import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
+import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 import com.sun.jna.Platform;
 
 // TODO: 18/02/2021 Switch to singleton?
@@ -26,24 +27,24 @@ public class RtMidi {
     }
 
     public static MidiPort.Info[] midiInPorts() {
-        RtMidiWrapper midiInWrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
-        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiInWrapper);
+        RtMidiInPtr midiInPtr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiInPtr);
         MidiPort.Info[] result = new MidiInPort.Info[deviceCount];
         for (int i = 0; i < deviceCount; i++) {
-            result[i] = new MidiPort.Info(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiInWrapper, i), i, MidiPort.Info.Type.IN);
+            result[i] = new MidiPort.Info(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiInPtr, i), i, MidiPort.Info.Type.IN);
         }
-        RtMidiLibrary.getInstance().rtmidi_in_free(midiInWrapper);
+        RtMidiLibrary.getInstance().rtmidi_in_free(midiInPtr);
         return result;
     }
 
     public static MidiPort.Info[] midiOutPorts() {
-        RtMidiWrapper midiOutWrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
-        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiOutWrapper);
+        RtMidiOutPtr midiOutPtr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        int deviceCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(midiOutPtr);
         MidiPort.Info[] result = new MidiPort.Info[deviceCount];
         for (int i = 0; i < deviceCount; i++) {
-            result[i] = new MidiPort.Info(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiOutWrapper, i), i, MidiPort.Info.Type.OUT);
+            result[i] = new MidiPort.Info(RtMidiLibrary.getInstance().rtmidi_get_port_name(midiOutPtr, i), i, MidiPort.Info.Type.OUT);
         }
-        RtMidiLibrary.getInstance().rtmidi_out_free(midiOutWrapper);
+        RtMidiLibrary.getInstance().rtmidi_out_free(midiOutPtr);
         return result;
     }
 

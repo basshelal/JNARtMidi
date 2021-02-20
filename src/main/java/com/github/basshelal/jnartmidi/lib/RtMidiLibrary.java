@@ -5,7 +5,6 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ByReference;
 
 // java -jar jnaerator.jar -library rtmidi rtmidi_c.h librtmidi.so -o . -v -noJar -noComp -f -runtime JNA
 
@@ -163,34 +162,9 @@ public interface RtMidiLibrary extends Library {
         public NativeSize(long value) { super(SIZE, value); }
     }
 
-    /**
-     * size_t *
-     */
-    public class NativeSizeByReference extends ByReference {
-        public NativeSizeByReference() { this(0); }
+    public class RtMidiInPtr extends RtMidiPtr {}
 
-        public NativeSizeByReference(int value) { this(new NativeSize(value)); }
-
-        public NativeSizeByReference(NativeSize value) {
-            super(NativeSize.SIZE);
-            setValue(value);
-        }
-
-        public NativeSize getValue() {
-            if (NativeSize.SIZE == 4) return new NativeSize(getPointer().getInt(0));
-            else if (NativeSize.SIZE == 8) return new NativeSize(getPointer().getLong(0));
-            else throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
-        }
-
-        public void setValue(NativeSize value) {
-            if (NativeSize.SIZE == 4)
-                getPointer().setInt(0, value.intValue());
-            else if (NativeSize.SIZE == 8)
-                getPointer().setLong(0, value.longValue());
-            else
-                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
-        }
-    }
+    public class RtMidiOutPtr extends RtMidiPtr {}
 
     //=============================================================================================
     //=================================     RtMidi API     ========================================
@@ -240,7 +214,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>void rtmidi_open_port(RtMidiPtr, unsigned int, const char*)</code><br>
      * <i>native declaration : rtmidi_c.h:86</i>
      */
-    public void rtmidi_open_port(RtMidiWrapper device, int portNumber, String portName);
+    public void rtmidi_open_port(RtMidiPtr device, int portNumber, String portName);
 
     /**
      * \brief Creates a virtual MIDI port to which other software applications can <br>
@@ -250,7 +224,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>void rtmidi_open_virtual_port(RtMidiPtr, const char*)</code><br>
      * <i>native declaration : rtmidi_c.h:94</i>
      */
-    public void rtmidi_open_virtual_port(RtMidiWrapper device, String portName);
+    public void rtmidi_open_virtual_port(RtMidiPtr device, String portName);
 
     /**
      * \brief Close a MIDI connection.<br>
@@ -258,7 +232,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>void rtmidi_close_port(RtMidiPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:100</i>
      */
-    public void rtmidi_close_port(RtMidiWrapper device);
+    public void rtmidi_close_port(RtMidiPtr device);
 
     /**
      * \brief Return the number of available MIDI ports.<br>
@@ -266,7 +240,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>int rtmidi_get_port_count(RtMidiPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:106</i>
      */
-    public int rtmidi_get_port_count(RtMidiWrapper device);
+    public int rtmidi_get_port_count(RtMidiPtr device);
 
     /**
      * \brief Return a string identifier for the specified MIDI input port number.<br>
@@ -274,7 +248,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>char* rtmidi_get_port_name(RtMidiPtr, unsigned int)</code><br>
      * <i>native declaration : rtmidi_c.h:112</i>
      */
-    public String rtmidi_get_port_name(RtMidiWrapper device, int portNumber);
+    public String rtmidi_get_port_name(RtMidiPtr device, int portNumber);
 
     //=============================================================================================
     //===============================     RtMidiIn API     ========================================
@@ -285,7 +259,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>RtMidiInPtr rtmidi_in_create_default()</code><br>
      * <i>native declaration : rtmidi_c.h:117</i>
      */
-    public RtMidiWrapper rtmidi_in_create_default();
+    public RtMidiInPtr rtmidi_in_create_default();
 
     /**
      * \brief Create a  RtMidiInPtr value, with given api, clientName and queueSizeLimit.<br>
@@ -299,42 +273,42 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>RtMidiInPtr rtmidi_in_create(RtMidiApi, const char*, unsigned int)</code><br>
      * <i>native declaration : rtmidi_c.h:129</i>
      */
-    public RtMidiWrapper rtmidi_in_create(int api, String clientName, int queueSizeLimit);
+    public RtMidiInPtr rtmidi_in_create(int api, String clientName, int queueSizeLimit);
 
     /**
      * ! \brief Free the given RtMidiInPtr.<br>
      * Original signature : <code>void rtmidi_in_free(RtMidiInPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:134</i>
      */
-    public void rtmidi_in_free(RtMidiWrapper device);
+    public void rtmidi_in_free(RtMidiInPtr device);
 
     /**
      * ! See \ref RtMidiIn::getCurrentApi().<br>
      * Original signature : <code>RtMidiApi rtmidi_in_get_current_api(RtMidiPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:139</i>
      */
-    public int rtmidi_in_get_current_api(RtMidiWrapper device);
+    public int rtmidi_in_get_current_api(RtMidiInPtr device);
 
     /**
      * ! See \ref RtMidiIn::setCallback().<br>
      * Original signature : <code>void rtmidi_in_set_callback(RtMidiInPtr, RtMidiCCallback, void*)</code><br>
      * <i>native declaration : rtmidi_c.h:144</i>
      */
-    public void rtmidi_in_set_callback(RtMidiWrapper device, RtMidiLibrary.RtMidiCCallback callback, Pointer userData);
+    public void rtmidi_in_set_callback(RtMidiInPtr device, RtMidiLibrary.RtMidiCCallback callback, Pointer userData);
 
     /**
      * ! See \ref RtMidiIn::cancelCallback().<br>
      * Original signature : <code>void rtmidi_in_cancel_callback(RtMidiInPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:149</i>
      */
-    public void rtmidi_in_cancel_callback(RtMidiWrapper device);
+    public void rtmidi_in_cancel_callback(RtMidiInPtr device);
 
     /**
      * ! See \ref RtMidiIn::ignoreTypes().<br>
      * Original signature : <code>void rtmidi_in_ignore_types(RtMidiInPtr, bool, bool, bool)</code><br>
      * <i>native declaration : rtmidi_c.h:154</i>
      */
-    public void rtmidi_in_ignore_types(RtMidiWrapper device, boolean midiSysex, boolean midiTime, boolean midiSense);
+    public void rtmidi_in_ignore_types(RtMidiInPtr device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
     /**
      * Fill the user-provided array with the data bytes for the next available<br>
@@ -348,7 +322,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)</code><br>
      * <i>native declaration : rtmidi_c.h:166</i>
      */
-    public double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, int size);
+    public double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, int size);
 
     //=============================================================================================
     //================================     RtMidiOut API     ======================================
@@ -359,7 +333,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>RtMidiOutPtr rtmidi_out_create_default()</code><br>
      * <i>native declaration : rtmidi_c.h:171</i>
      */
-    public RtMidiWrapper rtmidi_out_create_default();
+    public RtMidiOutPtr rtmidi_out_create_default();
 
     /**
      * \brief Create a RtMidiOutPtr value, with given and clientName.<br>
@@ -371,27 +345,27 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>RtMidiOutPtr rtmidi_out_create(RtMidiApi, const char*)</code><br>
      * <i>native declaration : rtmidi_c.h:181</i>
      */
-    public RtMidiWrapper rtmidi_out_create(int api, String clientName);
+    public RtMidiOutPtr rtmidi_out_create(int api, String clientName);
 
     /**
      * ! \brief Free the given RtMidiOutPtr.<br>
      * Original signature : <code>void rtmidi_out_free(RtMidiOutPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:186</i>
      */
-    public void rtmidi_out_free(RtMidiWrapper device);
+    public void rtmidi_out_free(RtMidiOutPtr device);
 
     /**
      * ! See \ref RtMidiOut::getCurrentApi().<br>
      * Original signature : <code>RtMidiApi rtmidi_out_get_current_api(RtMidiPtr)</code><br>
      * <i>native declaration : rtmidi_c.h:191</i>
      */
-    public int rtmidi_out_get_current_api(RtMidiWrapper device);
+    public int rtmidi_out_get_current_api(RtMidiOutPtr device);
 
     /**
      * ! See \ref RtMidiOut::sendMessage().<br>
      * Original signature : <code>int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)</code><br>
      * <i>native declaration : rtmidi_c.h:196</i>
      */
-    public int rtmidi_out_send_message(RtMidiWrapper device, byte[] message, int length);
+    public int rtmidi_out_send_message(RtMidiOutPtr device, byte[] message, int length);
 
 }
