@@ -119,60 +119,134 @@ public class TestRtMidiLibrary {
         lib.rtmidi_close_port(null);
     }
 
-    @Disabled
     @DisplayName("Get Port Count")
     @Test
     public void testGetPortCount() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_get_port_count(null);
+        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+        RtMidiWrapper out = lib.rtmidi_out_create_default();
+        assertNotNull(out);
+        assertTrue(out.ok);
+
+        int inCount = lib.rtmidi_get_port_count(in);
+        int outCount = lib.rtmidi_get_port_count(out);
+
+        assertTrue(inCount > 0);
+        assertTrue(outCount > 0);
+
+        lib.rtmidi_in_free(in);
+        lib.rtmidi_out_free(out);
     }
 
-    @Disabled
     @DisplayName("Get Port Name")
     @Test
     public void testGetPortName() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_get_port_name(null, -1);
+        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+        RtMidiWrapper out = lib.rtmidi_out_create_default();
+        assertNotNull(out);
+        assertTrue(out.ok);
+
+        int inCount = lib.rtmidi_get_port_count(in);
+        int outCount = lib.rtmidi_get_port_count(out);
+
+        assertTrue(inCount > 0);
+        assertTrue(outCount > 0);
+
+        for (int i = 0; i < inCount; i++) {
+            String portName = lib.rtmidi_get_port_name(in, i);
+            assertNotNull(portName);
+            assertNotEquals("", portName);
+        }
+        for (int i = 0; i < outCount; i++) {
+            String portName = lib.rtmidi_get_port_name(out, i);
+            assertNotNull(portName);
+            assertNotEquals("", portName);
+        }
+        lib.rtmidi_in_free(in);
+        lib.rtmidi_out_free(out);
     }
 
-    @Disabled
     @DisplayName("In Create Default")
     @Test
     public void testInCreateDefault() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_create_default();
+        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+        lib.rtmidi_in_free(in);
     }
 
-    @Disabled
     @DisplayName("In Create")
     @Test
     public void testInCreate() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_create(-1, "", -1);
+        int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
+        int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
+        assertTrue(totalApis > 0);
+
+        String clientName = "Test JNARtMidi Client";
+        int queueSizeLimit = 1024;
+
+        RtMidiWrapper in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
+        assertNotNull(in);
+        assertTrue(in.ok);
+        lib.rtmidi_in_free(in);
     }
 
-    @Disabled
     @DisplayName("In Free")
     @Test
     public void testInFree() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_free(null);
+        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+
+        RtMidiWrapper copy = new RtMidiWrapper(in);
+
+        assertEquals(copy.ptr, in.ptr);
+        assertEquals(copy.data, in.data);
+
+        lib.rtmidi_in_free(in);
+
+        assertNotEquals(copy.ptr, in.ptr);
+        assertNotEquals(copy.data, in.data);
+
+        // doing anything with `in` should cause a fatal error SIGSEGV (ie segfault)
     }
 
-    @Disabled
     @DisplayName("In Get Current API")
     @Test
     public void testInGetCurrentApi() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_get_current_api(null);
+        int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
+        int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
+        assertTrue(totalApis > 0);
+
+        String clientName = "Test JNARtMidi Client";
+        int queueSizeLimit = 1024;
+
+        RtMidiWrapper in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
+        assertNotNull(in);
+        assertTrue(in.ok);
+
+        int usedApi = lib.rtmidi_in_get_current_api(in);
+        assertEquals(apis[0], usedApi);
+        lib.rtmidi_in_free(in);
     }
 
     @Disabled
     @DisplayName("In Set Callback")
     @Test
     public void testInSetCallback() {
+        RtMidiWrapper in = lib.rtmidi_in_create_default();
+        assertNotNull(in);
+        assertTrue(in.ok);
+
         // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_set_callback(null, null, null);
+
+        RtMidiLibrary.RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
+
+        };
+        lib.rtmidi_in_free(in);
     }
 
     @Disabled
@@ -199,36 +273,66 @@ public class TestRtMidiLibrary {
         lib.rtmidi_in_get_message(null, null, null);
     }
 
-    @Disabled
     @DisplayName("Out Create Default")
     @Test
     public void testOutCreateDefault() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_out_create_default();
+        RtMidiWrapper out = lib.rtmidi_out_create_default();
+        assertNotNull(out);
+        assertTrue(out.ok);
+        lib.rtmidi_out_free(out);
     }
 
-    @Disabled
     @DisplayName("Out Create")
     @Test
     public void testOutCreate() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_out_create(-1, "");
+        int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
+        int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
+        assertTrue(totalApis > 0);
+
+        String clientName = "Test JNARtMidi Client";
+
+        RtMidiWrapper out = lib.rtmidi_out_create(apis[0], clientName);
+        assertNotNull(out);
+        assertTrue(out.ok);
+        lib.rtmidi_out_free(out);
     }
 
-    @Disabled
     @DisplayName("Out Free")
     @Test
     public void testOutFree() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_out_free(null);
+        RtMidiWrapper out = lib.rtmidi_out_create_default();
+        assertNotNull(out);
+        assertTrue(out.ok);
+
+        RtMidiWrapper copy = new RtMidiWrapper(out);
+
+        assertEquals(copy.ptr, out.ptr);
+        assertEquals(copy.data, out.data);
+
+        lib.rtmidi_out_free(out);
+
+        assertNotEquals(copy.ptr, out.ptr);
+        assertNotEquals(copy.data, out.data);
+
+        // doing anything with `out` should cause a fatal error SIGSEGV (ie segfault)
     }
 
-    @Disabled
     @DisplayName("Out Get Current API")
     @Test
     public void testOutGetCurrentApi() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_out_get_current_api(null);
+        int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
+        int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
+        assertTrue(totalApis > 0);
+
+        String clientName = "Test JNARtMidi Client";
+
+        RtMidiWrapper out = lib.rtmidi_out_create(apis[0], clientName);
+        assertNotNull(out);
+        assertTrue(out.ok);
+
+        int usedApi = lib.rtmidi_out_get_current_api(out);
+        assertEquals(apis[0], usedApi);
+        lib.rtmidi_out_free(out);
     }
 
     @Disabled

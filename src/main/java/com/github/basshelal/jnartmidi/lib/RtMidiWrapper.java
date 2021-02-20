@@ -20,7 +20,7 @@ public class RtMidiWrapper extends Structure {
     /**
      * C type : bool
      */
-    public byte ok;
+    public boolean ok;
     /**
      * C type : const char*
      */
@@ -28,7 +28,7 @@ public class RtMidiWrapper extends Structure {
 
     public RtMidiWrapper() { super(); }
 
-    public RtMidiWrapper(Pointer ptr, Pointer data, byte ok, String msg) {
+    public RtMidiWrapper(Pointer ptr, Pointer data, boolean ok, String msg) {
         super();
         this.ptr = ptr;
         this.data = data;
@@ -37,6 +37,14 @@ public class RtMidiWrapper extends Structure {
     }
 
     public RtMidiWrapper(Pointer peer) { super(peer); }
+
+    public RtMidiWrapper(RtMidiWrapper wrapper) {
+        this(wrapper.getPointer());
+        this.ptr = wrapper.ptr;
+        this.data = wrapper.data;
+        this.ok = wrapper.ok;
+        this.msg = wrapper.msg;
+    }
 
 }
 
