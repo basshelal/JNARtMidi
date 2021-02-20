@@ -385,7 +385,7 @@ public class TestRtMidiLibrary {
     @Test
     public void testInGetMessage() {
         // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_get_message(null, null, -1);
+        lib.rtmidi_in_get_message(null, null, null);
     }
 
     @DisplayName("rtmidi_out_create_default")
@@ -493,10 +493,8 @@ public class TestRtMidiLibrary {
 
         byte[] receivedMessage = new byte[message.length];
 
-
-        System.out.println(in.ptr);
-
-        //  lib.rtmidi_in_get_message(in, receivedMessage, receivedMessage.length);
+        double delta = lib.rtmidi_in_get_message(in, receivedMessage,
+                new RtMidiLibrary.NativeSizeByReference(receivedMessage.length));
 
         assertArrayEquals(message, receivedMessage);
 

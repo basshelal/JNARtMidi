@@ -5,6 +5,7 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.ByReference;
 
 // java -jar jnaerator.jar -library rtmidi rtmidi_c.h librtmidi.so -o . -v -noJar -noComp -f -runtime JNA
 
@@ -160,6 +161,35 @@ public interface RtMidiLibrary extends Library {
          * Create a Size with the given value.
          */
         public NativeSize(long value) { super(SIZE, value); }
+    }
+
+    /**
+     * Like {@link NativeSize} but passed by reference, ie in C code size_t *
+     */
+    public class NativeSizeByReference extends ByReference {
+        public NativeSizeByReference() { this(0); }
+
+        public NativeSizeByReference(int value) { this(new NativeSize(value)); }
+
+        public NativeSizeByReference(NativeSize value) {
+            super(NativeSize.SIZE);
+            setValue(value);
+        }
+
+        public NativeSize getValue() {
+            if (NativeSize.SIZE == 4) return new NativeSize(getPointer().getInt(0));
+            else if (NativeSize.SIZE == 8) return new NativeSize(getPointer().getLong(0));
+            else throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
+        }
+
+        public void setValue(NativeSize value) {
+            if (NativeSize.SIZE == 4)
+                getPointer().setInt(0, value.intValue());
+            else if (NativeSize.SIZE == 8)
+                getPointer().setLong(0, value.longValue());
+            else
+                throw new RuntimeException("GCCLong has to be either 4 or 8 bytes.");
+        }
     }
 
     public class RtMidiInPtr extends RtMidiPtr {}
@@ -322,7 +352,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)</code><br>
      * <i>native declaration : rtmidi_c.h:166</i>
      */
-    public double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, int size);
+    public double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, NativeSizeByReference size);
 
     //=============================================================================================
     //================================     RtMidiOut API     ======================================

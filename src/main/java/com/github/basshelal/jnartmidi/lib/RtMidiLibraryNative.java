@@ -48,7 +48,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
 
     public native void rtmidi_in_ignore_types(RtMidiInPtr device, boolean midiSysex, boolean midiTime, boolean midiSense);
 
-    public native double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, int size);
+    public native double rtmidi_in_get_message(RtMidiInPtr device, byte[] message, NativeSizeByReference size);
 
     public native RtMidiOutPtr rtmidi_out_create_default();
 
