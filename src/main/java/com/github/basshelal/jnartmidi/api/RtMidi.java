@@ -2,11 +2,14 @@ package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiWrapper;
+import com.sun.jna.Platform;
 
 // TODO: 18/02/2021 Switch to singleton?
 public class RtMidi {
 
     private RtMidi() {}
+
+    public static boolean supportsVirtualPorts() { return !Platform.isWindows(); }
 
     public static RtMidiApi[] getAvailableApis() throws RtMidiException {
         int[] arr = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];

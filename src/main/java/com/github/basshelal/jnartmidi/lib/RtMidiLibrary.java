@@ -348,7 +348,7 @@ public interface RtMidiLibrary extends Library {
      * Original signature : <code>double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)</code><br>
      * <i>native declaration : rtmidi_c.h:166</i>
      */
-    public double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, NativeSize size);
+    public double rtmidi_in_get_message(RtMidiWrapper device, byte[] message, int size);
 
     //=============================================================================================
     //================================     RtMidiOut API     ======================================
