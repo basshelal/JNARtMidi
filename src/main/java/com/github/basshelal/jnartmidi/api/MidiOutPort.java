@@ -29,12 +29,13 @@ public class MidiOutPort extends MidiPort {
         return RtMidiApi.fromInt(result);
     }
 
+    // TODO: 21/02/2021 Check!
     public int sendMessage(int[] message) {
         if (this.messageBuffer == null || this.messageBuffer.length < message.length)
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
-        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, this.messageBuffer, 3);
+        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, null, 3);
     }
 
 }

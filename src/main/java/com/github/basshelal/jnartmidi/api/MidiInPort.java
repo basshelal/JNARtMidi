@@ -92,7 +92,7 @@ public class MidiInPort extends MidiPort {
 
     // TODO: 18/02/2021 Check!
     public double getMessage(byte[] buffer) {
-        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, buffer,
+        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, null,
                 new RtMidiLibrary.NativeSizeByReference(buffer.length));
         return result;
     }

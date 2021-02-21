@@ -33,6 +33,8 @@ public class TestRtMidiLibrary {
 
     private static RtMidiLibrary lib;
 
+    private static void log(String message) { System.out.println(message); }
+
     // TODO: 20/02/2021 Make helper methods to avoid DRY
 
     private RtMidiInPtr inCreateDefault() {
@@ -48,6 +50,10 @@ public class TestRtMidiLibrary {
         assertTrue(out.ok);
         return out;
     }
+
+    private String inPortName() { return "Test JNARtMidi In Port at " + (new Random()).nextInt(); }
+
+    private String outPortName() { return "Test JNARtMidi Out Port at " + (new Random()).nextInt(); }
 
     @BeforeAll
     public static void setup() {
@@ -113,10 +119,11 @@ public class TestRtMidiLibrary {
         } else if (Platform.isWindows()) {
             apiNumber = lib.rtmidi_compiled_api_by_name("winmm");
         }
-        assertTrue(apiNumber != RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED);
+        assertNotEquals(apiNumber, RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED);
+
         RtMidiApi api = RtMidiApi.fromInt(apiNumber);
         assertNotEquals(api, RtMidiApi.UNSPECIFIED);
-        assertEquals(api.getNumber(), apiNumber);
+        assertEquals(apiNumber, api.getNumber());
     }
 
     @DisplayName("rtmidi_open_port")
@@ -132,7 +139,7 @@ public class TestRtMidiLibrary {
         assertTrue(outPortCount > 0);
 
         // Open an in port with a unique name!
-        String inPortName = "Test JNARtMidi In Port at " + (new Random()).nextInt();
+        String inPortName = inPortName();
 
         lib.rtmidi_open_port(in, 0, inPortName);
 
@@ -152,7 +159,7 @@ public class TestRtMidiLibrary {
         assertTrue(foundOut);
 
         // Open an out port with a unique name!
-        String outPortName = "Test JNARtMidi Out Port at " + (new Random()).nextInt();
+        String outPortName = outPortName();
 
         lib.rtmidi_open_port(out, 0, outPortName);
 
@@ -192,7 +199,7 @@ public class TestRtMidiLibrary {
         assertTrue(outPortCount > 0);
 
         // Open an in port with a unique name!
-        String inPortName = "Test JNARtMidi In Port at " + (new Random()).nextInt();
+        String inPortName = inPortName();
 
         lib.rtmidi_open_virtual_port(in, inPortName);
 
@@ -212,7 +219,7 @@ public class TestRtMidiLibrary {
         assertTrue(foundOut);
 
         // Open an out port with a unique name!
-        String outPortName = "Test JNARtMidi Out Port at " + (new Random()).nextInt();
+        String outPortName = outPortName();
 
         lib.rtmidi_open_virtual_port(out, outPortName);
 
@@ -335,15 +342,16 @@ public class TestRtMidiLibrary {
         int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
         assertTrue(totalApis > 0);
 
+        int api = apis[0];
         String clientName = "Test JNARtMidi Client";
         int queueSizeLimit = 1024;
 
-        RtMidiInPtr in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
+        RtMidiInPtr in = lib.rtmidi_in_create(api, clientName, queueSizeLimit);
         assertNotNull(in);
         assertTrue(in.ok);
 
         int usedApi = lib.rtmidi_in_get_current_api(in);
-        assertEquals(apis[0], usedApi);
+        assertEquals(api, usedApi);
         lib.rtmidi_in_free(in);
     }
 
@@ -437,14 +445,16 @@ public class TestRtMidiLibrary {
         int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
         assertTrue(totalApis > 0);
 
+        int api = apis[0];
+
         String clientName = "Test JNARtMidi Client";
 
-        RtMidiOutPtr out = lib.rtmidi_out_create(apis[0], clientName);
+        RtMidiOutPtr out = lib.rtmidi_out_create(api, clientName);
         assertNotNull(out);
         assertTrue(out.ok);
 
         int usedApi = lib.rtmidi_out_get_current_api(out);
-        assertEquals(apis[0], usedApi);
+        assertEquals(api, usedApi);
         lib.rtmidi_out_free(out);
     }
 
@@ -460,8 +470,11 @@ public class TestRtMidiLibrary {
         assertTrue(inPortCount > 0);
         assertTrue(outPortCount > 0);
 
+        log("In Port Count: " + inPortCount);
+        log("Out Port Count: " + outPortCount);
+
         // Open an out port with a unique name!
-        String outPortName = "Test JNARtMidi Out Port at " + (new Random()).nextInt();
+        String outPortName = outPortName();
 
         // open the port
         lib.rtmidi_open_port(out, 0, outPortName);
@@ -477,24 +490,31 @@ public class TestRtMidiLibrary {
 
         int inPortIndex = newInPortCount - 1;
 
-        String inPortName = "Test JNARtMidi In Port at " + (new Random()).nextInt();
+        String inPortName = inPortName();
         lib.rtmidi_open_port(in, inPortIndex, inPortName);
 
-        System.out.println(Arrays.toString(RtMidi.midiInPorts()));
-        System.out.println(Arrays.toString(RtMidi.midiOutPorts()));
+        log(Arrays.toString(RtMidi.midiInPorts()));
+        log(Arrays.toString(RtMidi.midiOutPorts()));
 
         // send the out message
 
-        byte[] message = new byte[]{69, 69, 69};
+        int[] message = new int[]{69, 69, 69};
 
-        lib.rtmidi_out_send_message(out, message, message.length);
+        int sent = lib.rtmidi_out_send_message(out, message, message.length);
+
+        assertTrue(sent != -1);
 
         // get the in message and assert they are equal
 
-        byte[] receivedMessage = new byte[message.length];
+        int[] receivedMessage = new int[]{-1, -1, -1};
 
-        double delta = lib.rtmidi_in_get_message(in, receivedMessage,
+        double got = lib.rtmidi_in_get_message(in, receivedMessage,
                 new RtMidiLibrary.NativeSizeByReference(receivedMessage.length));
+
+        assertTrue(got != -1);
+
+        // TODO: 21/02/2021 Sending works, getting works but isn't updating the array we're giving it
+        //  revise it from the beginning because it's likely something earlier on is set wrong
 
         assertArrayEquals(message, receivedMessage);
 
