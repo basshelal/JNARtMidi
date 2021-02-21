@@ -15,8 +15,9 @@ public abstract class MidiPort {
 
     public MidiPort(Info info) { this.info = info; }
 
-    public void open(Info info) {
-        RtMidiLibrary.getInstance().rtmidi_open_port(wrapper, info.getNumber(), info.getName());
+    protected void open(RtMidiPtr ptr, Info info) {
+        assert (ptr != null);
+        RtMidiLibrary.getInstance().rtmidi_open_port(ptr, info.getNumber(), info.getName());
         this.isOpen = true;
         this.isVirtual = false;
     }
@@ -42,6 +43,8 @@ public abstract class MidiPort {
 
     public boolean isVirtual() { return isVirtual; }
 
+    protected RtMidiPtr getWrapper() { return this.wrapper; }
+
     @Override
     public String toString() {
         return "MidiPort{" +
@@ -50,6 +53,8 @@ public abstract class MidiPort {
                 ", isVirtual=" + isVirtual +
                 '}';
     }
+
+    public abstract void open(Info info);
 
     public abstract void destroy();
 

@@ -10,8 +10,12 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -29,11 +33,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests all 22 of the exported native C functions from the RtMidi library found in {@link RtMidiLibrary}
  */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestRtMidiLibrary {
 
     private static RtMidiLibrary lib;
 
     private static void log(String message) { System.out.println(message); }
+
+    private static void sleep(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     // TODO: 20/02/2021 Make helper methods to avoid DRY
 
@@ -64,7 +77,8 @@ public class TestRtMidiLibrary {
     @AfterAll
     public static void teardown() {}
 
-    @DisplayName("rtmidi_get_compiled_api")
+    @DisplayName("0 rtmidi_get_compiled_api")
+    @Order(0)
     @Test
     public void testGetCompiledApi() {
         // Using array
@@ -86,7 +100,8 @@ public class TestRtMidiLibrary {
         assertEquals(written, writtenNull);
     }
 
-    @DisplayName("rtmidi_api_name")
+    @DisplayName("1 rtmidi_api_name")
+    @Order(1)
     @Test
     public void testApiName() {
         assertEquals("unspecified", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED));
@@ -97,7 +112,8 @@ public class TestRtMidiLibrary {
         assertEquals("dummy", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
-    @DisplayName("rtmidi_api_display_name")
+    @DisplayName("2 rtmidi_api_display_name")
+    @Order(2)
     @Test
     public void testApiDisplayName() {
         assertEquals("Unknown", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED));
@@ -108,17 +124,15 @@ public class TestRtMidiLibrary {
         assertEquals("Dummy", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
     }
 
-    @DisplayName("rtmidi_compiled_api_by_name")
+    @DisplayName("3 rtmidi_compiled_api_by_name")
+    @Order(3)
     @Test
     public void testCompiledApiByName() {
         int apiNumber = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED;
-        if (Platform.isLinux()) {
-            apiNumber = lib.rtmidi_compiled_api_by_name("alsa");
-        } else if (Platform.isMac()) {
-            apiNumber = lib.rtmidi_compiled_api_by_name("core");
-        } else if (Platform.isWindows()) {
-            apiNumber = lib.rtmidi_compiled_api_by_name("winmm");
-        }
+        if (Platform.isLinux()) apiNumber = lib.rtmidi_compiled_api_by_name("alsa");
+        else if (Platform.isMac()) apiNumber = lib.rtmidi_compiled_api_by_name("core");
+        else if (Platform.isWindows()) apiNumber = lib.rtmidi_compiled_api_by_name("winmm");
+
         assertNotEquals(apiNumber, RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED);
 
         RtMidiApi api = RtMidiApi.fromInt(apiNumber);
@@ -126,7 +140,8 @@ public class TestRtMidiLibrary {
         assertEquals(apiNumber, api.getNumber());
     }
 
-    @DisplayName("rtmidi_open_port")
+    @DisplayName("4 rtmidi_open_port")
+    @Order(4)
     @Test
     public void testOpenPort() {
         RtMidiInPtr in = inCreateDefault();
@@ -182,7 +197,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_open_virtual_port")
+    @DisplayName("5 rtmidi_open_virtual_port")
+    @Order(5)
     @Test
     public void testOpenVirtualPort() {
         Assumptions.assumeTrue(RtMidi.supportsVirtualPorts(),
@@ -242,15 +258,39 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @Disabled
-    @DisplayName("rtmidi_close_port")
+    @DisplayName("6 rtmidi_close_port")
+    @Order(6)
     @Test
     public void testClosePort() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_close_port(null);
+        RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
+
+        int inPortCount = lib.rtmidi_get_port_count(in);
+        int outPortCount = lib.rtmidi_get_port_count(out);
+
+        assertTrue(inPortCount > 0);
+        assertTrue(outPortCount > 0);
+
+        // Open an in port with a unique name!
+        String inPortName = inPortName();
+
+        lib.rtmidi_open_port(in, 0, inPortName);
+
+        int newOutPortCount = lib.rtmidi_get_port_count(out);
+
+        assertNotEquals(outPortCount, newOutPortCount);
+        assertEquals(outPortCount + 1, newOutPortCount);
+
+        lib.rtmidi_close_port(in);
+        lib.rtmidi_in_free(in); // necessary to truly close!
+
+        assertEquals(outPortCount, lib.rtmidi_get_port_count(out));
+
+        lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_get_port_count")
+    @DisplayName("7 rtmidi_get_port_count")
+    @Order(7)
     @Test
     public void testGetPortCount() {
         RtMidiInPtr in = inCreateDefault();
@@ -266,7 +306,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_get_port_name")
+    @DisplayName("8 rtmidi_get_port_name")
+    @Order(8)
     @Test
     public void testGetPortName() {
         RtMidiInPtr in = inCreateDefault();
@@ -292,7 +333,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_in_create_default")
+    @DisplayName("9 rtmidi_in_create_default")
+    @Order(9)
     @Test
     public void testInCreateDefault() {
         RtMidiInPtr in = lib.rtmidi_in_create_default();
@@ -301,7 +343,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_in_free(in);
     }
 
-    @DisplayName("rtmidi_in_create")
+    @DisplayName("10 rtmidi_in_create")
+    @Order(10)
     @Test
     public void testInCreate() {
         int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
@@ -317,7 +360,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_in_free(in);
     }
 
-    @DisplayName("rtmidi_in_free")
+    @DisplayName("11 rtmidi_in_free")
+    @Order(11)
     @Test
     public void testInFree() {
         RtMidiInPtr in = inCreateDefault();
@@ -335,7 +379,8 @@ public class TestRtMidiLibrary {
         // doing anything with `in` should cause a fatal error SIGSEGV (ie segfault)
     }
 
-    @DisplayName("rtmidi_in_get_current_api")
+    @DisplayName("12 rtmidi_in_get_current_api")
+    @Order(12)
     @Test
     public void testInGetCurrentApi() {
         int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
@@ -356,10 +401,17 @@ public class TestRtMidiLibrary {
     }
 
     @Disabled
-    @DisplayName("rtmidi_in_set_callback")
+    @DisplayName("13 rtmidi_in_set_callback")
+    @Order(13)
     @Test
     public void testInSetCallback() {
         RtMidiInPtr in = inCreateDefault();
+        RtMidiOutPtr out = outCreateDefault();
+
+        // Open an in port with a unique name!
+        String inPortName = inPortName();
+
+        lib.rtmidi_open_port(in, 0, inPortName);
 
         // TODO: 20/02/2021 Implement
 
@@ -367,13 +419,20 @@ public class TestRtMidiLibrary {
 
         };
 
-        lib.rtmidi_in_set_callback(null, null, null);
+        lib.rtmidi_in_set_callback(in, callback, null);
+
+        // TODO: 21/02/2021 Get a midi out port and send a message to it, assert the callback received it
+
+        log(Arrays.toString(RtMidi.midiInPorts()));
+        log(Arrays.toString(RtMidi.midiOutPorts()));
 
         lib.rtmidi_in_free(in);
+        lib.rtmidi_out_free(out);
     }
 
     @Disabled
-    @DisplayName("rtmidi_in_cancel_callback")
+    @DisplayName("14 rtmidi_in_cancel_callback")
+    @Order(14)
     @Test
     public void testInCancelCallback() {
         // TODO: 20/02/2021 Implement
@@ -381,22 +440,27 @@ public class TestRtMidiLibrary {
     }
 
     @Disabled
-    @DisplayName("rtmidi_in_ignore_types")
+    @DisplayName("15 rtmidi_in_ignore_types")
+    @Order(15)
     @Test
     public void testInIgnoreTypes() {
         // TODO: 20/02/2021 Implement
         lib.rtmidi_in_ignore_types(null, false, false, false);
+        // TODO: 21/02/2021 Send these types of messages and assert they both got sent
+        //  and received and got sent and ignored
     }
 
     @Disabled
-    @DisplayName("rtmidi_in_get_message")
+    @DisplayName("16 rtmidi_in_get_message")
+    @Order(16)
     @Test
     public void testInGetMessage() {
         // TODO: 20/02/2021 Implement
         lib.rtmidi_in_get_message(null, null, null);
     }
 
-    @DisplayName("rtmidi_out_create_default")
+    @DisplayName("17 rtmidi_out_create_default")
+    @Order(17)
     @Test
     public void testOutCreateDefault() {
         RtMidiOutPtr out = lib.rtmidi_out_create_default();
@@ -405,7 +469,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_out_create")
+    @DisplayName("18 rtmidi_out_create")
+    @Order(18)
     @Test
     public void testOutCreate() {
         int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
@@ -420,7 +485,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_out_free")
+    @DisplayName("19 rtmidi_out_free")
+    @Order(19)
     @Test
     public void testOutFree() {
         RtMidiOutPtr out = outCreateDefault();
@@ -438,7 +504,8 @@ public class TestRtMidiLibrary {
         // doing anything with `out` should cause a fatal error SIGSEGV (ie segfault)
     }
 
-    @DisplayName("rtmidi_out_get_current_api")
+    @DisplayName("20 rtmidi_out_get_current_api")
+    @Order(20)
     @Test
     public void testOutGetCurrentApi() {
         int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
@@ -458,7 +525,8 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @DisplayName("rtmidi_out_send_message")
+    @DisplayName("21 rtmidi_out_send_message")
+    @Order(21)
     @Test
     public void testOutSendMessage() {
         RtMidiInPtr in = inCreateDefault();
@@ -498,7 +566,7 @@ public class TestRtMidiLibrary {
 
         // send the out message
 
-        int[] message = new int[]{69, 69, 69};
+        byte[] message = new byte[]{69, 69, 69};
 
         int sent = lib.rtmidi_out_send_message(out, message, message.length);
 
@@ -506,9 +574,9 @@ public class TestRtMidiLibrary {
 
         // get the in message and assert they are equal
 
-        int[] receivedMessage = new int[]{-1, -1, -1};
+        byte[] receivedMessage = new byte[]{-1, -1, -1};
 
-        double got = lib.rtmidi_in_get_message(in, receivedMessage,
+        double got = lib.rtmidi_in_get_message(in, ByteBuffer.wrap(receivedMessage),
                 new RtMidiLibrary.NativeSizeByReference(receivedMessage.length));
 
         assertTrue(got != -1);

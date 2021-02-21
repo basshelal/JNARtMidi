@@ -19,6 +19,11 @@ public class MidiOutPort extends MidiPort {
     }
 
     @Override
+    public void open(Info info) {
+        this.open(this.wrapper, info);
+    }
+
+    @Override
     public void destroy() {
         RtMidiLibrary.getInstance().rtmidi_out_free(wrapper);
     }
@@ -35,7 +40,7 @@ public class MidiOutPort extends MidiPort {
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
-        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, null, 3);
+        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, this.messageBuffer, 3);
     }
 
 }

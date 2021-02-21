@@ -38,12 +38,12 @@ public class RtMidiPtr extends Structure {
 
     public RtMidiPtr(Pointer peer) { super(peer); }
 
-    public RtMidiPtr(RtMidiPtr wrapper) {
-        this(wrapper.getPointer());
-        this.ptr = wrapper.ptr;
-        this.data = wrapper.data;
-        this.ok = wrapper.ok;
-        this.msg = wrapper.msg;
+    public RtMidiPtr(RtMidiPtr other) {
+        this(other.getPointer());
+        this.ptr = other.ptr;
+        this.data = other.data;
+        this.ok = other.ok;
+        this.msg = other.msg;
     }
 
 }

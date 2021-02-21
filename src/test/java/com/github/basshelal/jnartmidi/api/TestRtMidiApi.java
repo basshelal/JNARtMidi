@@ -109,12 +109,18 @@ public class TestRtMidiApi {
 
         MidiInPort korg = new MidiInPort(RtMidi.midiInPorts()[3]);
         korg.open();
-        korg.setCallback((message, deltaTime) -> {
-            System.out.println(Arrays.toString(message) + "\tKORG");
-        });
+//        korg.setCallback((message, deltaTime) -> {
+//            System.out.println(Arrays.toString(message) + "\tKORG");
+//        });
 
+        Thread.sleep(5000);
 
-        Thread.sleep(Long.MAX_VALUE);
+        korg.getMessage(new byte[3]);
+        korg.getMessage(new byte[3]);
+
+        //  System.out.println(Arrays.toString(buf));
+
+        //  Thread.sleep(Long.MAX_VALUE);
     }
 
 }

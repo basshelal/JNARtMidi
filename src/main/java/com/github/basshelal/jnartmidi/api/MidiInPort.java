@@ -4,6 +4,9 @@ import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import com.sun.jna.Pointer;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 public class MidiInPort extends MidiPort {
 
     private RtMidiLibrary.RtMidiCCallback cCallback;
@@ -21,6 +24,11 @@ public class MidiInPort extends MidiPort {
     public MidiInPort(RtMidiApi api, String name, int queueSizeLimit, Info info) {
         super(info);
         this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create(api.getNumber(), name, queueSizeLimit);
+    }
+
+    @Override
+    public void open(Info info) {
+        this.open(this.wrapper, info);
     }
 
     @Override
@@ -92,10 +100,27 @@ public class MidiInPort extends MidiPort {
 
     // TODO: 18/02/2021 Check!
     public double getMessage(byte[] buffer) {
-        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, null,
+        ByteBuffer buff = ByteBuffer.wrap(buffer);
+        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, buff,
                 new RtMidiLibrary.NativeSizeByReference(buffer.length));
+        System.out.println(Arrays.toString(buffer));
+
+        /*
+         * The behavior of getMessage is weird,
+         * Essentially, it gets the messages from the queue in FIFO order
+         * that is if I do 6 then 9 then 0, getMessage will return 6, then if
+         * called again 9 then if called again 0, if there is no remaining message the buffer
+         * is left unchanged.
+         *
+         * This is... weird and not very useful at all, but the current signature for
+         * native getMessage works at least
+         */
+
         return result;
     }
+
+    @Override
+    public RtMidiInPtr getWrapper() { return this.wrapper; }
 
     public interface ArrayCallback {
         // RealTimeCritical
