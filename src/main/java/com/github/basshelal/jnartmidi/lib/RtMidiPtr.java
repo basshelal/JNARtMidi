@@ -4,8 +4,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
- * ! \brief Wraps an RtMidi object for C function return statuses.<br>
- * <i>native declaration : rtmidi_c.h:7</i><br>
+ * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
  */
 @Structure.FieldOrder({"ptr", "data", "ok", "msg"})
 public class RtMidiPtr extends Structure {

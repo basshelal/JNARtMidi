@@ -6,31 +6,29 @@ import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 public class MidiOutPort extends MidiPort {
 
     private byte[] messageBuffer;
-    private final RtMidiOutPtr wrapper;
+    private final RtMidiOutPtr ptr;
 
     public MidiOutPort(Info info) {
         super(info);
-        this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
     }
 
     public MidiOutPort(RtMidiApi api, String name, Info info) {
         super(info);
-        this.wrapper = RtMidiLibrary.getInstance().rtmidi_out_create(api.getNumber(), name);
+        this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create(api.getNumber(), name);
     }
 
     @Override
-    public void open(Info info) {
-        this.open(this.wrapper, info);
-    }
+    public void open(Info info) { this.open(this.ptr, info); }
 
     @Override
     public void destroy() {
-        RtMidiLibrary.getInstance().rtmidi_out_free(wrapper);
+        RtMidiLibrary.getInstance().rtmidi_out_free(ptr);
     }
 
     @Override
     public RtMidiApi getApi() {
-        int result = RtMidiLibrary.getInstance().rtmidi_out_get_current_api(wrapper);
+        int result = RtMidiLibrary.getInstance().rtmidi_out_get_current_api(ptr);
         return RtMidiApi.fromInt(result);
     }
 
@@ -40,7 +38,7 @@ public class MidiOutPort extends MidiPort {
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
-        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.wrapper, this.messageBuffer, 3);
+        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, 3);
     }
 
 }

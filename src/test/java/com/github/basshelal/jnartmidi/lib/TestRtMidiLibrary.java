@@ -19,11 +19,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
 import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
-import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.getInstance;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -48,19 +48,20 @@ public class TestRtMidiLibrary {
         }
     }
 
-    // TODO: 20/02/2021 Make helper methods to avoid DRY
+    private void checkPtrOk(RtMidiPtr ptr) {
+        assertNotNull(ptr);
+        assertTrue(ptr.ok);
+    }
 
     private RtMidiInPtr inCreateDefault() {
         RtMidiInPtr in = lib.rtmidi_in_create_default();
-        assertNotNull(in);
-        assertTrue(in.ok);
+        checkPtrOk(in);
         return in;
     }
 
     private RtMidiOutPtr outCreateDefault() {
         RtMidiOutPtr out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        checkPtrOk(out);
         return out;
     }
 
@@ -71,7 +72,7 @@ public class TestRtMidiLibrary {
     @BeforeAll
     public static void setup() {
         RtMidiLibraryLoader.addSearchPath("bin/" + Platform.RESOURCE_PREFIX);
-        lib = getInstance();
+        lib = RtMidiLibrary.getInstance();
     }
 
     @AfterAll
@@ -351,12 +352,22 @@ public class TestRtMidiLibrary {
         int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
         assertTrue(totalApis > 0);
 
-        String clientName = "Test JNARtMidi Client";
-        int queueSizeLimit = 1024;
+        RtMidiInPtr in = lib.rtmidi_in_create(apis[0], "Test JNARtMidi Client", 1024);
+        checkPtrOk(in);
+        lib.rtmidi_in_free(in);
+    }
 
-        RtMidiInPtr in = lib.rtmidi_in_create(apis[0], clientName, queueSizeLimit);
-        assertNotNull(in);
-        assertTrue(in.ok);
+    @DisplayName("10.1 rtmidi_in_create no args")
+    @Order(10)
+    @Test
+    public void testInCreateNoArgs() {
+        int[] apis = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
+        int totalApis = lib.rtmidi_get_compiled_api(apis, apis.length);
+        assertTrue(totalApis > 0);
+
+        RtMidiInPtr in = lib.rtmidi_in_create(0, "", 0);
+
+        checkPtrOk(in);
         lib.rtmidi_in_free(in);
     }
 
@@ -376,7 +387,7 @@ public class TestRtMidiLibrary {
         assertNotEquals(copy.ptr, in.ptr);
         assertNotEquals(copy.data, in.data);
 
-        // doing anything with `in` should cause a fatal error SIGSEGV (ie segfault)
+        // using `in` should cause a fatal error SIGSEGV (ie segfault)
     }
 
     @DisplayName("12 rtmidi_in_get_current_api")
@@ -408,23 +419,31 @@ public class TestRtMidiLibrary {
         RtMidiInPtr in = inCreateDefault();
         RtMidiOutPtr out = outCreateDefault();
 
-        // Open an in port with a unique name!
+        String outPortName = outPortName();
+        lib.rtmidi_open_port(out, 0, outPortName);
         String inPortName = inPortName();
-
         lib.rtmidi_open_port(in, 0, inPortName);
 
-        // TODO: 20/02/2021 Implement
+        // TODO: 21/02/2021 Implement!
+
+        byte[] sentMessage = new byte[]{69, 69, 69};
+        AtomicBoolean messageReceived = new AtomicBoolean(false);
 
         RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
-
+            System.out.println(message);
+            for (int i = 0; i < messageSize.intValue(); i++)
+                assertEquals(sentMessage[i], message.getByte(i));
+            messageReceived.set(true);
         };
 
         lib.rtmidi_in_set_callback(in, callback, null);
 
-        // TODO: 21/02/2021 Get a midi out port and send a message to it, assert the callback received it
+        lib.rtmidi_out_send_message(out, sentMessage, sentMessage.length);
 
         log(Arrays.toString(RtMidi.midiInPorts()));
         log(Arrays.toString(RtMidi.midiOutPorts()));
+
+        assertTrue(messageReceived.get());
 
         lib.rtmidi_in_free(in);
         lib.rtmidi_out_free(out);
@@ -464,8 +483,7 @@ public class TestRtMidiLibrary {
     @Test
     public void testOutCreateDefault() {
         RtMidiOutPtr out = lib.rtmidi_out_create_default();
-        assertNotNull(out);
-        assertTrue(out.ok);
+        checkPtrOk(out);
         lib.rtmidi_out_free(out);
     }
 
@@ -480,8 +498,7 @@ public class TestRtMidiLibrary {
         String clientName = "Test JNARtMidi Client";
 
         RtMidiOutPtr out = lib.rtmidi_out_create(apis[0], clientName);
-        assertNotNull(out);
-        assertTrue(out.ok);
+        checkPtrOk(out);
         lib.rtmidi_out_free(out);
     }
 
@@ -501,7 +518,7 @@ public class TestRtMidiLibrary {
         assertNotEquals(copy.ptr, out.ptr);
         assertNotEquals(copy.data, out.data);
 
-        // doing anything with `out` should cause a fatal error SIGSEGV (ie segfault)
+        /// using `out` should cause a fatal error SIGSEGV (ie segfault)
     }
 
     @DisplayName("20 rtmidi_out_get_current_api")
@@ -525,6 +542,7 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
+    @Disabled
     @DisplayName("21 rtmidi_out_send_message")
     @Order(21)
     @Test

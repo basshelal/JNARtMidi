@@ -14,32 +14,30 @@ public class MidiInPort extends MidiPort {
     private MidiMessageCallback midiMessageCallback;
     private int[] messageBuffer;
     private MidiMessage midiMessage;
-    private final RtMidiInPtr wrapper;
+    private final RtMidiInPtr ptr;
 
     public MidiInPort(Info info) {
         super(info);
-        this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+        this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
     }
 
-    public MidiInPort(RtMidiApi api, String name, int queueSizeLimit, Info info) {
+    public MidiInPort(RtMidiApi api, String name, Info info) {
         super(info);
-        this.wrapper = RtMidiLibrary.getInstance().rtmidi_in_create(api.getNumber(), name, queueSizeLimit);
+        this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create(api.getNumber(), name, 0);
     }
 
     @Override
-    public void open(Info info) {
-        this.open(this.wrapper, info);
-    }
+    public void open(Info info) { this.open(this.ptr, info); }
 
     @Override
     public void destroy() {
         this.removeCallback();
-        RtMidiLibrary.getInstance().rtmidi_in_free(this.wrapper);
+        RtMidiLibrary.getInstance().rtmidi_in_free(this.ptr);
     }
 
     @Override
     public RtMidiApi getApi() {
-        int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.wrapper);
+        int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.ptr);
         return RtMidiApi.fromInt(result);
     }
 
@@ -52,7 +50,7 @@ public class MidiInPort extends MidiPort {
     public void setCallback(RtMidiLibrary.RtMidiCCallback callback) {
         this.checkHasCallback();
         this.cCallback = callback;
-        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.wrapper, this.cCallback, null);
+        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
     }
 
     public void setCallback(ArrayCallback callback) {
@@ -71,7 +69,7 @@ public class MidiInPort extends MidiPort {
             }
             this.arrayCallback.invoke(this.messageBuffer, timeStamp);
         };
-        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.wrapper, this.cCallback, null);
+        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
     }
 
     public void setCallback(MidiMessageCallback callback) {
@@ -82,11 +80,11 @@ public class MidiInPort extends MidiPort {
                           final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
             // TODO: 18/02/2021 Implement!
         };
-        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.wrapper, this.cCallback, null);
+        RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
     }
 
     public void removeCallback() {
-        RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(this.wrapper);
+        RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(this.ptr);
         this.messageBuffer = null;
         this.cCallback = null;
         this.arrayCallback = null;
@@ -95,13 +93,13 @@ public class MidiInPort extends MidiPort {
     }
 
     public void ignoreTypes(boolean midiSysex, boolean midiTime, boolean midiSense) {
-        RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.wrapper, midiSysex, midiTime, midiSense);
+        RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.ptr, midiSysex, midiTime, midiSense);
     }
 
     // TODO: 18/02/2021 Check!
     public double getMessage(byte[] buffer) {
         ByteBuffer buff = ByteBuffer.wrap(buffer);
-        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.wrapper, buff,
+        double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.ptr, buff,
                 new RtMidiLibrary.NativeSizeByReference(buffer.length));
         System.out.println(Arrays.toString(buffer));
 
@@ -118,9 +116,6 @@ public class MidiInPort extends MidiPort {
 
         return result;
     }
-
-    @Override
-    public RtMidiInPtr getWrapper() { return this.wrapper; }
 
     public interface ArrayCallback {
         // RealTimeCritical

@@ -85,7 +85,7 @@ public class TestRtMidiApi {
 
         port.open();
 
-        MidiInPort port1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "MY INPUT", 1000, infos[2]);
+        MidiInPort port1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "MY INPUT", infos[2]);
 
         port1.open();
 

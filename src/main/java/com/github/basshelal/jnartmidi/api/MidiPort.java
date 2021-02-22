@@ -16,7 +16,7 @@ public abstract class MidiPort {
     public MidiPort(Info info) { this.info = info; }
 
     protected void open(RtMidiPtr ptr, Info info) {
-        assert (ptr != null);
+        if (ptr == null) throw new IllegalArgumentException("RtMidiPtr cannot be null!");
         RtMidiLibrary.getInstance().rtmidi_open_port(ptr, info.getNumber(), info.getName());
         this.isOpen = true;
         this.isVirtual = false;
@@ -32,6 +32,9 @@ public abstract class MidiPort {
     }
 
     public void close() {
+        // TODO: 22/02/2021 After close call free, the problem is the port is now unusable, so we need to recreate it
+        //  after we freed it, so that we: close the port truly and yet can still do stuff with the port again
+        //  without creating a new one
         RtMidiLibrary.getInstance().rtmidi_close_port(wrapper);
         this.isOpen = false;
         this.isVirtual = false;
@@ -42,8 +45,6 @@ public abstract class MidiPort {
     public boolean isOpen() { return isOpen; }
 
     public boolean isVirtual() { return isVirtual; }
-
-    protected RtMidiPtr getWrapper() { return this.wrapper; }
 
     @Override
     public String toString() {
