@@ -59,10 +59,11 @@ public abstract class MidiPort<P extends RtMidiPtr> {
     //region Concrete Functions
 
     public void open(Info info) {
-        checkIsDestroyed();
+        this.checkIsDestroyed();
         requireNonNull(info, "info cannot be null!");
-        preventSegfault();
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_open_port(this.ptr, info.getNumber(), info.getName());
+        this.checkErrors();
         this.isOpen = true;
         this.isVirtual = false;
     }
@@ -81,6 +82,7 @@ public abstract class MidiPort<P extends RtMidiPtr> {
             throw new RtMidiException("Platform " + Platform.RESOURCE_PREFIX + " does not support virtual ports");
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_open_virtual_port(this.ptr, name);
+        this.checkErrors();
         this.isOpen = true;
         this.isVirtual = true;
     }
@@ -89,11 +91,16 @@ public abstract class MidiPort<P extends RtMidiPtr> {
         this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
+        this.checkErrors();
         this.isOpen = false;
         this.isVirtual = false;
         this.destroy();
         this.createPtr();
     }
+
+    //endregion Concrete Functions
+
+    //region Helper Functions
 
     /**
      * Call this before any call to {@link RtMidiLibrary#getInstance()}.
@@ -110,7 +117,17 @@ public abstract class MidiPort<P extends RtMidiPtr> {
                     + this.toString() + "\nhas already been destroyed");
     }
 
-    //endregion Concrete Functions
+    /**
+     * Call this after any call to {@link RtMidiLibrary#getInstance()}.
+     *
+     * @throws RtMidiException if RtMidi reported that something went wrong
+     */
+    protected final void checkErrors() throws RtMidiException {
+        if (this.ptr != null && !this.ptr.ok)
+            throw new RtMidiException("An error occurred in the native code of RtMidi\n" + this.ptr.msg);
+    }
+
+    //endregion Helper Functions
 
     //region Getters
 

@@ -42,6 +42,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.removeCallback();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_free(this.ptr);
+        this.checkErrors();
         this.isDestroyed = true;
     }
 
@@ -50,6 +51,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.checkIsDestroyed();
         this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.ptr);
+        this.checkErrors();
         return RtMidiApi.fromInt(result);
     }
 
@@ -58,6 +60,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         if (this.api != null && this.clientName != null)
             this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create(this.api.getNumber(), this.clientName, DEFAULT_QUEUE_SIZE_LIMIT);
         else this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+        this.checkErrors();
         this.isDestroyed = false;
     }
 
@@ -80,6 +83,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         };
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
+        this.checkErrors();
     }
 
     public void setCallback(MidiMessageCallback callback) {
@@ -95,12 +99,14 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         };
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
+        this.checkErrors();
     }
 
     public void removeCallback() {
         this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(this.ptr);
+        this.checkErrors();
         this.messageBuffer = null;
         this.cCallback = null;
         this.arrayCallback = null;
@@ -112,15 +118,19 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.ptr, midiSysex, midiTime, midiSense);
+        this.checkErrors();
     }
 
     // TODO: 18/02/2021 Check! Possibly remove in favor of callbacks!
     //  if we keep this make another with a MidiMessage type
     public double getMessage(byte[] buffer) {
+        this.checkIsDestroyed();
+        this.preventSegfault();
         ByteBuffer buff = ByteBuffer.wrap(buffer);
         double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.ptr, buff,
                 new RtMidiLibrary.NativeSizeByReference(buffer.length));
         System.out.println(Arrays.toString(buffer));
+        this.checkErrors();
 
         /*
          * The behavior of getMessage is weird,

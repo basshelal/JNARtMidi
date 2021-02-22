@@ -26,6 +26,7 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
         this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_out_free(this.ptr);
+        this.checkErrors();
         this.isDestroyed = true;
     }
 
@@ -34,6 +35,7 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
         this.checkIsDestroyed();
         this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_out_get_current_api(ptr);
+        this.checkErrors();
         return RtMidiApi.fromInt(result);
     }
 
@@ -42,6 +44,7 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
         if (this.api != null && this.clientName != null)
             this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create(this.api.getNumber(), this.clientName);
         else this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        this.checkErrors();
         this.isDestroyed = false;
     }
 
@@ -53,7 +56,9 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
-        return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, 3);
+        int result = RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, 3);
+        this.checkErrors();
+        return result;
     }
 
     public void sendMessage(MidiMessage midiMessage) {
