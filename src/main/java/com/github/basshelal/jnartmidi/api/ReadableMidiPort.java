@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import static java.util.Objects.requireNonNull;
 
+// TODO: 22/02/2021 Move as much as possible upwards to MidiPort
 public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
     public static final int DEFAULT_QUEUE_SIZE_LIMIT = 100;
@@ -31,7 +32,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.createPtr();
     }
 
-    public ReadableMidiPort(RtMidiApi api, String clientName, Info portInfo) {
+    public ReadableMidiPort(Info portInfo, RtMidiApi api, String clientName) {
         super(portInfo);
         this.api = requireNonNull(api, "Constructor parameter api cannot be null!");
         this.clientName = requireNonNull(clientName, "Constructor parameter clientName cannot be null!");
@@ -45,7 +46,15 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     }
 
     @Override
+    public void openVirtual(String name) throws RtMidiException {
+        super.openVirtual(name);
+    }
+
+    @Override
     public void close() {
+        this.removeCallback();
+        this.checkIsDestroyed();
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
         this.isOpen = false;
         this.isVirtual = false;
@@ -56,7 +65,9 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
     @Override
     public void destroy() {
+        this.checkIsDestroyed();
         this.removeCallback();
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_free(this.ptr);
         this.isDestroyed = true;
     }
@@ -64,41 +75,50 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     @Override
     public RtMidiApi getApi() {
         this.checkIsDestroyed();
+        this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.ptr);
         return RtMidiApi.fromInt(result);
     }
 
     public void setCallback(ArrayCallback callback) {
+        this.checkIsDestroyed();
         this.checkHasCallback();
         this.arrayCallback = callback;
-        // prevent memalloc in callback by guessing buffer size
-        this.messageBuffer = new int[3];
+        this.messageBuffer = new int[3]; // prevent memalloc in callback by guessing buffer size
         this.cCallback = (final double timeStamp, final Pointer message,
                           final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
+            if (message == null || messageSize == null) return; // prevent NPE or worse segfault
             // memalloc in realtime code! Dangerous but necessary and extremely rare
             if (this.messageBuffer == null || this.messageBuffer.length < messageSize.intValue())
                 this.messageBuffer = new int[messageSize.intValue()];
             for (int i = 0; i < messageSize.intValue(); i++) {
-                if (i == 0) this.messageBuffer[i] = message.getByte(i) & 0xF0;
-                else this.messageBuffer[i] = message.getByte(i);
+                if (i == 0) this.messageBuffer[i] = message.getByte(i) & 0xF0; // fix status byte
+                else this.messageBuffer[i] = message.getByte(i); // data bytes are correct
             }
             this.arrayCallback.onMessage(this.messageBuffer, timeStamp);
         };
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
     }
 
     public void setCallback(MidiMessageCallback callback) {
+        this.checkIsDestroyed();
         this.checkHasCallback();
         this.midiMessageCallback = callback;
         this.midiMessage = new MidiMessage();
         this.cCallback = (final double timeStamp, final Pointer message,
                           final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
+            if (message == null || messageSize == null) return; // prevent NPE or worse segfault
             // TODO: 18/02/2021 Implement!
+            this.midiMessageCallback.onMessage(this.midiMessage);
         };
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
     }
 
     public void removeCallback() {
+        this.checkIsDestroyed();
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(this.ptr);
         this.messageBuffer = null;
         this.cCallback = null;
@@ -108,6 +128,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     }
 
     public void ignoreTypes(boolean midiSysex, boolean midiTime, boolean midiSense) {
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.ptr, midiSysex, midiTime, midiSense);
     }
 

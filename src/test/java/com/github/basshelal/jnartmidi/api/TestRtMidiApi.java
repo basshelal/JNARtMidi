@@ -91,7 +91,7 @@ public class TestRtMidiApi {
 
         System.out.println("C");
 
-        ReadableMidiPort port1 = new ReadableMidiPort(RtMidiApi.LINUX_ALSA, "MY INPUT", infos.get(2));
+        ReadableMidiPort port1 = new ReadableMidiPort(infos.get(2), RtMidiApi.LINUX_ALSA, "MY INPUT");
 
         System.out.println("D");
 

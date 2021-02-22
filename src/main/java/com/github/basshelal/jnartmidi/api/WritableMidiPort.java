@@ -21,6 +21,14 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
     public void open(Info info) { this.open(this.ptr, info); }
 
     @Override
+    public void close() {
+        // TODO: 22/02/2021 Implement!
+        RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
+        this.isOpen = false;
+        this.isVirtual = false;
+    }
+
+    @Override
     public void destroy() {
         RtMidiLibrary.getInstance().rtmidi_out_free(ptr);
     }

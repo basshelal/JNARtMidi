@@ -2,6 +2,7 @@ package com.github.basshelal.jnartmidi.api;
 
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
+import com.sun.jna.Platform;
 
 import java.util.Objects;
 
@@ -27,23 +28,20 @@ public abstract class MidiPort<P extends RtMidiPtr> {
         this.isVirtual = false;
     }
 
+    protected void preventSegfault() { requireNonNull(this.ptr, "ptr cannot be null!"); }
+
     public void open() { this.open(this.getInfo()); }
 
-    public void openVirtual(String name) {
-        // TODO: 18/02/2021 Fail if unsupported ie Windows
-        RtMidiLibrary.getInstance().rtmidi_open_virtual_port(ptr, name);
+    public void openVirtual(String name) throws RtMidiException {
+        if (!RtMidi.supportsVirtualPorts())
+            throw new RtMidiException("Platform " + Platform.RESOURCE_PREFIX + " does not support virtual ports");
+        requireNonNull(this.ptr);
+        RtMidiLibrary.getInstance().rtmidi_open_virtual_port(this.ptr, name);
         this.isOpen = true;
         this.isVirtual = true;
     }
 
-    public void close() {
-        // TODO: 22/02/2021 After close call free, the problem is the port is now unusable, so we need to recreate it
-        //  after we freed it, so that we: close the port truly and yet can still do stuff with the port again
-        //  without creating a new one
-        RtMidiLibrary.getInstance().rtmidi_close_port(ptr);
-        this.isOpen = false;
-        this.isVirtual = false;
-    }
+    public abstract void close();
 
     public Info getInfo() { return info; }
 
