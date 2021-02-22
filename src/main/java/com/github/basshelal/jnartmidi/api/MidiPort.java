@@ -5,18 +5,23 @@ import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
 
 import java.util.Objects;
 
-public abstract class MidiPort {
+import static java.util.Objects.requireNonNull;
+
+public abstract class MidiPort<P extends RtMidiPtr> {
 
     protected final Info info;
     protected boolean isOpen = false;
     protected boolean isVirtual = false;
 
-    protected RtMidiPtr wrapper;
+    protected P ptr;
 
-    public MidiPort(Info info) { this.info = info; }
+    public MidiPort(Info info) {
+        this.info = requireNonNull(info, "Constructor parameter info cannot be null!");
+    }
 
     protected void open(RtMidiPtr ptr, Info info) {
-        if (ptr == null) throw new IllegalArgumentException("RtMidiPtr cannot be null!");
+        requireNonNull(ptr, "ptr cannot be null!");
+        requireNonNull(info, "info cannot be null!");
         RtMidiLibrary.getInstance().rtmidi_open_port(ptr, info.getNumber(), info.getName());
         this.isOpen = true;
         this.isVirtual = false;
@@ -26,7 +31,7 @@ public abstract class MidiPort {
 
     public void openVirtual(String name) {
         // TODO: 18/02/2021 Fail if unsupported ie Windows
-        RtMidiLibrary.getInstance().rtmidi_open_virtual_port(wrapper, name);
+        RtMidiLibrary.getInstance().rtmidi_open_virtual_port(ptr, name);
         this.isOpen = true;
         this.isVirtual = true;
     }
@@ -35,7 +40,7 @@ public abstract class MidiPort {
         // TODO: 22/02/2021 After close call free, the problem is the port is now unusable, so we need to recreate it
         //  after we freed it, so that we: close the port truly and yet can still do stuff with the port again
         //  without creating a new one
-        RtMidiLibrary.getInstance().rtmidi_close_port(wrapper);
+        RtMidiLibrary.getInstance().rtmidi_close_port(ptr);
         this.isOpen = false;
         this.isVirtual = false;
     }
@@ -98,7 +103,7 @@ public abstract class MidiPort {
                     "}";
         }
 
-        public enum Type {IN, OUT, UNKNOWN}
+        public enum Type {READABLE, WRITABLE, UNKNOWN}
     }
 
 }

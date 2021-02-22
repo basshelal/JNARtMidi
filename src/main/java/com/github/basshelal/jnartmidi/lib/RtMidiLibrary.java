@@ -314,8 +314,20 @@ public interface RtMidiLibrary extends Library {
      *                       to let RtMidi choose the first suitable API
      * @param clientName     Non null client name, this will be used to group the ports that are created by the
      *                       application.
-     * @param queueSizeLimit An optional size of the MIDI input queue can be specified or 0 for unspecified.
+     * @param queueSizeLimit Size of the MIDI input queue, negative values are not allowed and 0 may cause segfaults
+     *                       later on, this allocates a queue of this size so keep it reasonable.
      */
+    // TODO: 22/02/2021 queueSizeLimit is bad...
+    //  basically, it cannot be null (even if using Pointer), cannot be 0 because segfault later and
+    //  if a small number, the message queue limit will be reached which floods our output with error messages saying
+    //  MidiInAlsa: message queue limit reached!!
+    //  using rtmidi_in_create_default() will give a queueSizeLimit of 100
+    //  this is regardless of anything because there is a midi message handler created by the library that pushes
+    //  to the queue and if the queue is full, will output errors,
+    //  Using a large number to avoid flooding is a bad idea because that memory is allocated
+    //  The only thing we can do is allow it to flood our output, a solution would be to have the error logging be
+    //  conditional in the C++ code so that a version can be built where this will be silent
+    // TODO: 22/02/2021 Create a GitHub issue about this
     public RtMidiInPtr rtmidi_in_create(int api, String clientName, int queueSizeLimit);
 
     /**

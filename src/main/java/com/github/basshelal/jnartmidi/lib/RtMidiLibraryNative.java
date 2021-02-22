@@ -40,8 +40,6 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
 
     public native RtMidiInPtr rtmidi_in_create(int api, String clientName, int queueSizeLimit);
 
-    public native RtMidiInPtr rtmidi_in_create(int api, String clientName, Pointer queSizeLimit);
-
     public native void rtmidi_in_free(RtMidiInPtr device);
 
     public native int rtmidi_in_get_current_api(RtMidiInPtr device);

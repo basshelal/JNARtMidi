@@ -1,5 +1,6 @@
 package com.github.basshelal.jnartmidi.api;
 
+import com.github.basshelal.jnartmidi.api.callbacks.ArrayCallback;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Platform;
 
@@ -55,59 +56,75 @@ public class TestRtMidiApi {
     @DisplayName("Available APIs")
     @Test
     public void testAvailableAPIs() throws RtMidiException {
-        RtMidiApi[] apis = RtMidi.getAvailableApis();
-        List<RtMidiApi> list = Arrays.asList(apis);
+        List<RtMidiApi> apis = RtMidi.getAvailableApis();
 
         if (Platform.isLinux()) {
-            assertTrue(list.contains(RtMidiApi.LINUX_ALSA));
+            assertTrue(apis.contains(RtMidiApi.LINUX_ALSA));
             // If Linux and more than 1 then JACK is likely installed
-            if (apis.length > 1) assertTrue(list.contains(RtMidiApi.UNIX_JACK));
+            if (apis.size() > 1) assertTrue(apis.contains(RtMidiApi.UNIX_JACK));
         }
-        if (Platform.isWindows()) assertTrue(list.contains(RtMidiApi.WINDOWS_MM));
-        if (Platform.isMac()) assertTrue(list.contains(RtMidiApi.MACOSX_CORE));
+        if (Platform.isWindows()) assertTrue(apis.contains(RtMidiApi.WINDOWS_MM));
+        if (Platform.isMac()) assertTrue(apis.contains(RtMidiApi.MACOSX_CORE));
     }
 
     @Disabled
     @DisplayName("Midi In Ports")
     @Test
     public void testMidiInPorts() throws InterruptedException {
-        MidiPort.Info[] infos = RtMidi.midiInPorts();
+        List<MidiPort.Info> infos = RtMidi.readableMidiPorts();
 
-        System.out.println("Midi In Ports:");
+        System.out.println("Readable Ports:");
         for (MidiPort.Info info : infos) { System.out.println(info); }
 
-        List<MidiInPort> ports = Arrays.stream(infos).map(MidiInPort::new).collect(Collectors.toList());
+        List<ReadableMidiPort> ports = infos.stream().map(ReadableMidiPort::new).collect(Collectors.toList());
 
         System.out.println("Ports:");
-        for (MidiInPort port : ports) { System.out.println(port); }
+        for (ReadableMidiPort port : ports) { System.out.println(port); }
 
-        MidiInPort port = ports.get(2);
+        System.out.println("A");
+
+        ReadableMidiPort port = ports.get(2);
+
+        System.out.println("B");
 
         port.open();
 
-        MidiInPort port1 = new MidiInPort(RtMidiApi.LINUX_ALSA, "MY INPUT", infos[2]);
+        System.out.println("C");
+
+        ReadableMidiPort port1 = new ReadableMidiPort(RtMidiApi.LINUX_ALSA, "MY INPUT", infos.get(2));
+
+        System.out.println("D");
 
         port1.open();
 
-        MidiOutPort out = new MidiOutPort(RtMidi.midiOutPorts()[1]);
+        System.out.println("E");
+
+        WritableMidiPort out = new WritableMidiPort(RtMidi.writableMidiPorts().get(1));
+
+        System.out.println("F");
+
         out.open();
 
-        MidiInPort.ArrayCallback callback = (message, deltaTime) -> {
+        System.out.println("G");
+
+        ArrayCallback callback = (message, deltaTime) -> {
             System.out.println(Arrays.toString(message));
             out.sendMessage(message);
         };
 
+        System.out.println("H");
+
         port.setCallback(callback);
         // port1.setCallback(callback);
 
-        System.out.println("Midi Out Ports:");
-        for (MidiPort.Info info : RtMidi.midiOutPorts()) { System.out.println(info); }
+        System.out.println("Writable Ports:");
+        for (MidiPort.Info info : RtMidi.writableMidiPorts()) { System.out.println(info); }
 
-        System.out.println("Midi In Ports:");
-        for (MidiPort.Info info : RtMidi.midiInPorts()) { System.out.println(info); }
+        System.out.println("Readable Ports:");
+        for (MidiPort.Info info : RtMidi.readableMidiPorts()) { System.out.println(info); }
 
 
-        MidiInPort korg = new MidiInPort(RtMidi.midiInPorts()[3]);
+        ReadableMidiPort korg = new ReadableMidiPort(RtMidi.readableMidiPorts().get(3));
         korg.open();
 //        korg.setCallback((message, deltaTime) -> {
 //            System.out.println(Arrays.toString(message) + "\tKORG");

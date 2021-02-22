@@ -17,7 +17,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -440,8 +439,8 @@ public class TestRtMidiLibrary {
 
         lib.rtmidi_out_send_message(out, sentMessage, sentMessage.length);
 
-        log(Arrays.toString(RtMidi.midiInPorts()));
-        log(Arrays.toString(RtMidi.midiOutPorts()));
+        log(RtMidi.readableMidiPorts().toString());
+        log(RtMidi.writableMidiPorts().toString());
 
         assertTrue(messageReceived.get());
 
@@ -463,9 +462,8 @@ public class TestRtMidiLibrary {
     @Order(15)
     @Test
     public void testInIgnoreTypes() {
-        // TODO: 20/02/2021 Implement
         lib.rtmidi_in_ignore_types(null, false, false, false);
-        // TODO: 21/02/2021 Send these types of messages and assert they both got sent
+        // TODO: 21/02/2021 Implement! Send these types of messages and assert they both got sent
         //  and received and got sent and ignored
     }
 
@@ -579,8 +577,8 @@ public class TestRtMidiLibrary {
         String inPortName = inPortName();
         lib.rtmidi_open_port(in, inPortIndex, inPortName);
 
-        log(Arrays.toString(RtMidi.midiInPorts()));
-        log(Arrays.toString(RtMidi.midiOutPorts()));
+        log(RtMidi.readableMidiPorts().toString());
+        log(RtMidi.writableMidiPorts().toString());
 
         // send the out message
 
@@ -599,7 +597,7 @@ public class TestRtMidiLibrary {
 
         assertTrue(got != -1);
 
-        // TODO: 21/02/2021 Sending works, getting works but isn't updating the array we're giving it
+        // TODO: 21/02/2021 Implement! Sending works, getting works but isn't updating the array we're giving it
         //  revise it from the beginning because it's likely something earlier on is set wrong
 
         assertArrayEquals(message, receivedMessage);
