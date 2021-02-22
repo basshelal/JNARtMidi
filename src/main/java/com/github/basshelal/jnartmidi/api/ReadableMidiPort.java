@@ -9,12 +9,12 @@ import com.sun.jna.Pointer;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import static java.util.Objects.requireNonNull;
-
-// TODO: 22/02/2021 Move as much as possible upwards to MidiPort
 public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
-    public static final int DEFAULT_QUEUE_SIZE_LIMIT = 100;
+    /**
+     * This is the default queue size RtMidi will use if no size is passed in
+     */
+    private static final int DEFAULT_QUEUE_SIZE_LIMIT = 100;
 
     private RtMidiLibrary.RtMidiCCallback cCallback;
     private ArrayCallback arrayCallback;
@@ -22,46 +22,19 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     private int[] messageBuffer;
     private MidiMessage midiMessage;
 
-    private boolean isDestroyed = false;
+    //region Constructors
 
-    private RtMidiApi api = null;
-    private String clientName = null;
-
-    public ReadableMidiPort(Info portInfo) {
+    public /* constructor */ ReadableMidiPort(Info portInfo) {
         super(portInfo);
         this.createPtr();
     }
 
-    public ReadableMidiPort(Info portInfo, RtMidiApi api, String clientName) {
-        super(portInfo);
-        this.api = requireNonNull(api, "Constructor parameter api cannot be null!");
-        this.clientName = requireNonNull(clientName, "Constructor parameter clientName cannot be null!");
+    public /* constructor */ ReadableMidiPort(Info portInfo, RtMidiApi api, String clientName) {
+        super(portInfo, api, clientName);
         this.createPtr();
     }
 
-    @Override
-    public void open(Info info) {
-        this.checkIsDestroyed();
-        this.open(this.ptr, info);
-    }
-
-    @Override
-    public void openVirtual(String name) throws RtMidiException {
-        super.openVirtual(name);
-    }
-
-    @Override
-    public void close() {
-        this.removeCallback();
-        this.checkIsDestroyed();
-        this.preventSegfault();
-        RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
-        this.isOpen = false;
-        this.isVirtual = false;
-        RtMidiLibrary.getInstance().rtmidi_in_free(this.ptr);
-        this.isDestroyed = true;
-        this.createPtr();
-    }
+    //endregion Constructors
 
     @Override
     public void destroy() {
@@ -78,6 +51,14 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.ptr);
         return RtMidiApi.fromInt(result);
+    }
+
+    @Override
+    protected void createPtr() {
+        if (this.api != null && this.clientName != null)
+            this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create(this.api.getNumber(), this.clientName, DEFAULT_QUEUE_SIZE_LIMIT);
+        else this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
+        this.isDestroyed = false;
     }
 
     public void setCallback(ArrayCallback callback) {
@@ -128,11 +109,13 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     }
 
     public void ignoreTypes(boolean midiSysex, boolean midiTime, boolean midiSense) {
+        this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_ignore_types(this.ptr, midiSysex, midiTime, midiSense);
     }
 
-    // TODO: 18/02/2021 Check!
+    // TODO: 18/02/2021 Check! Possibly remove in favor of callbacks!
+    //  if we keep this make another with a MidiMessage type
     public double getMessage(byte[] buffer) {
         ByteBuffer buff = ByteBuffer.wrap(buffer);
         double result = RtMidiLibrary.getInstance().rtmidi_in_get_message(this.ptr, buff,
@@ -153,23 +136,10 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         return result;
     }
 
-    private void checkIsDestroyed() {
-        if (this.isDestroyed)
-            throw new RtMidiException("Cannot proceed, the ReadableMidiPort:\n"
-                    + this.toString() + "\nhas already been destroyed");
-    }
-
     private void checkHasCallback() throws RtMidiException {
         if (this.cCallback != null || this.arrayCallback != null || this.midiMessageCallback != null)
             throw new RtMidiException("Cannot set callback there is an existing callback registered, " +
                     "call removeCallback() to remove.");
-    }
-
-    private void createPtr() {
-        if (this.api != null && this.clientName != null)
-            this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create(this.api.getNumber(), this.clientName, DEFAULT_QUEUE_SIZE_LIMIT);
-        else this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
-        this.isDestroyed = false;
     }
 
 }

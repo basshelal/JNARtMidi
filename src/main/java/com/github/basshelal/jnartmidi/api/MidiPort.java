@@ -10,38 +10,109 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class MidiPort<P extends RtMidiPtr> {
 
+    protected P ptr;
+
     protected final Info info;
     protected boolean isOpen = false;
     protected boolean isVirtual = false;
+    protected boolean isDestroyed = false;
 
-    protected P ptr;
+    protected RtMidiApi api = null;
+    protected String clientName = null;
 
-    public MidiPort(Info info) {
-        this.info = requireNonNull(info, "Constructor parameter info cannot be null!");
+    //region Constructors
+
+    protected  /* constructor */ MidiPort(Info portInfo) {
+        this.info = requireNonNull(portInfo, "Constructor parameter portInfo cannot be null!");
     }
 
-    protected void open(RtMidiPtr ptr, Info info) {
-        requireNonNull(ptr, "ptr cannot be null!");
+    protected  /* constructor */ MidiPort(Info portInfo, RtMidiApi api, String clientName) {
+        this(portInfo);
+        this.api = requireNonNull(api, "Constructor parameter api cannot be null!");
+        this.clientName = requireNonNull(clientName, "Constructor parameter clientName cannot be null!");
+    }
+
+    //endregion Constructors
+
+    //region Abstract Functions
+
+    /**
+     * Destroys this port such that it can and will no longer be used, attempting to use the port
+     * after this should throw an {@link RtMidiException}, see {@link #checkIsDestroyed()}
+     */
+    public abstract void destroy();
+
+    /**
+     * @return the {@link RtMidiApi} that this port is using
+     */
+    public abstract RtMidiApi getApi();
+
+    /**
+     * Create {@link #ptr} to be used in this port.
+     * Calls either the default create function like {@link RtMidiLibrary#rtmidi_in_create_default} or
+     * the custom function {@link RtMidiLibrary#rtmidi_in_create} depending on how this was constructed
+     */
+    protected abstract void createPtr();
+
+    //endregion Abstract Functions
+
+    //region Concrete Functions
+
+    public void open(Info info) {
+        checkIsDestroyed();
         requireNonNull(info, "info cannot be null!");
-        RtMidiLibrary.getInstance().rtmidi_open_port(ptr, info.getNumber(), info.getName());
+        preventSegfault();
+        RtMidiLibrary.getInstance().rtmidi_open_port(this.ptr, info.getNumber(), info.getName());
         this.isOpen = true;
         this.isVirtual = false;
     }
 
-    protected void preventSegfault() { requireNonNull(this.ptr, "ptr cannot be null!"); }
-
     public void open() { this.open(this.getInfo()); }
 
+    /**
+     * TODO doc!
+     *
+     * @param name
+     * @throws RtMidiException if this platform does not support virtual ports, see {@link RtMidi#supportsVirtualPorts()}
+     */
     public void openVirtual(String name) throws RtMidiException {
+        this.checkIsDestroyed();
         if (!RtMidi.supportsVirtualPorts())
             throw new RtMidiException("Platform " + Platform.RESOURCE_PREFIX + " does not support virtual ports");
-        requireNonNull(this.ptr);
+        this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_open_virtual_port(this.ptr, name);
         this.isOpen = true;
         this.isVirtual = true;
     }
 
-    public abstract void close();
+    public void close() {
+        this.checkIsDestroyed();
+        this.preventSegfault();
+        RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
+        this.isOpen = false;
+        this.isVirtual = false;
+        this.destroy();
+        this.createPtr();
+    }
+
+    /**
+     * Call this before any call to {@link RtMidiLibrary#getInstance()}.
+     *
+     * @throws NullPointerException if {@link #ptr} is null to prevent segfaults happening in the native code,
+     *                              A segfault will always crash the VM without any way to catch it, so this is the safest thing to do to
+     *                              prevent that.
+     */
+    protected final void preventSegfault() throws NullPointerException { requireNonNull(this.ptr, "ptr cannot be null!"); }
+
+    protected final void checkIsDestroyed() throws RtMidiException {
+        if (this.isDestroyed)
+            throw new RtMidiException("Cannot proceed, the MidiPort:\n"
+                    + this.toString() + "\nhas already been destroyed");
+    }
+
+    //endregion Concrete Functions
+
+    //region Getters
 
     public Info getInfo() { return info; }
 
@@ -49,20 +120,7 @@ public abstract class MidiPort<P extends RtMidiPtr> {
 
     public boolean isVirtual() { return isVirtual; }
 
-    @Override
-    public String toString() {
-        return "MidiPort{" +
-                "info=" + info +
-                ", isOpen=" + isOpen +
-                ", isVirtual=" + isVirtual +
-                '}';
-    }
-
-    public abstract void open(Info info);
-
-    public abstract void destroy();
-
-    public abstract RtMidiApi getApi();
+    //endregion Getters
 
     public static class Info {
         protected final String name;

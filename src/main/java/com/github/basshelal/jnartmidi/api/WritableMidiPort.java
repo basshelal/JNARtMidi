@@ -7,45 +7,57 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
 
     private byte[] messageBuffer;
 
-    public WritableMidiPort(Info info) {
+    //region Constructors
+
+    public /* constructor */ WritableMidiPort(Info info) {
         super(info);
-        this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        this.createPtr();
     }
 
-    public WritableMidiPort(RtMidiApi api, String name, Info info) {
-        super(info);
-        this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create(api.getNumber(), name);
+    public /* constructor */ WritableMidiPort(Info info, RtMidiApi api, String name) {
+        super(info, api, name);
+        this.createPtr();
     }
 
-    @Override
-    public void open(Info info) { this.open(this.ptr, info); }
-
-    @Override
-    public void close() {
-        // TODO: 22/02/2021 Implement!
-        RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);
-        this.isOpen = false;
-        this.isVirtual = false;
-    }
+    //endregion Constructors
 
     @Override
     public void destroy() {
-        RtMidiLibrary.getInstance().rtmidi_out_free(ptr);
+        this.checkIsDestroyed();
+        this.preventSegfault();
+        RtMidiLibrary.getInstance().rtmidi_out_free(this.ptr);
+        this.isDestroyed = true;
     }
 
     @Override
     public RtMidiApi getApi() {
+        this.checkIsDestroyed();
+        this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_out_get_current_api(ptr);
         return RtMidiApi.fromInt(result);
     }
 
+    @Override
+    protected void createPtr() {
+        if (this.api != null && this.clientName != null)
+            this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create(this.api.getNumber(), this.clientName);
+        else this.ptr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
+        this.isDestroyed = false;
+    }
+
     // TODO: 21/02/2021 Check!
     public int sendMessage(int[] message) {
+        this.checkIsDestroyed();
+        this.preventSegfault();
         if (this.messageBuffer == null || this.messageBuffer.length < message.length)
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
         return RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, 3);
+    }
+
+    public void sendMessage(MidiMessage midiMessage) {
+        // TODO: 22/02/2021 Implement
     }
 
 }
