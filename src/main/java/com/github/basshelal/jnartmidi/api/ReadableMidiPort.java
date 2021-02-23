@@ -1,8 +1,14 @@
 package com.github.basshelal.jnartmidi.api;
 
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import com.sun.jna.Pointer;
+
+import static java.util.Objects.requireNonNull;
+
+// TODO: 23/02/2021 More specific exceptions!
 
 public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
@@ -20,20 +26,25 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
     //region Constructors
 
-    public /* constructor */ ReadableMidiPort(Info portInfo) {
+    public /* constructor */ ReadableMidiPort(Info portInfo) throws NullPointerException {
+        // TODO: 23/02/2021 Require type of portInfo to be READABLE??
         super(portInfo);
         this.createPtr();
     }
 
-    public /* constructor */ ReadableMidiPort(Info portInfo, RtMidiApi api, String clientName) {
+    public /* constructor */ ReadableMidiPort(Info portInfo, RtMidiApi api, String clientName) throws NullPointerException {
         super(portInfo, api, clientName);
         this.createPtr();
     }
 
     //endregion Constructors
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public void destroy() {
+    public void destroy() throws RtMidiException {
+        // TODO: 23/02/2021 do nothing if is already destroyed
         this.checkIsDestroyed();
         this.removeCallback();
         this.preventSegfault();
@@ -42,8 +53,11 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.isDestroyed = true;
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public RtMidiApi getApi() {
+    public RtMidiApi getApi() throws RtMidiNativeException {
         this.checkIsDestroyed();
         this.preventSegfault();
         int result = RtMidiLibrary.getInstance().rtmidi_in_get_current_api(this.ptr);
@@ -52,7 +66,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     }
 
     @Override
-    protected void createPtr() {
+    protected void createPtr() throws RtMidiNativeException {
         if (this.api != null && this.clientName != null)
             this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create(this.api.getNumber(), this.clientName, DEFAULT_QUEUE_SIZE_LIMIT);
         else this.ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
@@ -60,7 +74,17 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.isDestroyed = false;
     }
 
-    public void setCallback(MidiMessageCallback callback) {
+    /**
+     * Set this {@link ReadableMidiPort}'s callback which will be triggered when a new {@link MidiMessage} is sent to
+     * this port. Ensure that the message you expect is not being ignored by calling {@link #ignoreTypes} before
+     * setting the callback.
+     *
+     * @param callback the callback which will be triggered when a new {@link MidiMessage} is sent to this port
+     * @throws NullPointerException if {@code callback} is {@code null}
+     * @throws RtMidiException      if a callback already exists for this port which must be removed using {@link #removeCallback}
+     */
+    public void setCallback(MidiMessageCallback callback) throws NullPointerException, RtMidiException {
+        requireNonNull(callback);
         this.checkIsDestroyed();
         if (this.midiMessageCallback != null)
             throw new RtMidiException("Cannot set callback there is an existing callback registered, " +
@@ -81,8 +105,13 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.checkErrors();
     }
 
+    /**
+     * Removes this {@link ReadableMidiPort}'s {@link MidiMessageCallback} if it exists, otherwise does nothing.
+     * You must call this before calling {@link #setCallback} if one already exists.
+     */
     public void removeCallback() {
         this.checkIsDestroyed();
+        if (this.midiMessageCallback == null) return;
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_cancel_callback(this.ptr);
         this.checkErrors();
@@ -98,6 +127,9 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.checkErrors();
     }
 
+    /**
+     * @return the last received {@link MidiMessage} from the callback or {@code null} if none exists
+     */
     public MidiMessage getLastMessage() { return this.midiMessage; }
 
 }

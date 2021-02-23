@@ -1,5 +1,8 @@
 package com.github.basshelal.jnartmidi.api;
 
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiPortException;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
 import com.sun.jna.Platform;
@@ -22,11 +25,11 @@ public abstract class MidiPort<P extends RtMidiPtr> {
 
     //region Constructors
 
-    protected  /* constructor */ MidiPort(Info portInfo) {
+    protected  /* constructor */ MidiPort(Info portInfo) throws NullPointerException {
         this.info = requireNonNull(portInfo, "Constructor parameter portInfo cannot be null!");
     }
 
-    protected  /* constructor */ MidiPort(Info portInfo, RtMidiApi api, String clientName) {
+    protected  /* constructor */ MidiPort(Info portInfo, RtMidiApi api, String clientName) throws NullPointerException {
         this(portInfo);
         this.api = requireNonNull(api, "Constructor parameter api cannot be null!");
         this.clientName = requireNonNull(clientName, "Constructor parameter clientName cannot be null!");
@@ -39,20 +42,25 @@ public abstract class MidiPort<P extends RtMidiPtr> {
     /**
      * Destroys this port such that it can and will no longer be used, attempting to use the port
      * after this should throw an {@link RtMidiException}, see {@link #checkIsDestroyed()}
+     *
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public abstract void destroy();
+    public abstract void destroy() throws RtMidiNativeException;
 
     /**
      * @return the {@link RtMidiApi} that this port is using
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public abstract RtMidiApi getApi();
+    public abstract RtMidiApi getApi() throws RtMidiNativeException;
 
     /**
      * Create {@link #ptr} to be used in this port.
      * Calls either the default create function like {@link RtMidiLibrary#rtmidi_in_create_default} or
      * the custom function {@link RtMidiLibrary#rtmidi_in_create} depending on how this was constructed
+     *
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    protected abstract void createPtr();
+    protected abstract void createPtr() throws RtMidiNativeException;
 
     //endregion Abstract Functions
 
@@ -111,9 +119,9 @@ public abstract class MidiPort<P extends RtMidiPtr> {
      */
     protected final void preventSegfault() throws NullPointerException { requireNonNull(this.ptr, "ptr cannot be null!"); }
 
-    protected final void checkIsDestroyed() throws RtMidiException {
+    protected final void checkIsDestroyed() throws RtMidiPortException {
         if (this.isDestroyed)
-            throw new RtMidiException("Cannot proceed, the MidiPort:\n"
+            throw new RtMidiPortException("Cannot proceed, the MidiPort:\n"
                     + this.toString() + "\nhas already been destroyed");
     }
 
@@ -123,8 +131,7 @@ public abstract class MidiPort<P extends RtMidiPtr> {
      * @throws RtMidiException if RtMidi reported that something went wrong
      */
     protected final void checkErrors() throws RtMidiException {
-        if (this.ptr != null && !this.ptr.ok)
-            throw new RtMidiException("An error occurred in the native code of RtMidi\n" + this.ptr.msg);
+        if (this.ptr != null && !this.ptr.ok) throw new RtMidiNativeException(this.ptr);
     }
 
     //endregion Helper Functions

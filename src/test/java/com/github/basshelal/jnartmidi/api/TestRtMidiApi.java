@@ -1,5 +1,6 @@
 package com.github.basshelal.jnartmidi.api;
 
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Platform;
 

@@ -1,6 +1,10 @@
 package com.github.basshelal.jnartmidi.api;
 
+import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
+
 import java.util.Arrays;
+
+import static java.util.Objects.requireNonNull;
 
 public class MidiMessage {
 
@@ -18,13 +22,13 @@ public class MidiMessage {
         this.setSize(size);
     }
 
-    public /* constructor */ MidiMessage(int[] data) {
-        this(data.length);
+    public /* constructor */ MidiMessage(int[] data) throws NullPointerException {
+        this(requireNonNull(data).length);
         this.setData(data);
     }
 
-    public /* constructor */ MidiMessage(MidiMessage midiMessage) {
-        this(midiMessage.data);
+    public /* constructor */ MidiMessage(MidiMessage midiMessage) throws NullPointerException {
+        this(requireNonNull(midiMessage).data);
     }
 
     //endregion Constructors
@@ -41,7 +45,8 @@ public class MidiMessage {
         return this.data[index];
     }
 
-    public void setData(int[] data, int length) throws IndexOutOfBoundsException {
+    public void setData(int[] data, int length) throws NullPointerException, IndexOutOfBoundsException {
+        requireNonNull(data);
         if (length < 0 || length > data.length)
             throw new IndexOutOfBoundsException("Length out of bounds: " + length);
 
@@ -51,7 +56,9 @@ public class MidiMessage {
         System.arraycopy(data, 0, this.data, 0, length);
     }
 
-    public void setData(int[] data) { this.setData(data, data.length); }
+    public void setData(int[] data) throws NullPointerException, IndexOutOfBoundsException {
+        this.setData(data, data.length);
+    }
 
     /**
      * @return the int array backing this {@link MidiMessage}
@@ -61,7 +68,8 @@ public class MidiMessage {
      */
     public int[] getData() { return this.data; }
 
-    public int[] getData(int[] buffer) {
+    public int[] getData(int[] buffer) throws NullPointerException, IllegalArgumentException {
+        requireNonNull(buffer);
         if (buffer.length < this.data.length)
             throw new IllegalArgumentException("Passed in buffer is not large enough to contain data\n" +
                     "buffer length: " + buffer.length + " data size: " + this.data.length);
@@ -69,7 +77,9 @@ public class MidiMessage {
         return buffer;
     }
 
-    public int[] getDataCopy() { return this.getData(new int[this.data.length]); }
+    public int[] getDataCopy() throws NullPointerException, IllegalArgumentException {
+        return this.getData(new int[this.data.length]);
+    }
 
     public int size() { return this.data.length; }
 
