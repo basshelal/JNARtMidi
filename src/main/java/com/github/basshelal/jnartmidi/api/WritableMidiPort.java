@@ -48,21 +48,27 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
         this.isDestroyed = false;
     }
 
-    // TODO: 21/02/2021 Check!
-    public int sendMessage(int[] message) {
+    /**
+     * TODO doc!
+     *
+     * @param message the message to send, this array will not be modified
+     */
+    public void sendMessage(int[] message) {
         this.checkIsDestroyed();
         this.preventSegfault();
         if (this.messageBuffer == null || this.messageBuffer.length < message.length)
             this.messageBuffer = new byte[message.length];
         for (int i = 0; i < message.length; i++)
             this.messageBuffer[i] = (byte) message[i];
-        int result = RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, 3);
+        RtMidiLibrary.getInstance().rtmidi_out_send_message(this.ptr, this.messageBuffer, this.messageBuffer.length);
         this.checkErrors();
-        return result;
     }
 
-    public void sendMessage(MidiMessage midiMessage) {
-        this.sendMessage(midiMessage.getData());
-    }
+    /**
+     * TODO doc!
+     *
+     * @param midiMessage the message to send, the data of the message will not be modified
+     */
+    public void sendMessage(MidiMessage midiMessage) { this.sendMessage(midiMessage.getData()); }
 
 }

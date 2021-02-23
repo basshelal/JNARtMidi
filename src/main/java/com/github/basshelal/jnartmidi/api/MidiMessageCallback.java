@@ -1,6 +1,4 @@
-package com.github.basshelal.jnartmidi.api.callbacks;
-
-import com.github.basshelal.jnartmidi.api.MidiMessage;
+package com.github.basshelal.jnartmidi.api;
 
 public interface MidiMessageCallback {
     // RealTimeCritical

@@ -1,6 +1,5 @@
 package com.github.basshelal.jnartmidi.api;
 
-import com.github.basshelal.jnartmidi.api.callbacks.MidiMessageCallback;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Platform;
 
@@ -96,8 +95,6 @@ public class TestRtMidiApi {
             out.sendMessage(message);
         };
 
-        System.out.println("H");
-
         port.setCallback(callback);
         // port1.setCallback(callback);
 
@@ -108,15 +105,11 @@ public class TestRtMidiApi {
         for (MidiPort.Info info : RtMidi.readableMidiPorts()) { System.out.println(info); }
 
 
-//        korg.setCallback((MidiMessageCallback) (message, deltaTime) -> {
-//            System.out.println(message + "\tKORG");
-//        });
+        korg.setCallback((message, deltaTime) -> {
+            System.out.println(message + "\tKORG");
+        });
 
-        Thread.sleep(5000);
-
-        korg.getMessage(new byte[3]);
-        korg.getMessage(new byte[3]);
-        korg.getMessage(new byte[3]);
+        Thread.sleep(Long.MAX_VALUE);
 
         //  System.out.println(Arrays.toString(buf));
 

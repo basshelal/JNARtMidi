@@ -53,6 +53,12 @@ public class MidiMessage {
 
     public void setData(int[] data) { this.setData(data, data.length); }
 
+    /**
+     * @return the int array backing this {@link MidiMessage}
+     * @apiNote <b>WARNING:</b> any changes made to the array will be reflected in this {@link MidiMessage} causing
+     *         unexpected strange behavior, if you plan on modifying the returned array, use one of the methods that provide
+     *         you with a copy: {@link #getDataCopy} , {@link #getData(int[])}
+     */
     public int[] getData() { return this.data; }
 
     public int[] getData(int[] buffer) {
@@ -63,11 +69,7 @@ public class MidiMessage {
         return buffer;
     }
 
-    public int[] getDataCopy() {
-        int[] result = new int[this.data.length];
-        System.arraycopy(this.data, 0, result, 0, this.data.length);
-        return result;
-    }
+    public int[] getDataCopy() { return this.getData(new int[this.data.length]); }
 
     public int size() { return this.data.length; }
 
@@ -266,6 +268,8 @@ public class MidiMessage {
     @Override
     public String toString() { return "MidiMessage: " + Arrays.toString(data); }
 
+    //region Constants
+
     // System common messages
 
     /**
@@ -384,5 +388,7 @@ public class MidiMessage {
      * Command value for Pitch Bend message (0xE0, or 224).
      */
     public static final int PITCH_BEND = 224;
+
+    //endregion Constants
 
 }

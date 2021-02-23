@@ -327,7 +327,6 @@ public interface RtMidiLibrary extends Library {
     //  Using a large number to avoid flooding is a bad idea because that memory is allocated
     //  The only thing we can do is allow it to flood our output, a solution would be to have the error logging be
     //  conditional in the C++ code so that a version can be built where this will be silent
-    // TODO: 22/02/2021 Create a GitHub issue about this
     public RtMidiInPtr rtmidi_in_create(int api, String clientName, int queueSizeLimit);
 
     /**

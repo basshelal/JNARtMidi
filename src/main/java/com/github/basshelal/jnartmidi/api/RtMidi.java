@@ -28,9 +28,11 @@ public class RtMidi {
         }
     }
 
-    public static List<MidiPort.Info> readableMidiPorts() {
+    public static List<MidiPort.Info> readableMidiPorts() throws RtMidiException {
         RtMidiInPtr ptr = RtMidiLibrary.getInstance().rtmidi_in_create_default();
         int portCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(ptr);
+        if (ptr != null && !ptr.ok)
+            throw new RtMidiException("An error occurred in the native code of RtMidi\n" + ptr.msg);
         List<MidiPort.Info> result = new ArrayList<>(portCount);
         for (int i = 0; i < portCount; i++) {
             result.add(i,
@@ -40,9 +42,11 @@ public class RtMidi {
         return result;
     }
 
-    public static List<MidiPort.Info> writableMidiPorts() {
+    public static List<MidiPort.Info> writableMidiPorts() throws RtMidiException {
         RtMidiOutPtr ptr = RtMidiLibrary.getInstance().rtmidi_out_create_default();
         int portCount = RtMidiLibrary.getInstance().rtmidi_get_port_count(ptr);
+        if (ptr != null && !ptr.ok)
+            throw new RtMidiException("An error occurred in the native code of RtMidi\n" + ptr.msg);
         List<MidiPort.Info> result = new ArrayList<>(portCount);
         for (int i = 0; i < portCount; i++) {
             result.add(i,
