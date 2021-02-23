@@ -75,10 +75,11 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.cCallback = (final double timeStamp, final Pointer message,
                           final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
             if (message == null || messageSize == null) return; // prevent NPE or worse segfault
+            int size = messageSize.intValue();
             // memalloc in realtime code! Dangerous but necessary and extremely rare
-            if (this.messageBuffer == null || this.messageBuffer.length < messageSize.intValue())
-                this.messageBuffer = new int[messageSize.intValue()];
-            for (int i = 0; i < messageSize.intValue(); i++) {
+            if (this.messageBuffer == null || this.messageBuffer.length < size)
+                this.messageBuffer = new int[size];
+            for (int i = 0; i < size; i++) {
                 if (i == 0) this.messageBuffer[i] = message.getByte(i) & 0xF0; // fix status byte
                 else this.messageBuffer[i] = message.getByte(i); // data bytes are correct
             }
@@ -151,6 +152,8 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
         return result;
     }
+
+    public MidiMessage getLastMessage() { return this.midiMessage; }
 
     private void checkHasCallback() throws RtMidiException {
         if (this.cCallback != null || this.arrayCallback != null || this.midiMessageCallback != null)

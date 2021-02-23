@@ -1,6 +1,6 @@
 package com.github.basshelal.jnartmidi.api;
 
-import com.github.basshelal.jnartmidi.api.callbacks.ArrayCallback;
+import com.github.basshelal.jnartmidi.api.callbacks.MidiMessageCallback;
 import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Platform;
 
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,11 +57,7 @@ public class TestRtMidiApi {
     public void testAvailableAPIs() throws RtMidiException {
         List<RtMidiApi> apis = RtMidi.getAvailableApis();
 
-        if (Platform.isLinux()) {
-            assertTrue(apis.contains(RtMidiApi.LINUX_ALSA));
-            // If Linux and more than 1 then JACK is likely installed
-            if (apis.size() > 1) assertTrue(apis.contains(RtMidiApi.UNIX_JACK));
-        }
+        if (Platform.isLinux()) assertTrue(apis.contains(RtMidiApi.LINUX_ALSA));
         if (Platform.isWindows()) assertTrue(apis.contains(RtMidiApi.WINDOWS_MM));
         if (Platform.isMac()) assertTrue(apis.contains(RtMidiApi.MACOSX_CORE));
     }
@@ -81,34 +76,23 @@ public class TestRtMidiApi {
         System.out.println("Ports:");
         for (ReadableMidiPort port : ports) { System.out.println(port); }
 
-        System.out.println("A");
-
         ReadableMidiPort port = ports.get(2);
-
-        System.out.println("B");
 
         port.open();
 
-        System.out.println("C");
-
         ReadableMidiPort port1 = new ReadableMidiPort(infos.get(2), RtMidiApi.LINUX_ALSA, "MY INPUT");
-
-        System.out.println("D");
 
         port1.open();
 
-        System.out.println("E");
-
         WritableMidiPort out = new WritableMidiPort(RtMidi.writableMidiPorts().get(1));
-
-        System.out.println("F");
 
         out.open();
 
-        System.out.println("G");
+        ReadableMidiPort korg = new ReadableMidiPort(RtMidi.readableMidiPorts().get(3));
+        korg.open();
 
-        ArrayCallback callback = (message, deltaTime) -> {
-            System.out.println(Arrays.toString(message));
+        MidiMessageCallback callback = (message, deltaTime) -> {
+            System.out.println(message);
             out.sendMessage(message);
         };
 
@@ -124,14 +108,13 @@ public class TestRtMidiApi {
         for (MidiPort.Info info : RtMidi.readableMidiPorts()) { System.out.println(info); }
 
 
-        ReadableMidiPort korg = new ReadableMidiPort(RtMidi.readableMidiPorts().get(3));
-        korg.open();
-//        korg.setCallback((message, deltaTime) -> {
-//            System.out.println(Arrays.toString(message) + "\tKORG");
+//        korg.setCallback((MidiMessageCallback) (message, deltaTime) -> {
+//            System.out.println(message + "\tKORG");
 //        });
 
         Thread.sleep(5000);
 
+        korg.getMessage(new byte[3]);
         korg.getMessage(new byte[3]);
         korg.getMessage(new byte[3]);
 

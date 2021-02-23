@@ -4,5 +4,5 @@ import com.github.basshelal.jnartmidi.api.MidiMessage;
 
 public interface MidiMessageCallback {
     // RealTimeCritical
-    public void onMessage(MidiMessage message, double deltaTime);
+    public void onMessage(final MidiMessage message, final double deltaTime);
 }

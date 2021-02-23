@@ -62,7 +62,7 @@ public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
     }
 
     public void sendMessage(MidiMessage midiMessage) {
-        // TODO: 22/02/2021 Implement
+        this.sendMessage(midiMessage.getData());
     }
 
 }
