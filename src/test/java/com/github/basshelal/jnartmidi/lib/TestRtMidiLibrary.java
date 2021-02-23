@@ -9,7 +9,6 @@ import com.sun.jna.Platform;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -26,6 +25,7 @@ import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,9 +47,9 @@ public class TestRtMidiLibrary {
         RtMidi.writableMidiPorts().forEach(System.out::println);
     }
 
-    private static void sleep(int seconds) {
+    private static void sleep(long millis) {
         try {
-            Thread.sleep(seconds * 1000L);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -446,39 +446,109 @@ public class TestRtMidiLibrary {
 
         lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
 
-        sleep(1); // wait a little for flag to have changed
+        sleep(500); // wait a little for flag to have changed
         assertTrue(messageReceived.get());
 
         lib.rtmidi_in_free(readable);
         lib.rtmidi_out_free(writable);
     }
 
-    @Disabled
     @DisplayName("14 rtmidi_in_cancel_callback")
     @Order(14)
     @Test
     public void testInCancelCallback() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_cancel_callback(null);
+        RtMidiInPtr readable = inCreateDefault();
+        RtMidiOutPtr writable = outCreateDefault();
+
+        String writableName = outPortName();
+        lib.rtmidi_open_port(writable, 0, writableName);
+
+        String readableName = inPortName();
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName);
+
+        byte[] sentMessage = new byte[]{(byte) MidiMessage.NOTE_ON, 69, 69};
+        AtomicBoolean messageReceived = new AtomicBoolean(false);
+
+        RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
+            assertNotNull(message);
+            assertEquals(sentMessage.length, messageSize.intValue());
+            for (int i = 0; i < messageSize.intValue(); i++)
+                assertEquals(sentMessage[i], message.getByte(i));
+            messageReceived.set(true);
+        };
+
+        lib.rtmidi_in_set_callback(readable, callback, null);
+
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+
+        sleep(500); // wait a little for flag to have changed
+        assertTrue(messageReceived.get());
+
+        messageReceived.set(false);
+
+        lib.rtmidi_in_cancel_callback(readable);
+
+        // try to send some messages, if readable received them then flag will have changed
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+
+        sleep(500); // wait a little for flag to have changed
+        assertFalse(messageReceived.get());
+
+        lib.rtmidi_in_free(readable);
+        lib.rtmidi_out_free(writable);
     }
 
-    @Disabled
     @DisplayName("15 rtmidi_in_ignore_types")
     @Order(15)
     @Test
     public void testInIgnoreTypes() {
-        lib.rtmidi_in_ignore_types(null, false, false, false);
-        // TODO: 21/02/2021 Implement! Send these types of messages and assert they both got sent
-        //  and received and got sent and ignored
+
+        RtMidiInPtr readable = inCreateDefault();
+        RtMidiOutPtr writable = outCreateDefault();
+
+        String writableName = outPortName();
+        lib.rtmidi_open_port(writable, 0, writableName);
+
+        String readableName = inPortName();
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName);
+
+        AtomicBoolean ignoring = new AtomicBoolean(false);
+        lib.rtmidi_in_ignore_types(readable, ignoring.get(), ignoring.get(), ignoring.get());
+
+        byte[] sentMessage = new byte[]{(byte) MidiMessage.TIMING_CLOCK};
+        AtomicBoolean messageReceived = new AtomicBoolean(false);
+
+        RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
+            messageReceived.set(true);
+        };
+
+        lib.rtmidi_in_set_callback(readable, callback, null);
+
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+
+        sleep(500); // wait a little for flag to have changed
+        assertTrue(messageReceived.get());
+
+        ignoring.set(true);
+        lib.rtmidi_in_ignore_types(readable, ignoring.get(), ignoring.get(), ignoring.get());
+
+        messageReceived.set(false);
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
+
+        sleep(500); // wait a little for flag to have changed
+        assertFalse(messageReceived.get());
+
+        lib.rtmidi_in_free(readable);
+        lib.rtmidi_out_free(writable);
     }
 
-    @Disabled
     @DisplayName("16 rtmidi_in_get_message")
     @Order(16)
     @Test
     public void testInGetMessage() {
-        // TODO: 20/02/2021 Implement
-        lib.rtmidi_in_get_message(null, null, null);
+        this.testOutSendMessage();
     }
 
     @DisplayName("17 rtmidi_out_create_default")
@@ -545,7 +615,6 @@ public class TestRtMidiLibrary {
         lib.rtmidi_out_free(out);
     }
 
-    @Disabled
     @DisplayName("21 rtmidi_out_send_message")
     @Order(21)
     @Test
@@ -558,9 +627,6 @@ public class TestRtMidiLibrary {
 
         assertTrue(inPortCount > 0);
         assertTrue(outPortCount > 0);
-
-        log("In Port Count: " + inPortCount);
-        log("Out Port Count: " + outPortCount);
 
         // Open an out port with a unique name!
         String outPortName = outPortName();
@@ -587,7 +653,7 @@ public class TestRtMidiLibrary {
 
         // send the out message
 
-        byte[] message = new byte[]{69, 69, 69};
+        byte[] message = new byte[]{(byte) MidiMessage.NOTE_ON, 69, 69};
 
         int sent = lib.rtmidi_out_send_message(out, message, message.length);
 
@@ -601,9 +667,6 @@ public class TestRtMidiLibrary {
                 new RtMidiLibrary.NativeSizeByReference(receivedMessage.length));
 
         assertTrue(got != -1);
-
-        // TODO: 21/02/2021 Implement! Sending works, getting works but isn't updating the array we're giving it
-        //  revise it from the beginning because it's likely something earlier on is set wrong
 
         assertArrayEquals(message, receivedMessage);
 
