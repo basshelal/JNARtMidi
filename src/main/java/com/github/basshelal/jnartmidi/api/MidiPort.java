@@ -139,6 +139,28 @@ public abstract class MidiPort<P extends RtMidiPtr> {
 
     //endregion Getters
 
+    @Override
+    public int hashCode() { return Objects.hash(this.ptr, this.info); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MidiPort)) return false;
+        MidiPort<?> other = (MidiPort<?>) o;
+        return this.getClass().equals(other.getClass()) && this.ptr.equals(other.ptr) && this.info.equals(other.info);
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " {" +
+                "\n" + this.info +
+                "\napi = " + this.api +
+                "\nclientName = '" + this.clientName + "'" +
+                "\nisOpen = " + this.isOpen +
+                "\nisVirtual = " + this.isVirtual +
+                "\nisDestroyed = " + this.isDestroyed +
+                "\n}";
+    }
+
     public static class Info {
         protected final String name;
         protected final int number;
@@ -169,11 +191,9 @@ public abstract class MidiPort<P extends RtMidiPtr> {
 
         @Override
         public String toString() {
-            return "MidiPort.Info{" +
-                    "name='" + name + "'" +
-                    ", number=" + number +
-                    ", type=" + type +
-                    "}";
+            return "name = '" + name + "'" +
+                    "\nnumber = " + number +
+                    "\ntype = " + type;
         }
 
         public enum Type {READABLE, WRITABLE, UNKNOWN}
