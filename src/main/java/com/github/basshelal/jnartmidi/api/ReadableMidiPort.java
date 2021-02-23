@@ -64,6 +64,9 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.isDestroyed = false;
     }
 
+
+    // TODO: 23/02/2021 Because of the status byte problem, I think ArrayCallback might be a bad idea...
+    //  otherwise we can keep it for a "raw" values but really it's not useful
     public void setCallback(ArrayCallback callback) {
         this.checkIsDestroyed();
         this.checkHasCallback();
@@ -94,8 +97,11 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         this.cCallback = (final double timeStamp, final Pointer message,
                           final RtMidiLibrary.NativeSize messageSize, final Pointer userData) -> {
             if (message == null || messageSize == null) return; // prevent NPE or worse segfault
-            // TODO: 18/02/2021 Implement!
-            this.midiMessageCallback.onMessage(this.midiMessage);
+            int size = messageSize.intValue();
+            // memalloc in realtime code! Dangerous but necessary and extremely rare
+            if (this.midiMessage.size() < size) this.midiMessage.setSize(size);
+            for (int i = 0; i < size; i++) this.midiMessage.set(i, message.getByte(i));
+            this.midiMessageCallback.onMessage(this.midiMessage, timeStamp);
         };
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_in_set_callback(this.ptr, this.cCallback, null);
