@@ -1,5 +1,6 @@
 package com.github.basshelal.jnartmidi.lib;
 
+import com.github.basshelal.jnartmidi.api.MidiMessage;
 import com.github.basshelal.jnartmidi.api.RtMidi;
 import com.github.basshelal.jnartmidi.api.RtMidiApi;
 import com.github.basshelal.jnartmidi.api.RtMidiLibraryLoader;
@@ -38,6 +39,13 @@ public class TestRtMidiLibrary {
     private static RtMidiLibrary lib;
 
     private static void log(String message) { System.out.println(message); }
+
+    private static void logPorts() {
+        System.out.println("\nReadable Midi Ports:");
+        RtMidi.readableMidiPorts().forEach(System.out::println);
+        System.out.println("\nWritable Midi Ports:");
+        RtMidi.writableMidiPorts().forEach(System.out::println);
+    }
 
     private static void sleep(int seconds) {
         try {
@@ -410,42 +418,39 @@ public class TestRtMidiLibrary {
         lib.rtmidi_in_free(in);
     }
 
-    @Disabled
     @DisplayName("13 rtmidi_in_set_callback")
     @Order(13)
     @Test
     public void testInSetCallback() {
-        RtMidiInPtr in = inCreateDefault();
-        RtMidiOutPtr out = outCreateDefault();
+        RtMidiInPtr readable = inCreateDefault();
+        RtMidiOutPtr writable = outCreateDefault();
 
-        String outPortName = outPortName();
-        lib.rtmidi_open_port(out, 0, outPortName);
-        String inPortName = inPortName();
-        lib.rtmidi_open_port(in, 0, inPortName);
+        String writableName = outPortName();
+        lib.rtmidi_open_port(writable, 0, writableName);
 
-        // TODO: 21/02/2021 Implement!
+        String readableName = inPortName();
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName);
 
-        byte[] sentMessage = new byte[]{69, 69, 69};
+        byte[] sentMessage = new byte[]{(byte) MidiMessage.NOTE_ON, 69, 69};
         AtomicBoolean messageReceived = new AtomicBoolean(false);
 
         RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
-            System.out.println(message);
+            assertNotNull(message);
+            assertEquals(sentMessage.length, messageSize.intValue());
             for (int i = 0; i < messageSize.intValue(); i++)
                 assertEquals(sentMessage[i], message.getByte(i));
             messageReceived.set(true);
         };
 
-        lib.rtmidi_in_set_callback(in, callback, null);
+        lib.rtmidi_in_set_callback(readable, callback, null);
 
-        lib.rtmidi_out_send_message(out, sentMessage, sentMessage.length);
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.length);
 
-        log(RtMidi.readableMidiPorts().toString());
-        log(RtMidi.writableMidiPorts().toString());
-
+        sleep(1); // wait a little for flag to have changed
         assertTrue(messageReceived.get());
 
-        lib.rtmidi_in_free(in);
-        lib.rtmidi_out_free(out);
+        lib.rtmidi_in_free(readable);
+        lib.rtmidi_out_free(writable);
     }
 
     @Disabled

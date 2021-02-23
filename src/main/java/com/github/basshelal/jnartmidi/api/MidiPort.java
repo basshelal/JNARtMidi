@@ -179,14 +179,14 @@ public abstract class MidiPort<P extends RtMidiPtr> {
         public Type getType() { return type; }
 
         @Override
-        public int hashCode() { return Objects.hash(getName(), getNumber(), getType()); }
+        public int hashCode() { return Objects.hash(this.name, this.number, this.type); }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Info)) return false;
             Info info = (Info) o;
-            return getType() == info.getType() && getName().equals(info.getName()) && getNumber() == info.getNumber();
+            return this.type == info.type && this.name.equals(info.name) && this.number == info.number;
         }
 
         @Override
