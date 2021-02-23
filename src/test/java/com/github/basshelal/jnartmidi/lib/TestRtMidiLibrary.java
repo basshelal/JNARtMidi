@@ -9,6 +9,7 @@ import com.sun.jna.Platform;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -84,6 +85,12 @@ public class TestRtMidiLibrary {
 
     @AfterAll
     public static void teardown() {}
+
+    // GC or JUnit causes something to go wong when running all tests in succession, a slight wait fixes it somehow
+    @BeforeEach
+    public void beforeEach() {
+        sleep(100);
+    }
 
     @DisplayName("0 rtmidi_get_compiled_api")
     @Order(0)
@@ -647,9 +654,6 @@ public class TestRtMidiLibrary {
 
         String inPortName = inPortName();
         lib.rtmidi_open_port(in, inPortIndex, inPortName);
-
-        log(RtMidi.readableMidiPorts().toString());
-        log(RtMidi.writableMidiPorts().toString());
 
         // send the out message
 
