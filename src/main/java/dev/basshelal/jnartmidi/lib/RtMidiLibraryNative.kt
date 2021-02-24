@@ -11,14 +11,8 @@ import java.nio.ByteBuffer
 class RtMidiLibraryNative : RtMidiLibrary {
 
     companion object {
-        private var INSTANCE: RtMidiLibrary? = null
-
         @JvmStatic
-        val instance: RtMidiLibrary?
-            get() {
-                if (INSTANCE == null) INSTANCE = RtMidiLibraryNative()
-                return INSTANCE
-            }
+        val instance: RtMidiLibrary by lazy { RtMidiLibraryNative() }
 
         init {
             Native.register(RtMidiLibrary.LIBRARY_NAME)
