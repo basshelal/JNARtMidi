@@ -18,10 +18,11 @@ import java.nio.ByteBuffer
  * Implementation found in [RtMidiLibraryNative] where the methods are "implemented"
  * using the `native` keyword.
  *
- * To use the library use [RtMidiLibrary.getInstance].
+ * To use the library use [RtMidiLibrary.instance].
  *
  * @author Bassam Helal
  */
+@Suppress("FunctionName", "unused")
 interface RtMidiLibrary : Library {
 
     companion object {
@@ -174,32 +175,27 @@ interface RtMidiLibrary : Library {
     }
 
     /**
-     * 'size_t' C type (32 bits on 32 bits platforms, 64 bits on 64 bits platforms).
-     * Can be also used to model the 'long' C type for libraries known to be compiled with GCC or LLVM even on Windows.
-     * (NativeLong on Windows is only okay with MSVC++ libraries, as 'long' on Windows 64 bits will be 32 bits with MSVC++ and 64 bits with GCC/mingw)
-     *
-     * @author ochafik
+     * size_t C type
      */
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     class NativeSize
     @JvmOverloads constructor(value: Long = 0) : IntegerType(SIZE, value) {
         companion object {
             /**
              * Size of a size_t integer, in bytes.
              */
-            var SIZE = Native.SIZE_T_SIZE // Platform.is64Bit() ? 8 : 4;
+            var SIZE: Int = Native.SIZE_T_SIZE // Platform.is64Bit() ? 8 : 4;
         }
 
-        override fun toByte(): Byte {
-            TODO("Not yet implemented")
-        }
+        // Below is because IntegerType extends java.lang.Number which Kotlin doesn't like
+        // and Kotlin wants us to be a kotlin.Number which require the functions below,
+        // inconvenient but shouldn't be a problem for us at all in theory
 
-        override fun toChar(): Char {
-            TODO("Not yet implemented")
-        }
+        override fun toByte(): Byte = (this as java.lang.Number).byteValue()
 
-        override fun toShort(): Short {
-            TODO("Not yet implemented")
-        }
+        override fun toChar(): Char = (this as java.lang.Number).intValue().toChar()
+
+        override fun toShort(): Short = (this as java.lang.Number).shortValue()
     }
 
     /**
@@ -210,9 +206,17 @@ interface RtMidiLibrary : Library {
         constructor(value: Int = 0) : this(NativeSize(value.toLong()))
 
         var value: NativeSize
-            get() = if (NativeSize.SIZE == 4) NativeSize(pointer.getInt(0).toLong()) else if (NativeSize.SIZE == 8) NativeSize(pointer.getLong(0)) else throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
+            get() = when (NativeSize.SIZE) {
+                4 -> NativeSize(pointer.getInt(0).toLong())
+                8 -> NativeSize(pointer.getLong(0))
+                else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
+            }
             set(value) {
-                if (NativeSize.SIZE == 4) pointer.setInt(0, value.toInt()) else if (NativeSize.SIZE == 8) pointer.setLong(0, value.toLong()) else throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
+                when (NativeSize.SIZE) {
+                    4 -> pointer.setInt(0, value.toInt())
+                    8 -> pointer.setLong(0, value.toLong())
+                    else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
+                }
             }
 
         init {
@@ -221,10 +225,13 @@ interface RtMidiLibrary : Library {
     }
 
     class RtMidiInPtr : RtMidiPtr()
+
     class RtMidiOutPtr : RtMidiPtr()
+
     //=============================================================================================
     //=================================     RtMidi API     ========================================
     //=============================================================================================
+
     /**
      * Determine the available compiled MIDI APIs.
      * If the given `apis` parameter is `null`, returns the number of available APIs.
@@ -305,9 +312,11 @@ interface RtMidiLibrary : Library {
      * *native declaration : rtmidi_c.h:112*
      */
     fun rtmidi_get_port_name(device: RtMidiPtr, portNumber: Int): String
+
     //=============================================================================================
     //===============================     RtMidiIn API     ========================================
     //=============================================================================================
+
     /**
      * Create a default [RtMidiInPtr] value, with no initialization, RtMidi will choose its own API and
      * client name, to set these yourself use [.rtmidi_in_create]
@@ -390,9 +399,11 @@ interface RtMidiLibrary : Library {
      * *native declaration : rtmidi_c.h:166*
      */
     fun rtmidi_in_get_message(device: RtMidiInPtr, message: ByteBuffer, size: NativeSizeByReference): Double
+
     //=============================================================================================
     //================================     RtMidiOut API     ======================================
     //=============================================================================================
+
     /**
      * ! \brief Create a default RtMidiInPtr value, with no initialization.<br></br>
      * Original signature : `RtMidiOutPtr rtmidi_out_create_default()`<br></br>
