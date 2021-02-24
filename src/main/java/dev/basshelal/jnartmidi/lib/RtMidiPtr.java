@@ -1,4 +1,4 @@
-package com.github.basshelal.jnartmidi.lib;
+package dev.basshelal.jnartmidi.lib;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;

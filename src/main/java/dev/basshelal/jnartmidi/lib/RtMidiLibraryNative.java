@@ -1,4 +1,4 @@
-package com.github.basshelal.jnartmidi.lib;
+package dev.basshelal.jnartmidi.lib;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -10,7 +10,7 @@ public class RtMidiLibraryNative implements RtMidiLibrary {
     private static RtMidiLibrary INSTANCE = null;
 
     static {
-        Native.register(RtMidiLibrary.LIBRARY_NAME);
+        Native.register(LIBRARY_NAME);
     }
 
     public static RtMidiLibrary getInstance() {

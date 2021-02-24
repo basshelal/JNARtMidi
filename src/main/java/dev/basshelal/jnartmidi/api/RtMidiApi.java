@@ -1,8 +1,8 @@
-package com.github.basshelal.jnartmidi.api;
-
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
+package dev.basshelal.jnartmidi.api;
 
 import java.util.Objects;
+
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 
 public class RtMidiApi {
     public static final RtMidiApi UNSPECIFIED = new RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED);

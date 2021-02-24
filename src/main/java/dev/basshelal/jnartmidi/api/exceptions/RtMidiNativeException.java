@@ -1,6 +1,6 @@
-package com.github.basshelal.jnartmidi.api.exceptions;
+package dev.basshelal.jnartmidi.api.exceptions;
 
-import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
+import dev.basshelal.jnartmidi.lib.RtMidiPtr;
 
 /**
  * An {@link RtMidiException} signalling something went wrong in RtMidi's native code, and not in the Java code.

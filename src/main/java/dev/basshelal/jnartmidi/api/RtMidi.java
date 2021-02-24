@@ -1,13 +1,14 @@
-package com.github.basshelal.jnartmidi.api;
+package dev.basshelal.jnartmidi.api;
 
-import com.github.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 import com.sun.jna.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 
 /**
  * The entry point to the JNARtMidi Library.

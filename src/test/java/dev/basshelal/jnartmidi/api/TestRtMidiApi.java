@@ -1,7 +1,5 @@
-package com.github.basshelal.jnartmidi.api;
+package dev.basshelal.jnartmidi.api;
 
-import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
 import com.sun.jna.Platform;
 
 import org.junit.jupiter.api.AfterAll;
@@ -12,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

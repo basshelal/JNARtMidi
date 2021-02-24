@@ -1,10 +1,9 @@
 plugins {
     java
     `java-library`
-    application
 }
 
-group = "com.github.basshelal"
+group = "dev.basshelal"
 version = "0.1"
 
 val javaVersion = JavaVersion.VERSION_1_8
@@ -16,10 +15,6 @@ java {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-application {
-    //mainClassName = ""
 }
 
 repositories {

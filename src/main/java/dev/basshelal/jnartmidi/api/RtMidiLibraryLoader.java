@@ -1,6 +1,8 @@
-package com.github.basshelal.jnartmidi.api;
+package dev.basshelal.jnartmidi.api;
 
 import com.sun.jna.NativeLibrary;
+
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 
 /**
  * Used to configure the Native Library loading done by JNA for RtMidi's library.
@@ -45,6 +47,6 @@ public class RtMidiLibraryLoader {
      * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
      */
     public static void addSearchPath(String path) {
-        NativeLibrary.addSearchPath(com.github.basshelal.jnartmidi.lib.RtMidiLibrary.LIBRARY_NAME, path);
+        NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path);
     }
 }

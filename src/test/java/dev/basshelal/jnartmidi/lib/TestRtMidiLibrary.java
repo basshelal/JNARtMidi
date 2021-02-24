@@ -1,9 +1,5 @@
-package com.github.basshelal.jnartmidi.lib;
+package dev.basshelal.jnartmidi.lib;
 
-import com.github.basshelal.jnartmidi.api.MidiMessage;
-import com.github.basshelal.jnartmidi.api.RtMidi;
-import com.github.basshelal.jnartmidi.api.RtMidiApi;
-import com.github.basshelal.jnartmidi.api.RtMidiLibraryLoader;
 import com.sun.jna.Platform;
 
 import org.junit.jupiter.api.AfterAll;
@@ -21,9 +17,14 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
-import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
-import static com.github.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
+import dev.basshelal.jnartmidi.api.MidiMessage;
+import dev.basshelal.jnartmidi.api.RtMidi;
+import dev.basshelal.jnartmidi.api.RtMidiApi;
+import dev.basshelal.jnartmidi.api.RtMidiLibraryLoader;
+
+import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
+import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
+import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

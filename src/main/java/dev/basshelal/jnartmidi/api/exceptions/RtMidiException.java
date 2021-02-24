@@ -1,4 +1,4 @@
-package com.github.basshelal.jnartmidi.api.exceptions;
+package dev.basshelal.jnartmidi.api.exceptions;
 
 public class RtMidiException extends RuntimeException {
 

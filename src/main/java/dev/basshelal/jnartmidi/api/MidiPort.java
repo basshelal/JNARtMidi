@@ -1,13 +1,14 @@
-package com.github.basshelal.jnartmidi.api;
+package dev.basshelal.jnartmidi.api;
 
-import com.github.basshelal.jnartmidi.api.exceptions.RtMidiException;
-import com.github.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
-import com.github.basshelal.jnartmidi.api.exceptions.RtMidiPortException;
-import com.github.basshelal.jnartmidi.lib.RtMidiLibrary;
-import com.github.basshelal.jnartmidi.lib.RtMidiPtr;
 import com.sun.jna.Platform;
 
 import java.util.Objects;
+
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiPortException;
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
+import dev.basshelal.jnartmidi.lib.RtMidiPtr;
 
 import static java.util.Objects.requireNonNull;
 
