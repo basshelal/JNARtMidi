@@ -2,8 +2,11 @@ package dev.basshelal.jnartmidi.api;
 
 import com.sun.jna.Pointer;
 
+import org.jetbrains.annotations.Nullable;
+
 import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
 import dev.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
+import dev.basshelal.jnartmidi.api.exceptions.RtMidiPortException;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 
@@ -11,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 
 // TODO: 23/02/2021 More specific exceptions!
 
-public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
+public final class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
 
     /**
      * This is the default queue size RtMidi uses if no size is passed in
@@ -28,7 +31,7 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     //region Constructors
 
     public /* constructor */ ReadableMidiPort(Info portInfo) throws NullPointerException {
-        // TODO: 23/02/2021 Require type of portInfo to be READABLE??
+        // TODO: 23/02/2021 Require type of portInfo to be READABLE?? Same for WritableMidiPort??
         super(portInfo);
         this.createPtr();
     }
@@ -66,6 +69,9 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
         return RtMidiApi.fromInt(result);
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     protected void createPtr() throws RtMidiNativeException {
         if (this.api != null && this.clientName != null)
@@ -82,13 +88,13 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
      *
      * @param callback the callback which will be triggered when a new {@link MidiMessage} is sent to this port
      * @throws NullPointerException if {@code callback} is {@code null}
-     * @throws RtMidiException      if a callback already exists for this port which must be removed using {@link #removeCallback}
+     * @throws RtMidiPortException  if a callback already exists for this port which must be removed using {@link #removeCallback}
      */
-    public void setCallback(MidiMessageCallback callback) throws NullPointerException, RtMidiException {
+    public void setCallback(MidiMessageCallback callback) throws NullPointerException, RtMidiPortException {
         requireNonNull(callback);
         this.checkIsDestroyed();
         if (this.midiMessageCallback != null)
-            throw new RtMidiException("Cannot set callback there is an existing callback registered, " +
+            throw new RtMidiPortException("Cannot set callback there is an existing callback registered, " +
                     "call removeCallback() to remove.");
         this.midiMessageCallback = callback;
         this.midiMessage = new MidiMessage();
@@ -131,6 +137,6 @@ public class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
     /**
      * @return the last received {@link MidiMessage} from the callback or {@code null} if none exists
      */
-    public MidiMessage getLastMessage() { return this.midiMessage; }
+    public @Nullable MidiMessage getLastMessage() { return this.midiMessage; }
 
 }

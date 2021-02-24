@@ -26,11 +26,11 @@ public abstract class MidiPort<P extends RtMidiPtr> {
 
     //region Constructors
 
-    protected  /* constructor */ MidiPort(Info portInfo) throws NullPointerException {
+    protected /* constructor */ MidiPort(Info portInfo) throws NullPointerException {
         this.info = requireNonNull(portInfo, "Constructor parameter portInfo cannot be null!");
     }
 
-    protected  /* constructor */ MidiPort(Info portInfo, RtMidiApi api, String clientName) throws NullPointerException {
+    protected /* constructor */ MidiPort(Info portInfo, RtMidiApi api, String clientName) throws NullPointerException {
         this(portInfo);
         this.api = requireNonNull(api, "Constructor parameter api cannot be null!");
         this.clientName = requireNonNull(clientName, "Constructor parameter clientName cannot be null!");
@@ -83,12 +83,14 @@ public abstract class MidiPort<P extends RtMidiPtr> {
      * TODO doc!
      *
      * @param name
-     * @throws RtMidiException if this platform does not support virtual ports, see {@link RtMidi#supportsVirtualPorts()}
+     * @throws RtMidiPortException   if this platform does not support virtual ports, see {@link RtMidi#supportsVirtualPorts()}
+     *                               or if this port has already been destroyed
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public void openVirtual(String name) throws RtMidiException {
+    public void openVirtual(String name) throws RtMidiPortException, RtMidiNativeException {
         this.checkIsDestroyed();
         if (!RtMidi.supportsVirtualPorts())
-            throw new RtMidiException("Platform " + Platform.RESOURCE_PREFIX + " does not support virtual ports");
+            throw new RtMidiPortException("Platform " + Platform.RESOURCE_PREFIX + " does not support virtual ports");
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_open_virtual_port(this.ptr, name);
         this.checkErrors();
@@ -96,7 +98,13 @@ public abstract class MidiPort<P extends RtMidiPtr> {
         this.isVirtual = true;
     }
 
-    public void close() {
+    /**
+     * TODO doc!
+     *
+     * @throws RtMidiPortException   if this port has already been destroyed
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
+     */
+    public void close() throws RtMidiPortException, RtMidiNativeException {
         this.checkIsDestroyed();
         this.preventSegfault();
         RtMidiLibrary.getInstance().rtmidi_close_port(this.ptr);

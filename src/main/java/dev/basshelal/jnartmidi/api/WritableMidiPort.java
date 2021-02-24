@@ -6,7 +6,7 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 
 import static java.util.Objects.requireNonNull;
 
-public class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
+public final class WritableMidiPort extends MidiPort<RtMidiOutPtr> {
 
     private byte[] messageBuffer;
 
