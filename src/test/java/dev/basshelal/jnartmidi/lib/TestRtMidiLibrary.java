@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests all 22 of the exported native C functions from the RtMidi library found in {@link RtMidiLibrary}
  */
-@SuppressWarnings("KotlinInternalInJava")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressWarnings({"unused"})
 public class TestRtMidiLibrary {
 
     private static RtMidiLibrary lib;
@@ -89,9 +89,7 @@ public class TestRtMidiLibrary {
 
     // GC or JUnit causes something to go wong when running all tests in succession, a slight wait fixes it somehow
     @BeforeEach
-    public void beforeEach() {
-        sleep(100);
-    }
+    public void beforeEach() { sleep(50); }
 
     @DisplayName("0 rtmidi_get_compiled_api")
     @Order(0)
@@ -444,6 +442,7 @@ public class TestRtMidiLibrary {
 
         RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
             assertNotNull(message);
+            assertNotNull(messageSize);
             assertEquals(sentMessage.length, messageSize.intValue());
             for (int i = 0; i < messageSize.intValue(); i++)
                 assertEquals(sentMessage[i], message.getByte(i));
@@ -479,6 +478,7 @@ public class TestRtMidiLibrary {
 
         RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
             assertNotNull(message);
+            assertNotNull(messageSize);
             assertEquals(sentMessage.length, messageSize.intValue());
             for (int i = 0; i < messageSize.intValue(); i++)
                 assertEquals(sentMessage[i], message.getByte(i));
@@ -528,9 +528,7 @@ public class TestRtMidiLibrary {
         byte[] sentMessage = new byte[]{(byte) MidiMessage.TIMING_CLOCK};
         AtomicBoolean messageReceived = new AtomicBoolean(false);
 
-        RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> {
-            messageReceived.set(true);
-        };
+        RtMidiCCallback callback = (timeStamp, message, messageSize, userData) -> messageReceived.set(true);
 
         lib.rtmidi_in_set_callback(readable, callback, null);
 
