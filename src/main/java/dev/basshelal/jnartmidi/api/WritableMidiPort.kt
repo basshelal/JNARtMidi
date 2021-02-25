@@ -5,6 +5,8 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr
 
 class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
+    override lateinit var ptr: RtMidiOutPtr
+
     private var messageBuffer: ByteArray = ByteArray(0)
 
     constructor(info: Info) : super(info) {
@@ -32,9 +34,11 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
     }
 
     override fun createPtr() {
-        ptr = if (api != null && clientName != null)
-            RtMidiLibrary.instance.rtmidi_out_create(api.number, clientName)
-        else RtMidiLibrary.instance.rtmidi_out_create_default()
+        ptr = chosenApi?.let { api ->
+            chosenClientName?.let { clientName ->
+                RtMidiLibrary.instance.rtmidi_out_create(api.number, clientName)
+            }
+        } ?: RtMidiLibrary.instance.rtmidi_out_create_default()
         checkErrors()
         isDestroyed = false
     }

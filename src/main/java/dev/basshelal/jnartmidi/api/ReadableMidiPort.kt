@@ -9,6 +9,8 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr
 // TODO: 23/02/2021 More specific exceptions!
 class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
+    override lateinit var ptr: RtMidiInPtr
+
     // TODO: 23/02/2021 Test idea! Make a Port and set its callback then make it unreachable and thus ready for GC,
     //  then force a GC and see what happens.
     private var cCallback: RtMidiCCallback? = null
@@ -49,7 +51,7 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     override fun getApi(): RtMidiApi {
         checkIsDestroyed()
         preventSegfault()
-        val result = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr!!)
+        val result = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
         checkErrors()
         return RtMidiApi.fromInt(result)
     }
@@ -58,9 +60,11 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      * @inheritDoc
      */
     override fun createPtr() {
-        ptr = if (api != null && clientName != null)
-            RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
-        else RtMidiLibrary.instance.rtmidi_in_create_default()
+        ptr = chosenApi?.let { api ->
+            chosenClientName?.let { clientName ->
+                RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
+            }
+        } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
         checkErrors()
         isDestroyed = false
     }
