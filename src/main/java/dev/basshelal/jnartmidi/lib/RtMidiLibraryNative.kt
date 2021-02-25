@@ -8,7 +8,7 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr
 import java.nio.ByteBuffer
 
-internal class RtMidiLibraryNative : RtMidiLibrary {
+class RtMidiLibraryNative : RtMidiLibrary {
 
     companion object {
         @JvmStatic
@@ -45,7 +45,7 @@ internal class RtMidiLibraryNative : RtMidiLibrary {
 
     external override fun rtmidi_in_get_current_api(device: RtMidiInPtr): Int
 
-    external override fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer)
+    external override fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer?)
 
     external override fun rtmidi_in_cancel_callback(device: RtMidiInPtr)
 

@@ -56,7 +56,7 @@ public class TestRtMidiApi {
     @DisplayName("Available APIs")
     @Test
     public void testAvailableAPIs() throws RtMidiException {
-        List<RtMidiApi> apis = RtMidi.getAvailableApis();
+        List<RtMidiApi> apis = RtMidi.availableApis();
 
         if (Platform.isLinux()) assertTrue(apis.contains(RtMidiApi.LINUX_ALSA));
         if (Platform.isWindows()) assertTrue(apis.contains(RtMidiApi.WINDOWS_MM));

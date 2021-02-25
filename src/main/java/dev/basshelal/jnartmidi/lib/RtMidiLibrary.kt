@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
  * @author Bassam Helal
  */
 @Suppress("FunctionName", "unused")
-internal interface RtMidiLibrary : Library {
+interface RtMidiLibrary : Library {
 
     companion object {
         const val LIBRARY_NAME = "rtmidi"
@@ -370,7 +370,7 @@ internal interface RtMidiLibrary : Library {
      * Original signature : `void rtmidi_in_set_callback(RtMidiInPtr, RtMidiCCallback, void*)`<br></br>
      * *native declaration : rtmidi_c.h:144*
      */
-    fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer)
+    fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer?)
 
     /**
      * ! See \ref RtMidiIn::cancelCallback().<br></br>

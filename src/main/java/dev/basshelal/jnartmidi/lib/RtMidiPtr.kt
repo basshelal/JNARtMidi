@@ -8,7 +8,7 @@ import com.sun.jna.Structure.FieldOrder
  * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
  */
 @FieldOrder("ptr", "data", "ok", "msg")
-internal open class RtMidiPtr : Structure {
+open class RtMidiPtr : Structure {
 
     /**
      * C type : void*
