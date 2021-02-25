@@ -8,7 +8,7 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr
 import java.nio.ByteBuffer
 
-class RtMidiLibraryNative : RtMidiLibrary {
+internal class RtMidiLibraryNative : RtMidiLibrary {
 
     companion object {
         @JvmStatic
@@ -19,7 +19,7 @@ class RtMidiLibraryNative : RtMidiLibrary {
         }
     }
 
-    external override fun rtmidi_get_compiled_api(apis: IntArray, apis_size: Int): Int
+    external override fun rtmidi_get_compiled_api(apis: IntArray?, apis_size: Int): Int
 
     external override fun rtmidi_api_name(api: Int): String
 

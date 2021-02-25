@@ -1,5 +1,6 @@
 package dev.basshelal.jnartmidi.api;
 
+import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 /**
  * The entry point to the JNARtMidi Library.
  * <br>
- * Note: Before using anything in the library be sure to read {@link RtMidiLibraryLoader}
+ * Note: Before using anything in the library be sure to call {@link #addLibrarySearchPath}
  * first to ensure the RtMidi native library is loaded correctly.
  * <br>
  * Getting Started:<br>
@@ -28,6 +29,42 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 public /* static */ class RtMidi {
 
     private RtMidi() { /* No instances */ }
+
+    /**
+     * Use this to add search paths for the RtMidi native library.
+     *
+     * If the user already has RtMidi installed on their system, this shouldn't be necessary, however, if you are
+     * bundling built RtMidi libraries with your application, you must call this function with the locations to your
+     * libraries.
+     *
+     * The convention is to separate folders by {@link com.sun.jna.Platform#RESOURCE_PREFIX} such as:
+     * <ul>
+     *     <li>linux-x86-64</li>
+     *     <li>linux-aarch64</li>
+     *     <li>win32-x86-64</li>
+     *     <li>darwin-x86-64</li>
+     * </ul>
+     *
+     * Where each folder contains that platform's shared library using that platform's naming convention convention.
+     *
+     * This way you can only call this function once no matter the platform, as long as it is supported.
+     *
+     * For example, if your application is supported on x86-64 Linux, Windows and MacOS you would just do:
+     * <br>
+     * <code>
+     *     if (Platform.ARCH.equals("x86-64") && (Platform.isLinux() || Platform.isWindows() || Platform.isMac())) {
+     *         RtMidiLibraryLoader.addSearchPath("your-libs-directory" + Platform.RESOURCE_PREFIX);
+     *     } else throw new IllegalStateException("Unsupported Platform " + Platform.RESOURCE_PREFIX);
+     * </code>
+     * <br>
+     * This is all from JNA's handling and convention of library loading, see {@link com.sun.jna.NativeLibrary} or
+     * the JNA documentation for more.
+     *
+     * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
+     */
+    public static void addLibrarySearchPath(String path) {
+        NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path);
+    }
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,

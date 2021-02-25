@@ -8,7 +8,7 @@ import com.sun.jna.Structure.FieldOrder
  * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
  */
 @FieldOrder("ptr", "data", "ok", "msg")
-open class RtMidiPtr : Structure {
+internal open class RtMidiPtr : Structure {
 
     /**
      * C type : void*
@@ -26,7 +26,7 @@ open class RtMidiPtr : Structure {
      * C type : bool
      */
     @JvmField
-    var ok = false
+    var ok: Boolean = false
 
     /**
      * C type : const char*

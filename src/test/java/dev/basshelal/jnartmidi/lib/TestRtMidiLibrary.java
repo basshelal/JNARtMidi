@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import dev.basshelal.jnartmidi.api.MidiMessage;
 import dev.basshelal.jnartmidi.api.RtMidi;
 import dev.basshelal.jnartmidi.api.RtMidiApi;
-import dev.basshelal.jnartmidi.api.RtMidiLibraryLoader;
 
 import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
 import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
@@ -35,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests all 22 of the exported native C functions from the RtMidi library found in {@link RtMidiLibrary}
  */
+@SuppressWarnings("KotlinInternalInJava")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestRtMidiLibrary {
 
@@ -80,7 +80,7 @@ public class TestRtMidiLibrary {
 
     @BeforeAll
     public static void setup() {
-        RtMidiLibraryLoader.addSearchPath("bin/" + Platform.RESOURCE_PREFIX);
+        RtMidi.addLibrarySearchPath("bin/" + Platform.RESOURCE_PREFIX);
         lib = RtMidiLibrary.getInstance();
     }
 

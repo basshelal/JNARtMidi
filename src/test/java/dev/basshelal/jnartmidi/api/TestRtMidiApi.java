@@ -11,19 +11,19 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("KotlinInternalInJava")
 public class TestRtMidiApi {
 
     private static RtMidiLibrary lib;
 
     @BeforeAll
     public static void setup() {
-        RtMidiLibraryLoader.addSearchPath("bin/" + Platform.RESOURCE_PREFIX);
+        RtMidi.addLibrarySearchPath("bin/" + Platform.RESOURCE_PREFIX);
         lib = RtMidiLibrary.getInstance();
     }
 

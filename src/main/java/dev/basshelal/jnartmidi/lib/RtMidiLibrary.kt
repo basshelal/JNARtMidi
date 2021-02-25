@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
  * @author Bassam Helal
  */
 @Suppress("FunctionName", "unused")
-interface RtMidiLibrary : Library {
+internal interface RtMidiLibrary : Library {
 
     companion object {
         const val LIBRARY_NAME = "rtmidi"
@@ -246,7 +246,7 @@ interface RtMidiLibrary : Library {
      * number of items written to `apis` array otherwise.
      * A negative return value indicates an error.
      */
-    fun rtmidi_get_compiled_api(apis: IntArray, apis_size: Int): Int
+    fun rtmidi_get_compiled_api(apis: IntArray?, apis_size: Int): Int
 
     /**
      * ! See \ref RtMidi::getApiName().<br></br>
