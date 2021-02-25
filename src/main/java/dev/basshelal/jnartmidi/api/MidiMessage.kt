@@ -15,7 +15,7 @@ class MidiMessage
     var size: Int
         get() = data.size
         set(value) {
-            require(value < 0) { "Size cannot be less than 0: $value" }
+            require(value > 0) { "Size cannot be less than 0: $value" }
             if (value != data.size) data = IntArray(value)
         }
 
