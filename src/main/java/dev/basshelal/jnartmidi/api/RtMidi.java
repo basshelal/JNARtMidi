@@ -5,7 +5,6 @@ import com.sun.jna.Platform;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;

@@ -4,9 +4,6 @@ import com.sun.jna.Pointer;
 
 import org.jetbrains.annotations.Nullable;
 
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiNativeException;
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiPortException;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
 

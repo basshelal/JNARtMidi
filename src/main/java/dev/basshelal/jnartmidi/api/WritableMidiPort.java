@@ -1,6 +1,5 @@
 package dev.basshelal.jnartmidi.api;
 
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary;
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 

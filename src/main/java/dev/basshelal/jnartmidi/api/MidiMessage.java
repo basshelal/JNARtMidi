@@ -2,8 +2,6 @@ package dev.basshelal.jnartmidi.api;
 
 import java.util.Arrays;
 
-import dev.basshelal.jnartmidi.api.exceptions.RtMidiException;
-
 import static java.util.Objects.requireNonNull;
 
 public class MidiMessage {
