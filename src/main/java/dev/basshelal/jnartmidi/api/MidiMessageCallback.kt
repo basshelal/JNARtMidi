@@ -41,5 +41,17 @@ interface MidiMessageCallback {
                 }
             }
         }
+
+        /**
+         * For cleaner callback creation with Kotlin
+         */
+        @JvmStatic
+        inline operator fun invoke(crossinline onMessage: (message: MidiMessage) -> Unit): MidiMessageCallback {
+            return object : MidiMessageCallback {
+                override fun onMessage(message: MidiMessage, deltaTime: Double) {
+                    onMessage(message)
+                }
+            }
+        }
     }
 }

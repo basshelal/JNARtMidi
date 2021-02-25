@@ -100,7 +100,7 @@ public final class ReadableMidiPort extends MidiPort<RtMidiInPtr> {
             if (message == null || messageSize == null) return; // prevent NPE or worse segfault
             int size = messageSize.intValue();
             // memalloc in realtime code! Dangerous but necessary and extremely rare
-            if (this.midiMessage.size() < size) this.midiMessage.setSize(size);
+            if (this.midiMessage.getSize() < size) this.midiMessage.setSize(size);
             for (int i = 0; i < size; i++) this.midiMessage.set(i, message.getByte(i));
             this.midiMessageCallback.onMessage(this.midiMessage, timeStamp);
         };

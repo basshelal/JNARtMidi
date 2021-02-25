@@ -46,9 +46,9 @@ internal open class RtMidiPtr : Structure {
     }
 
     constructor(other: RtMidiPtr) : this(other.pointer) {
-        ptr = other.ptr
-        data = other.data
-        ok = other.ok
-        msg = other.msg
+        this.ptr = other.ptr
+        this.data = other.data
+        this.ok = other.ok
+        this.msg = other.msg
     }
 }
