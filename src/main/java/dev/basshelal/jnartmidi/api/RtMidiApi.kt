@@ -44,10 +44,5 @@ class RtMidiApi private constructor(api: Int) {
 
     override fun hashCode(): Int = Objects.hash(name, displayName)
 
-    override fun toString(): String {
-        return "RtMidiApi{" +
-                "name='" + name + "'" +
-                ", displayName='" + displayName + "'" +
-                "}"
-    }
+    override fun toString(): String = "RtMidiApi{name='$name', displayName='$displayName'}"
 }

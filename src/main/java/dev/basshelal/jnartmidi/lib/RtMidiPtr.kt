@@ -52,3 +52,7 @@ open class RtMidiPtr : Structure {
         this.msg = other.msg
     }
 }
+
+class RtMidiInPtr : RtMidiPtr()
+
+class RtMidiOutPtr : RtMidiPtr()

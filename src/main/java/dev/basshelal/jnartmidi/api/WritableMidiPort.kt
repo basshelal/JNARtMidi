@@ -1,7 +1,7 @@
 package dev.basshelal.jnartmidi.api
 
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr
+import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
 
 class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 

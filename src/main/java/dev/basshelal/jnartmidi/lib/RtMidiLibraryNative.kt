@@ -4,11 +4,9 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSizeByReference
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr
 import java.nio.ByteBuffer
 
-class RtMidiLibraryNative : RtMidiLibrary {
+internal class RtMidiLibraryNative : RtMidiLibrary {
 
     companion object {
         @JvmStatic

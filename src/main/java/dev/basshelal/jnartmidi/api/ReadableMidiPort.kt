@@ -1,10 +1,10 @@
 package dev.basshelal.jnartmidi.api
 
 import com.sun.jna.Pointer
+import dev.basshelal.jnartmidi.lib.RtMidiInPtr
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr
 
 // TODO: 23/02/2021 More specific exceptions!
 class ReadableMidiPort : MidiPort<RtMidiInPtr> {

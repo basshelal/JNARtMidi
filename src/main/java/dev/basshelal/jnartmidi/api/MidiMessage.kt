@@ -4,9 +4,9 @@ class MidiMessage
 @JvmOverloads constructor(size: Int = DEFAULT_DATA_SIZE) {
 
     /**
-     * @return the int array backing this [MidiMessage]
+     * @return the [IntArray] backing this [MidiMessage]
      * **WARNING:** any changes made to the array will be reflected in this [MidiMessage] causing
-     * unexpected strange behavior, if you plan on modifying the returned array, use one of the methods that provide
+     * unexpected strange behavior, if you plan on modifying the returned array, use one of the functions that provide
      * you with a copy: [dataCopy] , [getData]
      */
     var data: IntArray = IntArray(size)
@@ -53,8 +53,7 @@ class MidiMessage
         require(buffer.size >= data.size) {
             """Passed in buffer is not large enough to contain data, buffer length: ${buffer.size} data size: ${data.size}"""
         }
-        System.arraycopy(data, 0, buffer, 0, data.size)
-        return buffer
+        return data.copyInto(buffer)
     }
 
     val dataCopy: IntArray
@@ -182,11 +181,9 @@ class MidiMessage
      * Retrieves the number of data bytes associated with a particular status
      * byte value.
      *
-     * @param status status byte value, which must represent a short MIDI
-     * message
+     * @param status status byte value, which must represent a short MIDI message
      * @return data length in bytes (0, 1, or 2)
-     * @throws RtMidiException if the `status` argument does not
-     * represent the status byte for any short message
+     * @throws RtMidiException if the `status` argument does not represent the status byte for any short message
      */
     private fun getDataLength(status: Int): Int {
         // system common and system real-time messages
@@ -216,36 +213,26 @@ class MidiMessage
 
         /**
          * Status byte for MIDI Time Code Quarter Frame message (0xF1, or 241).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val MIDI_TIME_CODE = 241
 
         /**
          * Status byte for Song Position Pointer message (0xF2, or 242).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val SONG_POSITION_POINTER = 242
 
         /**
          * Status byte for MIDI Song Select message (0xF3, or 243).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val SONG_SELECT = 243
 
         /**
          * Status byte for Tune Request message (0xF6, or 246).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val TUNE_REQUEST = 246
 
         /**
          * Status byte for End of System Exclusive message (0xF7, or 247).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val END_OF_EXCLUSIVE = 247
 
@@ -253,43 +240,31 @@ class MidiMessage
 
         /**
          * Status byte for Timing Clock message (0xF8, or 248).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val TIMING_CLOCK = 248
 
         /**
          * Status byte for Start message (0xFA, or 250).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val START = 250
 
         /**
          * Status byte for Continue message (0xFB, or 251).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val CONTINUE = 251
 
         /**
          * Status byte for Stop message (0xFC, or 252).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val STOP = 252
 
         /**
          * Status byte for Active Sensing message (0xFE, or 254).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val ACTIVE_SENSING = 254
 
         /**
          * Status byte for System Reset message (0xFF, or 255).
-         *
-         * @see javax.sound.midi.MidiMessage.getStatus
          */
         const val SYSTEM_RESET = 255
 
@@ -306,8 +281,7 @@ class MidiMessage
         const val NOTE_ON = 144
 
         /**
-         * Command value for Polyphonic Key Pressure (Aftertouch) message (0xA0, or
-         * 160).
+         * Command value for Polyphonic Key Pressure (Aftertouch) message (0xA0, or 160).
          */
         const val POLY_PRESSURE = 160
 

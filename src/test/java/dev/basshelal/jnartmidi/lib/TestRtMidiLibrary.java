@@ -22,8 +22,6 @@ import dev.basshelal.jnartmidi.api.RtMidi;
 import dev.basshelal.jnartmidi.api.RtMidiApi;
 
 import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
-import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiInPtr;
-import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiOutPtr;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

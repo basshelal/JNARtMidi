@@ -7,16 +7,18 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary
 /**
  * The entry point to the JNARtMidi Library.
  *
- * Note: Before using anything in the library be sure to call [.addLibrarySearchPath]
- * first to ensure the RtMidi native library is loaded correctly.
+ * ### Getting Started:
  *
- * Getting Started:
- * Create a [ReadableMidiPort] by getting a [MidiPort.Info] from [.readableMidiPorts],
- * similarly for [WritableMidiPort].
+ * Before using *anything* in the library be sure to call [RtMidi.addLibrarySearchPath]
+ * first to ensure the RtMidi native library is loaded correctly,
+ * see [RtMidi.addLibrarySearchPath] for details.
  *
- * [MidiPort]s have a [constructor][MidiPort.MidiPort]
- * which allows you to choose the [RtMidiApi] to use on the port. The [RtMidiApi]s available to use can
- * be retrieved using [.getAvailableApis].
+ * Create a [ReadableMidiPort] by getting a [MidiPort.Info] from [RtMidi.readableMidiPorts],
+ * similarly for [WritableMidiPort]s by calling [RtMidi.writableMidiPorts].
+ *
+ * [MidiPort]s have a constructor
+ * which allows you to choose the [RtMidiApi] to use on the port.
+ * The [RtMidiApi]s available to use on the client's machine can be retrieved using [RtMidi.availableApis].
  *
  * @author Bassam Helal
  */
@@ -25,9 +27,9 @@ object RtMidi {
     /**
      * Use this to add search paths for the RtMidi native library.
      *
-     * If the user already has RtMidi installed on their system, this shouldn't be necessary, however, if you are
-     * bundling built RtMidi libraries with your application, you must call this function with the locations to your
-     * libraries.
+     * If the user already has RtMidi installed on their system using the default library installing mechanisms,
+     * this shouldn't be necessary, however, if you are bundling built RtMidi libraries with your application,
+     * you must call this function with the locations to your libraries.
      *
      * The convention is to separate folders by [com.sun.jna.Platform.RESOURCE_PREFIX] such as:
      *
@@ -35,9 +37,10 @@ object RtMidi {
      *  * linux-aarch64
      *  * win32-x86-64
      *  * darwin-x86-64
+     *  * etc...
      *
-     *
-     * Where each folder contains that platform's shared library using that platform's naming convention convention.
+     * Where each folder contains that platform's shared library using that platform's shared library naming convention
+     * convention, ie `librtmidi.so` on GNU/Linux.
      *
      * This way you can only call this function once no matter the platform, as long as it is supported.
      *
@@ -89,8 +92,8 @@ object RtMidi {
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
         if (!ptr.ok) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
-            MidiPort.Info(RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
-                    it, MidiPort.Info.Type.READABLE)
+            MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
+                    number = it, type = MidiPort.Info.Type.READABLE)
         }
         RtMidiLibrary.instance.rtmidi_in_free(ptr)
         return result
@@ -106,8 +109,8 @@ object RtMidi {
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
         if (!ptr.ok) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
-            MidiPort.Info(RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
-                    it, MidiPort.Info.Type.WRITABLE)
+            MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
+                    number = it, type = MidiPort.Info.Type.WRITABLE)
         }
         RtMidiLibrary.instance.rtmidi_out_free(ptr)
         return result

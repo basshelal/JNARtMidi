@@ -16,14 +16,14 @@ import java.nio.ByteBuffer
  * [RtMidi C interface documentation](https://www.music.mcgill.ca/~gary/rtmidi/group__C-interface.html).
  *
  * Implementation found in [RtMidiLibraryNative] where the methods are "implemented"
- * using the `native` keyword.
+ * using the `external` keyword, Kotlin's version of Java's `native` keyword.
  *
  * To use the library use [RtMidiLibrary.instance].
  *
  * @author Bassam Helal
  */
 @Suppress("FunctionName", "unused")
-interface RtMidiLibrary : Library {
+internal interface RtMidiLibrary : Library {
 
     companion object {
         const val LIBRARY_NAME = "rtmidi"
@@ -211,12 +211,10 @@ interface RtMidiLibrary : Library {
                 8 -> NativeSize(pointer.getLong(0))
                 else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
             }
-            set(value) {
-                when (NativeSize.SIZE) {
-                    4 -> pointer.setInt(0, value.toInt())
-                    8 -> pointer.setLong(0, value.toLong())
-                    else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
-                }
+            set(value) = when (NativeSize.SIZE) {
+                4 -> pointer.setInt(0, value.toInt())
+                8 -> pointer.setLong(0, value.toLong())
+                else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
             }
 
         init {
@@ -224,9 +222,6 @@ interface RtMidiLibrary : Library {
         }
     }
 
-    class RtMidiInPtr : RtMidiPtr()
-
-    class RtMidiOutPtr : RtMidiPtr()
 
     //=============================================================================================
     //=================================     RtMidi API     ========================================
