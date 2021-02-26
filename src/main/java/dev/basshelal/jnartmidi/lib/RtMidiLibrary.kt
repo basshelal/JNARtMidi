@@ -22,185 +22,73 @@ import java.nio.ByteBuffer
  *
  * @author Bassam Helal
  */
-@Suppress("FunctionName", "unused")
+@Suppress("FunctionName")
 internal interface RtMidiLibrary : Library {
 
     companion object {
+        /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"
 
-        /**
-         * @return A usable [RtMidiLibrary] instance
-         */
+        /** @return A usable [RtMidiLibrary] instance */
         @JvmStatic
-        val instance: RtMidiLibrary
+        inline val instance: RtMidiLibrary
             get() = RtMidiLibraryNative.instance
     }
 
     //=============================================================================================
     //====================================     Types     ==========================================
     //=============================================================================================
-    /**
-     * ! \brief MIDI API specifier arguments.  See \ref RtMidi::Api.<br></br>
-     * *native declaration : rtmidi_c.h:23*<br></br>
-     * enum values
-     */
+    /** MIDI API specifier arguments. See RtMidi::Api */
     interface RtMidiApi {
         companion object {
-            /**
-             * < Search for a working compiled API.<br></br>
-             * *native declaration : rtmidi_c.h:16*
-             */
+            /** Search for a working compiled API. */
             const val RTMIDI_API_UNSPECIFIED = 0
 
-            /**
-             * < Macintosh OS-X CoreMIDI API.<br></br>
-             * *native declaration : rtmidi_c.h:17*
-             */
+            /** Macintosh OS-X CoreMIDI API */
             const val RTMIDI_API_MACOSX_CORE = 1
 
-            /**
-             * < The Advanced Linux Sound Architecture API.<br></br>
-             * *native declaration : rtmidi_c.h:18*
-             */
+            /** The Advanced Linux Sound Architecture API */
             const val RTMIDI_API_LINUX_ALSA = 2
 
-            /**
-             * < The Jack Low-Latency MIDI Server API.<br></br>
-             * *native declaration : rtmidi_c.h:19*
-             */
+            /** The Jack Low-Latency MIDI Server API */
             const val RTMIDI_API_UNIX_JACK = 3
 
-            /**
-             * < The Microsoft Multimedia MIDI API.<br></br>
-             * *native declaration : rtmidi_c.h:20*
-             */
+            /** The Microsoft Multimedia MIDI API */
             const val RTMIDI_API_WINDOWS_MM = 4
 
-            /**
-             * < A compilable but non-functional API.<br></br>
-             * *native declaration : rtmidi_c.h:21*
-             */
+            /** A compilable but non-functional API */
             const val RTMIDI_API_RTMIDI_DUMMY = 5
 
-            /**
-             * < Number of values in this enum.<br></br>
-             * *native declaration : rtmidi_c.h:22*
-             */
+            /** < Number of values in this enum */
             const val RTMIDI_API_NUM = 6
         }
     }
 
     /**
-     * ! \brief Defined RtMidiError types. See \ref RtMidiError::Type.<br></br>
-     * *native declaration : rtmidi_c.h:37*<br></br>
-     * enum values
-     */
-    interface RtMidiErrorType {
-        companion object {
-            /**
-             * < A non-critical error.<br></br>
-             * *native declaration : rtmidi_c.h:26*
-             */
-            const val RTMIDI_ERROR_WARNING = 0
-
-            /**
-             * < A non-critical error which might be useful for debugging.<br></br>
-             * *native declaration : rtmidi_c.h:27*
-             */
-            const val RTMIDI_ERROR_DEBUG_WARNING = 1
-
-            /**
-             * < The default, unspecified error type.<br></br>
-             * *native declaration : rtmidi_c.h:28*
-             */
-            const val RTMIDI_ERROR_UNSPECIFIED = 2
-
-            /**
-             * < No devices found on system.<br></br>
-             * *native declaration : rtmidi_c.h:29*
-             */
-            const val RTMIDI_ERROR_NO_DEVICES_FOUND = 3
-
-            /**
-             * < An invalid device ID was specified.<br></br>
-             * *native declaration : rtmidi_c.h:30*
-             */
-            const val RTMIDI_ERROR_INVALID_DEVICE = 4
-
-            /**
-             * < An error occured during memory allocation.<br></br>
-             * *native declaration : rtmidi_c.h:31*
-             */
-            const val RTMIDI_ERROR_MEMORY_ERROR = 5
-
-            /**
-             * < An invalid parameter was specified to a function.<br></br>
-             * *native declaration : rtmidi_c.h:32*
-             */
-            const val RTMIDI_ERROR_INVALID_PARAMETER = 6
-
-            /**
-             * < The function was called incorrectly.<br></br>
-             * *native declaration : rtmidi_c.h:33*
-             */
-            const val RTMIDI_ERROR_INVALID_USE = 7
-
-            /**
-             * < A system driver error occured.<br></br>
-             * *native declaration : rtmidi_c.h:34*
-             */
-            const val RTMIDI_ERROR_DRIVER_ERROR = 8
-
-            /**
-             * < A system error occured.<br></br>
-             * *native declaration : rtmidi_c.h:35*
-             */
-            const val RTMIDI_ERROR_SYSTEM_ERROR = 9
-
-            /**
-             * < A thread error occured.<br></br>
-             * *native declaration : rtmidi_c.h:36*
-             */
-            const val RTMIDI_ERROR_THREAD_ERROR = 10
-        }
-    }
-
-    /**
      * typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message, size_t messageSize, void* userData);
-     * *native declaration : rtmidi_c.h:45*
      */
     interface RtMidiCCallback : Callback {
-        // RealTimeCritical
         operator fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?)
     }
 
-    /**
-     * size_t C type
-     */
+    /** size_t C type */
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     class NativeSize
     @JvmOverloads constructor(value: Long = 0) : IntegerType(SIZE, value) {
         companion object {
-            /**
-             * Size of a size_t integer, in bytes.
-             */
-            var SIZE: Int = Native.SIZE_T_SIZE // Platform.is64Bit() ? 8 : 4;
+            /** Size of a size_t integer, in bytes. */
+            val SIZE: Int = Native.SIZE_T_SIZE // Platform.is64Bit() ? 8 : 4;
         }
 
         // Below is because IntegerType extends java.lang.Number which Kotlin doesn't like
         // and Kotlin wants us to be a kotlin.Number which require the functions below,
         // inconvenient but shouldn't be a problem for us at all in theory
-
         override fun toByte(): Byte = (this as java.lang.Number).byteValue()
-
         override fun toChar(): Char = (this as java.lang.Number).intValue().toChar()
-
         override fun toShort(): Short = (this as java.lang.Number).shortValue()
     }
 
-    /**
-     * Like [NativeSize] but passed by reference, ie in C code size_t *
-     */
+    /** Like [NativeSize] but passed by reference, ie in C code size_t * */
     class NativeSizeByReference(value: NativeSize) : ByReference(NativeSize.SIZE) {
         @JvmOverloads
         constructor(value: Int = 0) : this(NativeSize(value.toLong()))
@@ -222,7 +110,6 @@ internal interface RtMidiLibrary : Library {
         }
     }
 
-
     //=============================================================================================
     //=================================     RtMidi API     ========================================
     //=============================================================================================
@@ -230,12 +117,12 @@ internal interface RtMidiLibrary : Library {
     /**
      * Determine the available compiled MIDI APIs.
      * If the given `apis` parameter is `null`, returns the number of available APIs.
-     * Otherwise, fill the given `apis` array with the [RtMidiApi] values.<br></br>
+     * Otherwise, fill the given `apis` array with the [RtMidiApi] values.
      *
      * Original signature : `int rtmidi_get_compiled_api(RtMidiApi*, unsigned int)`
      *
-     * @param apis      An array to be filled or a null, ensure the array is at least
-     * [RtMidiApi.RTMIDI_API_NUM] in size.
+     * @param apis An array to be filled or `null`,
+     * ensure the array is at least [RtMidiApi.RTMIDI_API_NUM] in size.
      * @param apis_size size of the passed in array `apis`, ignored if `apis` is `null`
      * @return number of items needed for `apis` array if `apis == null`, or
      * number of items written to `apis` array otherwise.
@@ -244,67 +131,58 @@ internal interface RtMidiLibrary : Library {
     fun rtmidi_get_compiled_api(apis: IntArray?, apis_size: Int): Int
 
     /**
-     * ! See \ref RtMidi::getApiName().<br></br>
-     * Original signature : `char* rtmidi_api_name(RtMidiApi)`<br></br>
-     * *native declaration : rtmidi_c.h:63*
+     * See RtMidi::getApiName()
+     * Original signature : `char* rtmidi_api_name(RtMidiApi)`
      */
     fun rtmidi_api_name(api: Int): String
 
     /**
-     * ! See \ref RtMidi::getApiDisplayName().<br></br>
-     * Original signature : `char* rtmidi_api_display_name(RtMidiApi)`<br></br>
-     * *native declaration : rtmidi_c.h:68*
+     * See RtMidi::getApiDisplayName()
+     * Original signature : `char* rtmidi_api_display_name(RtMidiApi)`
      */
     fun rtmidi_api_display_name(api: Int): String
 
     /**
-     * ! See \ref RtMidi::getCompiledApiByName().<br></br>
-     * Original signature : `RtMidiApi rtmidi_compiled_api_by_name(const char*)`<br></br>
-     * *native declaration : rtmidi_c.h:73*
+     * See RtMidi::getCompiledApiByName()
+     * Original signature : `RtMidiApi rtmidi_compiled_api_by_name(const char*)`
      */
     fun rtmidi_compiled_api_by_name(name: String): Int
 
     /**
-     * \brief Open a MIDI port.<br></br>
-     * \param port      Must be greater than 0<br></br>
-     * \param portName  Name for the application port.<br></br>
-     * See RtMidi::openPort().<br></br>
-     * Original signature : `void rtmidi_open_port(RtMidiPtr, unsigned int, const char*)`<br></br>
-     * *native declaration : rtmidi_c.h:86*
+     * Open a MIDI port
+     * @param port Must be greater than 0
+     * @param portName Name for the application port
+     * See RtMidi::openPort()
+     * Original signature : `void rtmidi_open_port(RtMidiPtr, unsigned int, const char*)`
      */
     fun rtmidi_open_port(device: RtMidiPtr, portNumber: Int, portName: String)
 
     /**
-     * \brief Creates a virtual MIDI port to which other software applications can <br></br>
-     * connect.  <br></br>
-     * \param portName  Name for the application port.<br></br>
-     * See RtMidi::openVirtualPort().<br></br>
-     * Original signature : `void rtmidi_open_virtual_port(RtMidiPtr, const char*)`<br></br>
-     * *native declaration : rtmidi_c.h:94*
+     * Creates a virtual MIDI port to which other software applications can connect
+     * @param portName Name for the application port.
+     * See RtMidi::openVirtualPort()
+     * Original signature : `void rtmidi_open_virtual_port(RtMidiPtr, const char*)`
      */
     fun rtmidi_open_virtual_port(device: RtMidiPtr, portName: String)
 
     /**
-     * \brief Close a MIDI connection.<br></br>
-     * See RtMidi::closePort().<br></br>
-     * Original signature : `void rtmidi_close_port(RtMidiPtr)`<br></br>
-     * *native declaration : rtmidi_c.h:100*
+     * Close a MIDI connection
+     * See RtMidi::closePort()
+     * Original signature : `void rtmidi_close_port(RtMidiPtr)`
      */
     fun rtmidi_close_port(device: RtMidiPtr)
 
     /**
-     * \brief Return the number of available MIDI ports.<br></br>
-     * See RtMidi::getPortCount().<br></br>
-     * Original signature : `int rtmidi_get_port_count(RtMidiPtr)`<br></br>
-     * *native declaration : rtmidi_c.h:106*
+     * Return the number of available MIDI ports
+     * See RtMidi::getPortCount()
+     * Original signature : `int rtmidi_get_port_count(RtMidiPtr)`
      */
     fun rtmidi_get_port_count(device: RtMidiPtr): Int
 
     /**
-     * \brief Return a string identifier for the specified MIDI input port number.<br></br>
-     * See RtMidi::getPortName().<br></br>
-     * Original signature : `char* rtmidi_get_port_name(RtMidiPtr, unsigned int)`<br></br>
-     * *native declaration : rtmidi_c.h:112*
+     * Return a string identifier for the specified MIDI input port number
+     * See RtMidi::getPortName()
+     * Original signature : `char* rtmidi_get_port_name(RtMidiPtr, unsigned int)`
      */
     fun rtmidi_get_port_name(device: RtMidiPtr, portNumber: Int): String
 
@@ -314,7 +192,7 @@ internal interface RtMidiLibrary : Library {
 
     /**
      * Create a default [RtMidiInPtr] value, with no initialization, RtMidi will choose its own API and
-     * client name, to set these yourself use [.rtmidi_in_create]
+     * client name, to set these yourself use [rtmidi_in_create]
      * Original signature : `RtMidiInPtr rtmidi_in_create_default()`
      */
     fun rtmidi_in_create_default(): RtMidiInPtr
@@ -323,14 +201,14 @@ internal interface RtMidiLibrary : Library {
      * Create a [RtMidiInPtr] value, with given api, clientName and queueSizeLimit.
      * Original signature : `RtMidiInPtr rtmidi_in_create(RtMidiApi, const char*, unsigned int)`<br></br>
      *
-     * @param api            An [RtMidiApi] to use or 0 ie [RtMidiApi.RTMIDI_API_UNSPECIFIED]
-     * to let RtMidi choose the first suitable API
-     * @param clientName     Non null client name, this will be used to group the ports that are created by the
-     * application.
+     * @param api An [RtMidiApi] to use or 0 ie [RtMidiApi.RTMIDI_API_UNSPECIFIED] to let RtMidi choose the first
+     * suitable API
+     * @param clientName Non null client name, this will be used to group the ports that are created by the
+     * application
      * @param queueSizeLimit Size of the MIDI input queue, negative values are not allowed and 0 may cause segfaults
      * later on, this allocates a queue of this size so keep it reasonable.
      */
-    // TODO: 22/02/2021 queueSizeLimit is bad...
+    // NOTE: Bassam Helal 22-Feb-2021 queueSizeLimit is bad...
     //  basically, it cannot be null (even if using Pointer), cannot be 0 because segfault later and
     //  if a small number, the message queue limit will be reached which floods our output with error messages saying
     //  MidiInAlsa: message queue limit reached!!
@@ -344,54 +222,47 @@ internal interface RtMidiLibrary : Library {
 
     /**
      * Free the given [RtMidiInPtr].
-     * After this operation using the `RtMidiInPtr` in any way within the RtMidi library
-     * (ie [.rtmidi_close_port]) will cause a fatal VM error as a result of a segfault in the native code.
+     * After this operation using the [RtMidiInPtr] in any way within the RtMidi library
+     * (ie [rtmidi_close_port]) will cause a fatal VM error as a result of a segfault in the native code.
      * It is only safe to query the struct's data such as [RtMidiPtr.ok] or [RtMidiPtr.getPointer] etc.
-     * Original signature : `void rtmidi_in_free(RtMidiInPtr)`<br></br>
+     * Original signature : `void rtmidi_in_free(RtMidiInPtr)`
      *
      * @param device the [RtMidiInPtr] to free
      */
     fun rtmidi_in_free(device: RtMidiInPtr)
 
     /**
-     * ! See \ref RtMidiIn::getCurrentApi().<br></br>
-     * Original signature : `RtMidiApi rtmidi_in_get_current_api(RtMidiPtr)`<br></br>
-     * *native declaration : rtmidi_c.h:139*
+     * See RtMidiIn::getCurrentApi()
+     * Original signature : `RtMidiApi rtmidi_in_get_current_api(RtMidiPtr)`
      */
     fun rtmidi_in_get_current_api(device: RtMidiInPtr): Int
 
     /**
-     * ! See \ref RtMidiIn::setCallback().<br></br>
-     * Original signature : `void rtmidi_in_set_callback(RtMidiInPtr, RtMidiCCallback, void*)`<br></br>
-     * *native declaration : rtmidi_c.h:144*
+     * See RtMidiIn::setCallback()
+     * Original signature : `void rtmidi_in_set_callback(RtMidiInPtr, RtMidiCCallback, void*)`
      */
     fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer?)
 
     /**
-     * ! See \ref RtMidiIn::cancelCallback().<br></br>
-     * Original signature : `void rtmidi_in_cancel_callback(RtMidiInPtr)`<br></br>
-     * *native declaration : rtmidi_c.h:149*
+     * See RtMidiIn::cancelCallback()
+     * Original signature : `void rtmidi_in_cancel_callback(RtMidiInPtr)`
      */
     fun rtmidi_in_cancel_callback(device: RtMidiInPtr)
 
     /**
-     * ! See \ref RtMidiIn::ignoreTypes().<br></br>
-     * Original signature : `void rtmidi_in_ignore_types(RtMidiInPtr, bool, bool, bool)`<br></br>
-     * *native declaration : rtmidi_c.h:154*
+     * See RtMidiIn::ignoreTypes()
+     * Original signature : `void rtmidi_in_ignore_types(RtMidiInPtr, bool, bool, bool)`
      */
     fun rtmidi_in_ignore_types(device: RtMidiInPtr, midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean)
 
     /**
-     * Fill the user-provided array with the data bytes for the next available<br></br>
-     * MIDI message in the input queue and return the event delta-time in seconds.<br></br>
-     * \param message   Must point to a char* that is already allocated.<br></br>
-     * SYSEX messages maximum size being 1024, a statically<br></br>
-     * allocated array could<br></br>
-     * be sufficient. <br></br>
-     * \param size      Is used to return the size of the message obtained. <br></br>
-     * See RtMidiIn::getMessage().<br></br>
-     * Original signature : `double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)`<br></br>
-     * *native declaration : rtmidi_c.h:166*
+     * Fill the user-provided array with the data bytes for the next available
+     * MIDI message in the input queue and return the event delta-time in seconds.
+     * @param message Must point to a char* that is already allocated.
+     * SYSEX messages maximum size being 1024, a statically allocated array could be sufficient
+     * @param size Is used to return the size of the message obtained.
+     * See RtMidiIn::getMessage()
+     * Original signature : `double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)`
      */
     fun rtmidi_in_get_message(device: RtMidiInPtr, message: ByteBuffer, size: NativeSizeByReference): Double
 
@@ -407,21 +278,19 @@ internal interface RtMidiLibrary : Library {
     fun rtmidi_out_create_default(): RtMidiOutPtr
 
     /**
-     * \brief Create a RtMidiOutPtr value, with given and clientName.<br></br>
-     * \param api            An optional API id can be specified.<br></br>
-     * \param clientName     An optional client name can be specified. This<br></br>
-     * will be used to group the ports that are created<br></br>
-     * by the application.<br></br>
-     * See RtMidiOut::RtMidiOut().<br></br>
-     * Original signature : `RtMidiOutPtr rtmidi_out_create(RtMidiApi, const char*)`<br></br>
-     * *native declaration : rtmidi_c.h:181*
+     * Create a RtMidiOutPtr value, with given and clientName.
+     * @param api An optional API id can be specified.
+     * @param clientName An optional client name can be specified.
+     * This will be used to group the ports that are created by the application.
+     * See RtMidiOut::RtMidiOut()
+     * Original signature : `RtMidiOutPtr rtmidi_out_create(RtMidiApi, const char*)`
      */
     fun rtmidi_out_create(api: Int, clientName: String): RtMidiOutPtr
 
     /**
      * Free the given [RtMidiOutPtr].
      * After this operation using the `RtMidiOutPtr` in any way within the RtMidi library
-     * (ie [.rtmidi_close_port]) will cause a fatal VM error as a result of a segfault in the native code.
+     * (ie [rtmidi_close_port]) will cause a fatal VM error as a result of a segfault in the native code.
      * It is only safe to query the struct's data such as [RtMidiPtr.ok] or [RtMidiPtr.getPointer] etc.
      * Original signature : `void rtmidi_out_free(RtMidiOutPtr)`<br></br>
      *
@@ -430,16 +299,14 @@ internal interface RtMidiLibrary : Library {
     fun rtmidi_out_free(device: RtMidiOutPtr)
 
     /**
-     * ! See \ref RtMidiOut::getCurrentApi().<br></br>
-     * Original signature : `RtMidiApi rtmidi_out_get_current_api(RtMidiPtr)`<br></br>
-     * *native declaration : rtmidi_c.h:191*
+     * See RtMidiOut::getCurrentApi().
+     * Original signature : `RtMidiApi rtmidi_out_get_current_api(RtMidiPtr)`
      */
     fun rtmidi_out_get_current_api(device: RtMidiOutPtr): Int
 
     /**
-     * ! See \ref RtMidiOut::sendMessage().<br></br>
-     * Original signature : `int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)`<br></br>
-     * *native declaration : rtmidi_c.h:196*
+     * See RtMidiOut::sendMessage().
+     * Original signature : `int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)`
      */
     fun rtmidi_out_send_message(device: RtMidiOutPtr, message: ByteArray, length: Int): Int
 

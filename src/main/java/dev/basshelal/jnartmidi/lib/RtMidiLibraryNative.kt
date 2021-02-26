@@ -6,9 +6,20 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSizeByReference
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
 import java.nio.ByteBuffer
 
+/**
+ * The "implementation" of [RtMidiLibrary] that corresponds to the RtMidi Native Library,
+ * this is done using JNA's [Native.register].
+ *
+ * @author Bassam Helal
+ */
 internal class RtMidiLibraryNative : RtMidiLibrary {
 
     companion object {
+        /**
+         * The instance of [RtMidiLibrary] that corresponds to the RtMidi Native Library with functions "implemented".
+         * If this is used anywhere before calling [dev.basshelal.jnartmidi.api.RtMidi.addLibrarySearchPath]
+         * then you may have an [UnsatisfiedLinkError] or [NoClassDefFoundError] because the library could not be found.
+         */
         @JvmStatic
         val instance: RtMidiLibrary by lazy { RtMidiLibraryNative() }
 

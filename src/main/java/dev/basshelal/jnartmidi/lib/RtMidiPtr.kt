@@ -6,31 +6,25 @@ import com.sun.jna.Structure.FieldOrder
 
 /**
  * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
+ *
+ * @author Bassam Helal
  */
 @FieldOrder("ptr", "data", "ok", "msg")
 open class RtMidiPtr : Structure {
 
-    /**
-     * C type : void*
-     */
+    /** C type : void* */
     @JvmField
     var ptr: Pointer? = null
 
-    /**
-     * C type : void*
-     */
+    /** C type : void* */
     @JvmField
     var data: Pointer? = null
 
-    /**
-     * C type : bool
-     */
+    /** C type : bool */
     @JvmField
     var ok: Boolean = false
 
-    /**
-     * C type : const char*
-     */
+    /** C type : const char* */
     @JvmField
     var msg: String? = null
 
@@ -53,6 +47,8 @@ open class RtMidiPtr : Structure {
     }
 }
 
+/** Used for functions expecting an in device like [RtMidiLibrary.rtmidi_in_free] */
 class RtMidiInPtr : RtMidiPtr()
 
+/** Used for functions expecting an out device like [RtMidiLibrary.rtmidi_out_free] */
 class RtMidiOutPtr : RtMidiPtr()
