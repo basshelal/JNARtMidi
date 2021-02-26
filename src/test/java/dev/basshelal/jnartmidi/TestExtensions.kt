@@ -1,25 +1,39 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package dev.basshelal.jnartmidi
 
 import org.junit.jupiter.api.Assertions
 
-internal infix fun Any?.mustEqual(actual: Any?) = Assertions.assertEquals(this, actual)
+internal inline infix fun Any?.mustEqual(expected: Any?) = Assertions.assertEquals(expected, this)
 
-internal infix fun Array<*>?.mustEqual(actual: Array<*>?) = Assertions.assertArrayEquals(this, actual)
+internal inline infix fun Array<*>?.mustEqual(expected: Array<*>?) = Assertions.assertArrayEquals(expected, this)
 
-internal infix fun Any?.mustNotEqual(actual: Any?) = Assertions.assertNotEquals(this, actual)
+internal inline infix fun Any?.mustNotEqual(expected: Any?) = Assertions.assertNotEquals(expected, this)
 
-internal infix fun Any?.mustBeSameAs(actual: Any?) = Assertions.assertSame(this, actual)
+internal inline infix fun Any?.mustBeSameAs(expected: Any?) = Assertions.assertSame(expected, this)
 
-internal infix fun Any?.mustNotBeSameAs(actual: Any?) = Assertions.assertNotSame(this, actual)
+internal inline infix fun Any?.mustNotBeSameAs(expected: Any?) = Assertions.assertNotSame(expected, this)
 
-internal fun Boolean.mustBeTrue() = Assertions.assertTrue(this)
+internal inline fun Boolean.mustBeTrue() = Assertions.assertTrue(this)
 
-internal fun (() -> Boolean).mustBeTrue() = Assertions.assertTrue(this)
+internal inline fun (() -> Boolean).mustBeTrue() = Assertions.assertTrue(this)
 
-internal fun Boolean.mustBeFalse() = Assertions.assertFalse(this)
+internal inline fun Boolean.mustBeFalse() = Assertions.assertFalse(this)
 
-internal fun (() -> Boolean).mustBeFalse() = Assertions.assertFalse(this)
+internal inline fun (() -> Boolean).mustBeFalse() = Assertions.assertFalse(this)
 
-internal fun Any?.mustBeNull() = Assertions.assertNull(this)
+internal inline fun Any?.mustBeNull() = Assertions.assertNull(this)
 
-internal fun Any?.mustNotBeNull() = Assertions.assertNotNull(this)
+internal inline fun Any?.mustNotBeNull() = Assertions.assertNotNull(this)
+
+internal inline fun ignoreExceptions(printStackTrace: Boolean = false, func: () -> Unit) =
+        ignoreException<Throwable>(printStackTrace, func)
+
+internal inline fun <reified T : Throwable> ignoreException(printStackTrace: Boolean = false, func: () -> Unit) {
+    try {
+        func()
+    } catch (e: Throwable) {
+        if (e !is T) throw e
+        else if (printStackTrace) e.printStackTrace()
+    }
+}
