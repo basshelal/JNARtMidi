@@ -3,10 +3,16 @@
 package dev.basshelal.jnartmidi.lib
 
 import com.sun.jna.Platform
+import com.sun.jna.Pointer
+import dev.basshelal.jnartmidi.anyOf
+import dev.basshelal.jnartmidi.api.MidiMessage
 import dev.basshelal.jnartmidi.api.RtMidi
-import dev.basshelal.jnartmidi.api.RtMidi.readableMidiPorts
-import dev.basshelal.jnartmidi.api.RtMidi.writableMidiPorts
+import dev.basshelal.jnartmidi.api.RtMidi.supportsVirtualPorts
 import dev.basshelal.jnartmidi.api.RtMidiApi
+import dev.basshelal.jnartmidi.assume
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSizeByReference
+import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
 import dev.basshelal.jnartmidi.mustBe
 import dev.basshelal.jnartmidi.mustBeGreaterThan
 import dev.basshelal.jnartmidi.mustBeLessThanOrEqualTo
@@ -20,8 +26,12 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.nio.ByteBuffer
 import kotlin.random.Random
 
+/**
+ * Tests all 22 of the exported native C functions from the RtMidi library found in {@link RtMidiLibrary}
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 internal class TestRtMidiLibrary {
 
@@ -41,13 +51,6 @@ internal class TestRtMidiLibrary {
         fun `After All`() {
         }
 
-    }
-
-    private fun logPorts() {
-        println("\nReadable Midi Ports:")
-        readableMidiPorts().forEach(::println)
-        println("\nWritable Midi Ports:")
-        writableMidiPorts().forEach(::println)
     }
 
     private inline fun RtMidiPtr?.isOk() {
@@ -128,6 +131,8 @@ internal class TestRtMidiLibrary {
         val api = RtMidiApi.fromInt(apiNumber)
         api mustNotBe RtMidiApi.UNSPECIFIED
         apiNumber mustBe api.number
+        api.name mustNotBe anyOf("", null)
+        api.displayName mustNotBe anyOf("", null)
     }
 
     @Order(4)
@@ -149,8 +154,9 @@ internal class TestRtMidiLibrary {
 
         // out ports should contain our newly created in port
         val outPortNames = List(newOutPortCount) { lib.rtmidi_get_port_name(out, it) }
-        val foundOut = outPortNames.any { it.contains(inPortName) }
-        foundOut mustBe true
+        val foundOut = outPortNames.filter { it.contains(inPortName) }
+        foundOut.isNotEmpty() mustBe true
+        foundOut.size mustBe 1
 
         // Open an out port with a unique name!
         val outPortName = outPortName()
@@ -161,10 +167,74 @@ internal class TestRtMidiLibrary {
 
         // in ports should contain our newly created out port
         val inPortNames = List(newInPortCount) { lib.rtmidi_get_port_name(`in`, it) }
-        val foundIn = inPortNames.any { it.contains(outPortName) }
-        foundIn mustBe true
+        val foundIn = inPortNames.filter { it.contains(outPortName) }
+        foundIn.isNotEmpty() mustBe true
+        foundIn.size mustBe 1
 
         free(`in`, out)
+    }
+
+    @Order(5)
+    @Test
+    fun `5 rtmidi_open_virtual_port`() {
+        assume(supportsVirtualPorts(),
+                "Platform ${Platform.RESOURCE_PREFIX} does not support virtual ports, skipping test")
+        val `in` = inCreateDefault()
+        val out = outCreateDefault()
+        val inPortCount = lib.rtmidi_get_port_count(`in`)
+        val outPortCount = lib.rtmidi_get_port_count(out)
+        inPortCount mustBeGreaterThan 0
+        outPortCount mustBeGreaterThan 0
+
+        // Open an in port with a unique name!
+        val inPortName = inPortName()
+        lib.rtmidi_open_virtual_port(`in`, inPortName)
+        val newOutPortCount = lib.rtmidi_get_port_count(out)
+        outPortCount mustNotBe newOutPortCount
+        outPortCount + 1 mustBe newOutPortCount
+
+        // out ports should contain our newly created in port
+        val outPortNames = List(newOutPortCount) { lib.rtmidi_get_port_name(out, it) }
+        val foundOut = outPortNames.filter { it.contains(inPortName) }
+        foundOut.isNotEmpty() mustBe true
+        foundOut.size mustBe 1
+
+        // Open an out port with a unique name!
+        val outPortName = outPortName()
+        lib.rtmidi_open_virtual_port(out, outPortName)
+        val newInPortCount = lib.rtmidi_get_port_count(`in`)
+        inPortCount mustNotBe newInPortCount
+        inPortCount + 1 mustBe newInPortCount
+
+        // in ports should contain our newly created out port
+        val inPortNames = List(newInPortCount) { lib.rtmidi_get_port_name(`in`, it) }
+        val foundIn = inPortNames.filter { it.contains(outPortName) }
+        foundIn.isNotEmpty() mustBe true
+        foundIn.size mustBe 1
+
+        free(`in`, out)
+    }
+
+    @Order(6)
+    @Test
+    fun `6 rtmidi_close_port`() {
+        val `in` = inCreateDefault()
+        val out = outCreateDefault()
+        val inPortCount = lib.rtmidi_get_port_count(`in`)
+        val outPortCount = lib.rtmidi_get_port_count(out)
+        inPortCount mustBeGreaterThan 0
+        outPortCount mustBeGreaterThan 0
+
+        // Open an in port with a unique name!
+        val inPortName = inPortName()
+        lib.rtmidi_open_port(`in`, 0, inPortName)
+        val newOutPortCount = lib.rtmidi_get_port_count(out)
+        outPortCount mustNotBe newOutPortCount
+        outPortCount + 1 mustBe newOutPortCount
+        lib.rtmidi_close_port(`in`)
+        `in`.free() // necessary to truly close!
+        outPortCount mustBe lib.rtmidi_get_port_count(out)
+        out.free()
     }
 
     @Order(7)
@@ -191,14 +261,12 @@ internal class TestRtMidiLibrary {
         outCount mustBeGreaterThan 0
         for (i in 0 until inCount) {
             lib.rtmidi_get_port_name(`in`, i).also {
-                it mustNotBe null
-                it mustNotBe ""
+                it mustNotBe anyOf(null, "")
             }
         }
         for (i in 0 until outCount) {
             lib.rtmidi_get_port_name(out, i).also {
-                it mustNotBe null
-                it mustNotBe ""
+                it mustNotBe anyOf(null, "")
             }
         }
         free(`in`, out)
@@ -266,6 +334,109 @@ internal class TestRtMidiLibrary {
         }.free()
     }
 
+    @Order(13)
+    @Test
+    fun `13 rtmidi_in_set_callback`() {
+        val readable = inCreateDefault()
+        val writable = outCreateDefault()
+        val writableName = outPortName()
+        lib.rtmidi_open_port(writable, 0, writableName)
+        val readableName = inPortName()
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
+        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        var messageReceived = false
+        val callback = object : RtMidiCCallback {
+            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?) {
+                message mustNotBe null
+                messageSize mustNotBe null
+                require(message != null && messageSize != null) // for smart cast
+                sentMessage.size mustBe messageSize.toInt()
+                for (i in 0 until (messageSize.toInt()))
+                    sentMessage[i] mustBe message.getByte(i.toLong())
+                messageReceived = true
+            }
+        }
+        lib.rtmidi_in_set_callback(readable, callback, null)
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
+        wait(200) // wait a little for flag to have changed
+        messageReceived mustBe true
+        free(readable, writable)
+    }
+
+    @Order(14)
+    @Test
+    fun `14 rtmidi_in_cancel_callback`() {
+        val readable = inCreateDefault()
+        val writable = outCreateDefault()
+        val writableName = outPortName()
+        lib.rtmidi_open_port(writable, 0, writableName)
+        val readableName = inPortName()
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
+        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        var messageReceived = false
+        val callback = object : RtMidiCCallback {
+            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?) {
+                message mustNotBe null
+                messageSize mustNotBe null
+                require(message != null && messageSize != null) // for smart cast
+                sentMessage.size mustBe messageSize.toInt()
+                for (i in 0 until messageSize.toInt())
+                    sentMessage[i] mustBe message.getByte(i.toLong())
+                messageReceived = true
+            }
+        }
+        lib.rtmidi_in_set_callback(readable, callback, null)
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
+        wait(200) // wait a little for flag to have changed
+        messageReceived mustBe true
+        messageReceived = false
+        lib.rtmidi_in_cancel_callback(readable)
+
+        // try to send some messages, if readable received them then flag will have changed
+        for (i in 0..20) lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
+        wait(200) // wait a little for flag to have changed
+        messageReceived mustBe false
+        lib.rtmidi_in_free(readable)
+        lib.rtmidi_out_free(writable)
+    }
+
+    @Order(15)
+    @Test
+    fun `15 rtmidi_in_ignore_types`() {
+        val readable = inCreateDefault()
+        val writable = outCreateDefault()
+        val writableName = outPortName()
+        lib.rtmidi_open_port(writable, 0, writableName)
+        val readableName = inPortName()
+        lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
+        var ignoring = false
+        lib.rtmidi_in_ignore_types(readable, midiSysex = ignoring, midiSense = ignoring, midiTime = ignoring)
+        val sentMessage = byteArrayOf(MidiMessage.TIMING_CLOCK.toByte())
+        var messageReceived = false
+        val callback = object : RtMidiCCallback {
+            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?) {
+                messageReceived = true
+            }
+        }
+        lib.rtmidi_in_set_callback(readable, callback, null)
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
+        wait(200) // wait a little for flag to have changed
+        messageReceived mustBe true
+        ignoring = true
+        lib.rtmidi_in_ignore_types(readable, midiSysex = ignoring, midiSense = ignoring, midiTime = ignoring)
+        messageReceived = false
+        lib.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
+        wait(200) // wait a little for flag to have changed
+        messageReceived mustBe false
+        free(readable, writable)
+    }
+
+    @Order(16)
+    @Test
+    fun `16 rtmidi_in_get_message`() {
+        this.`21 rtmidi_out_send_message`()
+    }
+
     @Order(17)
     @Test
     fun `17 rtmidi_out_create_default`() {
@@ -313,5 +484,45 @@ internal class TestRtMidiLibrary {
             val usedApi = lib.rtmidi_out_get_current_api(it)
             api mustBe usedApi
         }.free()
+    }
+
+    @Order(21)
+    @Test
+    fun `21 rtmidi_out_send_message`() {
+        val `in` = inCreateDefault()
+        val out = outCreateDefault()
+        val inPortCount = lib.rtmidi_get_port_count(`in`)
+        val outPortCount = lib.rtmidi_get_port_count(out)
+        inPortCount mustBeGreaterThan 0
+        outPortCount mustBeGreaterThan 0
+
+        // Open an out port with a unique name!
+        val outPortName = outPortName()
+
+        // open the port
+        lib.rtmidi_open_port(out, 0, outPortName)
+
+        // find it on the other side and open that
+        val newInPortCount = lib.rtmidi_get_port_count(`in`)
+        inPortCount mustNotBe newInPortCount
+        inPortCount + 1 mustBe newInPortCount
+
+        // in ports should contain our newly created out port
+        val inPortIndex = newInPortCount - 1
+        val inPortName = inPortName()
+        lib.rtmidi_open_port(`in`, inPortIndex, inPortName)
+
+        // send the out message
+        val message = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        val sent = lib.rtmidi_out_send_message(out, message, message.size)
+        sent mustNotBe -1
+
+        // get the in message and assert they are equal
+        val receivedMessage = byteArrayOf(-1, -1, -1)
+        val got = lib.rtmidi_in_get_message(`in`, ByteBuffer.wrap(receivedMessage),
+                NativeSizeByReference(receivedMessage.size))
+        got mustNotBe -1.0
+        message.asList() mustBe receivedMessage.asList()
+        free(`in`, out)
     }
 }

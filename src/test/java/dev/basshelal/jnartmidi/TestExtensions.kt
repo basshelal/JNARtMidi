@@ -3,6 +3,8 @@
 package dev.basshelal.jnartmidi
 
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assumptions
+import org.opentest4j.AssertionFailedError
 
 internal infix fun Any?.mustBe(expected: Any?) = Assertions.assertEquals(expected, this)
 
@@ -38,6 +40,10 @@ internal inline fun Any?.mustBeNull() = Assertions.assertNull(this)
 
 internal inline fun Any?.mustNotBeNull() = Assertions.assertNotNull(this)
 
+internal inline fun assume(condition: Boolean, message: String = "") = Assumptions.assumeTrue(condition, message)
+
+internal inline fun assume(predicate: () -> Boolean, message: String = "") = assume(predicate(), message)
+
 internal inline fun ignoreExceptions(printStackTrace: Boolean = false, func: () -> Unit) =
         ignoreException<Throwable>(printStackTrace, func)
 
@@ -54,18 +60,52 @@ internal inline fun wait(millis: Number) = Thread.sleep(millis.toLong())
 
 internal inline fun Any?.log() = println(this)
 
-// Below for myItem mustBe anyOf("", "example", "") etc
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+internal inline class AnyOf(val items: Array<Any?> = emptyArray()) {
 
-internal class AnyOf(vararg val items: Any? = emptyArray())
+    inline infix fun mustBe(actual: Any?) {
+        for (it in this.items) {
+            if (actual isEqualTo it) return
+            else if (actual isNotEqualTo it) fail(expected = it, actual = actual)
+        }
+    }
 
-internal class AllOf(vararg val items: Any? = emptyArray())
+    inline infix fun mustNotBe(actual: Any?) {
+        for (it in this.items) {
+            if (actual isNotEqualTo it) return
+            else if (actual isEqualTo it) fail(expected = it, actual = actual)
+        }
+    }
+}
 
-internal inline fun anyOf(vararg expected: Any?) = AnyOf(expected)
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+internal inline class AllOf(val items: Array<Any?> = emptyArray()) {
 
-internal inline fun allOf(vararg expected: Any?) = AllOf(expected)
+    inline infix fun mustBe(actual: Any?) {
+        this.items.forEach {
+            if (actual isNotEqualTo it) fail(expected = it, actual = actual)
+        }
+    }
 
-// TODO: 26/02/2021 Good idea but needs more thought!
-internal infix fun Any?.mustBe(expected: AllOf) = expected.items.forEach { this mustBe it }
+    inline infix fun mustNotBe(actual: Any?) {
+        this.items.forEach {
+            if (actual isEqualTo it) fail(expected = it, actual = actual)
+        }
+    }
+}
 
-// TODO: 26/02/2021 Good idea but needs more thought!
-internal infix fun Any?.mustNotBe(expected: AnyOf) = expected.items.forEach { this mustNotBe it }
+internal inline fun anyOf(vararg items: Any?) = AnyOf(arrayOf(items))
+
+internal inline fun allOf(vararg items: Any?) = AllOf(arrayOf(items))
+
+// someOf and noneOf
+
+internal infix fun Any?.mustBe(expected: AllOf) = expected mustBe this
+
+internal infix fun Any?.mustNotBe(expected: AnyOf) = expected mustNotBe this
+
+private inline infix fun Any?.isEqualTo(other: Any?) = if (this == null) other == null else (this == other)
+
+private inline infix fun Any?.isNotEqualTo(other: Any?) = !(this isEqualTo other)
+
+private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = throw AssertionFailedError()
