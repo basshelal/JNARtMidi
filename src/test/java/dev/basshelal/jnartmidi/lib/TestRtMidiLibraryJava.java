@@ -2,7 +2,6 @@ package dev.basshelal.jnartmidi.lib;
 
 import com.sun.jna.Platform;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.basshelal.jnartmidi.api.MidiMessage;
 import dev.basshelal.jnartmidi.api.RtMidi;
-import dev.basshelal.jnartmidi.api.RtMidiApi;
 
 import static dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -34,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({"unused"})
-public class TestRtMidiLibrary {
+public class TestRtMidiLibraryJava {
 
     private static RtMidiLibrary lib;
 
@@ -82,75 +80,9 @@ public class TestRtMidiLibrary {
         lib = RtMidiLibrary.getInstance();
     }
 
-    @AfterAll
-    public static void teardown() {}
-
     // GC or JUnit causes something to go wong when running all tests in succession, a slight wait fixes it somehow
     @BeforeEach
     public void beforeEach() { sleep(50); }
-
-    @DisplayName("0 rtmidi_get_compiled_api")
-    @Order(0)
-    @Test
-    public void testGetCompiledApi() {
-        // Using array
-        int[] arr = new int[RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM];
-        int written = lib.rtmidi_get_compiled_api(arr, arr.length);
-
-        assertTrue(written <= RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM);
-
-        RtMidiApi[] apis = new RtMidiApi[written];
-        for (int i = 0; i < written; i++)
-            apis[i] = RtMidiApi.fromInt(arr[i]);
-
-        assertTrue(apis.length > 0);
-        for (RtMidiApi api : apis)
-            assertNotNull(api);
-
-        // using null
-        int writtenNull = lib.rtmidi_get_compiled_api(null, -1);
-        assertEquals(written, writtenNull);
-    }
-
-    @DisplayName("1 rtmidi_api_name")
-    @Order(1)
-    @Test
-    public void testApiName() {
-        assertEquals("unspecified", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED));
-        assertEquals("core", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE));
-        assertEquals("alsa", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA));
-        assertEquals("jack", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK));
-        assertEquals("winmm", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM));
-        assertEquals("dummy", lib.rtmidi_api_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
-    }
-
-    @DisplayName("2 rtmidi_api_display_name")
-    @Order(2)
-    @Test
-    public void testApiDisplayName() {
-        assertEquals("Unknown", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED));
-        assertEquals("CoreMidi", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE));
-        assertEquals("ALSA", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA));
-        assertEquals("Jack", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK));
-        assertEquals("Windows MultiMedia", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM));
-        assertEquals("Dummy", lib.rtmidi_api_display_name(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY));
-    }
-
-    @DisplayName("3 rtmidi_compiled_api_by_name")
-    @Order(3)
-    @Test
-    public void testCompiledApiByName() {
-        int apiNumber = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED;
-        if (Platform.isLinux()) apiNumber = lib.rtmidi_compiled_api_by_name("alsa");
-        else if (Platform.isMac()) apiNumber = lib.rtmidi_compiled_api_by_name("core");
-        else if (Platform.isWindows()) apiNumber = lib.rtmidi_compiled_api_by_name("winmm");
-
-        assertNotEquals(apiNumber, RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED);
-
-        RtMidiApi api = RtMidiApi.fromInt(apiNumber);
-        assertNotEquals(api, RtMidiApi.UNSPECIFIED);
-        assertEquals(apiNumber, api.getNumber());
-    }
 
     @DisplayName("4 rtmidi_open_port")
     @Order(4)

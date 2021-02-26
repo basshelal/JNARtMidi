@@ -14,7 +14,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
  * Tests [RtMidi]
  * @author Bassam Helal
  */
-class TestRtMidi {
+internal class TestRtMidi {
 
     companion object {
         @BeforeAll

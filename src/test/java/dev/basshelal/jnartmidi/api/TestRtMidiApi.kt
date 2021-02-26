@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 
-class TestRtMidiApi {
+internal class TestRtMidiApi {
 
     companion object {
         @BeforeAll
