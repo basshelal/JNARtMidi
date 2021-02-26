@@ -7,7 +7,7 @@ class MidiMessage
      * @return the [IntArray] backing this [MidiMessage]
      * **WARNING:** any changes made to the array will be reflected in this [MidiMessage] causing
      * unexpected strange behavior, if you plan on modifying the returned array, use one of the functions that provide
-     * you with a copy: [dataCopy] , [getData]
+     * you with a copy: [dataCopy] , [getDataCopy]
      */
     var data: IntArray = IntArray(size)
         private set
@@ -30,14 +30,10 @@ class MidiMessage
     }
 
     operator fun set(index: Int, value: Int) {
-        if (index < 0 || index >= data.size) throw IndexOutOfBoundsException("Index out of bounds, index: " + index + " length: " + data.size)
         data[index] = value
     }
 
-    operator fun get(index: Int): Int {
-        if (index < 0 || index >= data.size) throw IndexOutOfBoundsException("Index out of bounds, index: " + index + " length: " + data.size)
-        return data[index]
-    }
+    operator fun get(index: Int): Int = data[index]
 
     fun setData(data: IntArray, length: Int) {
         if (length < 0 || length > data.size) throw IndexOutOfBoundsException("Length out of bounds: $length")
@@ -49,21 +45,20 @@ class MidiMessage
         this.setData(data, data.size)
     }
 
-    fun getData(buffer: IntArray): IntArray {
+    fun getDataCopy(buffer: IntArray): IntArray {
         require(buffer.size >= data.size) {
-            """Passed in buffer is not large enough to contain data, buffer length: ${buffer.size} data size: ${data.size}"""
+            "Passed in buffer is not large enough to contain data, buffer length: ${buffer.size} data size: ${data.size}"
         }
         return data.copyInto(buffer)
     }
 
     val dataCopy: IntArray
-        get() = this.getData(IntArray(data.size))
+        get() = this.getDataCopy(IntArray(data.size))
 
     val status: Int
         get() = if (data.size < 1)
             throw IndexOutOfBoundsException("MidiMessage does not contain enough data:\n$this")
         else data[0] and 0xF0
-
 
     val channel: Int
         get() = if (data.size < 1)
@@ -74,7 +69,6 @@ class MidiMessage
         get() = if (data.size < 1)
             throw IndexOutOfBoundsException("MidiMessage does not contain enough data:\n$this")
         else data[0] and 0xF0
-
 
     val data1: Int
         get() = if (data.size < 2)

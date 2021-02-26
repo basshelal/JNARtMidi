@@ -27,7 +27,7 @@ interface MidiMessageCallback {
      * quick flick from a hand.
      *
      * @param message the [MidiMessage] that was received, this should ideally not be modified,
-     * see [MidiMessage.data] and [MidiMessage.getData] for more.
+     * see [MidiMessage.data] and [MidiMessage.getDataCopy] for more.
      * @param deltaTime the time difference in seconds since the last received message, as reported by RtMidi
      */
     fun onMessage(message: MidiMessage, deltaTime: Double)

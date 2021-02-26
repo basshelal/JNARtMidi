@@ -521,7 +521,7 @@ internal class TestRtMidiLibrary {
         val got = lib.rtmidi_in_get_message(`in`, ByteBuffer.wrap(receivedMessage),
                 NativeSizeByReference(receivedMessage.size))
         got mustNotBe -1.0
-        message.asList() mustBe receivedMessage.asList()
+        message mustBe receivedMessage
         free(`in`, out)
     }
 }

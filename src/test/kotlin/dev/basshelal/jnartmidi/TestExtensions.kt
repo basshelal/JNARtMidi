@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.opentest4j.AssertionFailedError
+import kotlin.reflect.KClass
 
 internal infix fun Any?.mustBe(expected: Any?) = Assertions.assertEquals(expected, this)
 
@@ -20,6 +21,52 @@ internal inline infix fun Any?.mustNotEqual(expected: Any?) = Assertions.assertN
 internal inline infix fun Any?.mustBeSameAs(expected: Any?) = Assertions.assertSame(expected, this)
 
 internal inline infix fun Any?.mustNotBeSameAs(expected: Any?) = Assertions.assertNotSame(expected, this)
+
+@Suppress("UNCHECKED_CAST")
+internal inline infix fun <reified T : Throwable> (() -> Any?).mustThrow(exception: Class<T>) =
+        Assertions.assertThrows(exception, this as () -> Unit)
+
+internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exception: Class<T>) {
+    try {
+        this()
+    } catch (e: Throwable) {
+        if (e is T) throw AssertionFailedError("Expected would not throw ${e.javaClass.simpleName} but actually did throw")
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+internal inline infix fun <reified T : Throwable> (() -> Any?).mustThrow(exception: KClass<T>) =
+        Assertions.assertThrows(exception.java, this as () -> Unit)
+
+internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exception: KClass<T>) {
+    try {
+        this()
+    } catch (e: Throwable) {
+        if (e is T) throw AssertionFailedError("Expected would not throw ${e.javaClass.simpleName} but actually did throw")
+    }
+}
+
+// Array Overloads
+
+internal inline infix fun BooleanArray?.mustBe(expected: BooleanArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun CharArray?.mustBe(expected: CharArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun ByteArray?.mustBe(expected: ByteArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun ShortArray?.mustBe(expected: ShortArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun IntArray?.mustBe(expected: IntArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun LongArray?.mustBe(expected: LongArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun FloatArray?.mustBe(expected: FloatArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun DoubleArray?.mustBe(expected: DoubleArray?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun Array<*>?.mustBe(expected: Array<*>?) = Assertions.assertArrayEquals(expected, this)
+
+internal inline infix fun Iterable<*>?.mustBe(expected: Iterable<*>?) = Assertions.assertIterableEquals(expected, this)
 
 // Comparable
 
