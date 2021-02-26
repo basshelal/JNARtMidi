@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("KotlinInternalInJava")
-public class TestRtMidiApi {
+public class TestRtMidiApiJava {
 
     private static RtMidiLibrary lib;
 
