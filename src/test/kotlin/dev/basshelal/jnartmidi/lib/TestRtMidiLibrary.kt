@@ -30,7 +30,7 @@ import java.nio.ByteBuffer
 import kotlin.random.Random
 
 /**
- * Tests all 22 of the exported native C functions from the RtMidi library found in {@link RtMidiLibrary}
+ * Tests all 22 of the exported native C functions from the RtMidi library found in [RtMidiLibrary]
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 internal class TestRtMidiLibrary {
@@ -44,13 +44,12 @@ internal class TestRtMidiLibrary {
             RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
             assertDoesNotThrow { RtMidi.availableApis() }
             lib = RtMidiLibrary.instance
+            ::lib.isInitialized mustBe true
         }
 
         @AfterAll
         @JvmStatic
-        fun `After All`() {
-        }
-
+        fun `After All`() = Unit
     }
 
     private inline fun RtMidiPtr?.isOk() {
@@ -77,7 +76,7 @@ internal class TestRtMidiLibrary {
     // GC or JUnit causes something to go wong when running all tests in succession, a slight wait fixes it somehow
     @BeforeEach
     fun `Before Each`() {
-        wait(50)
+        wait(200)
     }
 
     @Order(0)

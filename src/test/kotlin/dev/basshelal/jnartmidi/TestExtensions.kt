@@ -2,8 +2,11 @@
 
 package dev.basshelal.jnartmidi
 
+import com.sun.jna.Platform
+import dev.basshelal.jnartmidi.api.RtMidi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.opentest4j.AssertionFailedError
 
 internal infix fun Any?.mustBe(expected: Any?) = Assertions.assertEquals(expected, this)
@@ -12,40 +15,27 @@ internal infix fun Any?.mustNotBe(expected: Any?) = Assertions.assertNotEquals(e
 
 internal inline infix fun Any?.mustEqual(expected: Any?) = Assertions.assertEquals(expected, this)
 
-internal inline infix fun Array<*>?.mustEqual(expected: Array<*>?) = Assertions.assertArrayEquals(expected, this)
-
 internal inline infix fun Any?.mustNotEqual(expected: Any?) = Assertions.assertNotEquals(expected, this)
 
 internal inline infix fun Any?.mustBeSameAs(expected: Any?) = Assertions.assertSame(expected, this)
 
 internal inline infix fun Any?.mustNotBeSameAs(expected: Any?) = Assertions.assertNotSame(expected, this)
 
-internal inline infix fun <T : Any> Comparable<T>.mustBeLessThan(other: T) = (this < other).mustBeTrue()
+// Comparable
 
-internal inline infix fun <T : Any> Comparable<T>.mustBeLessThanOrEqualTo(other: T) = (this <= other).mustBeTrue()
+internal inline infix fun <T : Any> Comparable<T>.mustBeLessThan(other: T) = (this < other) mustBe true
 
-internal inline infix fun <T : Any> Comparable<T>.mustBeGreaterThan(other: T) = (this > other).mustBeTrue()
+internal inline infix fun <T : Any> Comparable<T>.mustBeLessThanOrEqualTo(other: T) = (this <= other) mustBe true
 
-internal inline infix fun <T : Any> Comparable<T>.mustBeGreaterThanOrEqualTo(other: T) = (this >= other).mustBeTrue()
+internal inline infix fun <T : Any> Comparable<T>.mustBeGreaterThan(other: T) = (this > other) mustBe true
 
-internal inline fun Boolean.mustBeTrue() = Assertions.assertTrue(this)
-
-internal inline fun (() -> Boolean).mustBeTrue() = Assertions.assertTrue(this)
-
-internal inline fun Boolean.mustBeFalse() = Assertions.assertFalse(this)
-
-internal inline fun (() -> Boolean).mustBeFalse() = Assertions.assertFalse(this)
-
-internal inline fun Any?.mustBeNull() = Assertions.assertNull(this)
-
-internal inline fun Any?.mustNotBeNull() = Assertions.assertNotNull(this)
+internal inline infix fun <T : Any> Comparable<T>.mustBeGreaterThanOrEqualTo(other: T) = (this >= other) mustBe true
 
 internal inline fun assume(condition: Boolean, message: String = "") = Assumptions.assumeTrue(condition, message)
 
 internal inline fun assume(predicate: () -> Boolean, message: String = "") = assume(predicate(), message)
 
-internal inline fun ignoreExceptions(printStackTrace: Boolean = false, func: () -> Unit) =
-        ignoreException<Throwable>(printStackTrace, func)
+internal inline fun ignoreExceptions(printStackTrace: Boolean = false, func: () -> Unit) = ignoreException<Throwable>(printStackTrace, func)
 
 internal inline fun <reified T : Throwable> ignoreException(printStackTrace: Boolean = false, func: () -> Unit) {
     try {
@@ -104,8 +94,17 @@ internal infix fun Any?.mustBe(expected: AllOf) = expected mustBe this
 
 internal infix fun Any?.mustNotBe(expected: AnyOf) = expected mustNotBe this
 
+// privates
+
 private inline infix fun Any?.isEqualTo(other: Any?) = if (this == null) other == null else (this == other)
 
 private inline infix fun Any?.isNotEqualTo(other: Any?) = !(this isEqualTo other)
 
 private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = throw AssertionFailedError()
+
+// Utils
+
+internal fun defaultBeforeAll() {
+    RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
+    assertDoesNotThrow { RtMidi.availableApis() }
+}
