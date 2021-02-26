@@ -4,9 +4,9 @@ package dev.basshelal.jnartmidi
 
 import org.junit.jupiter.api.Assertions
 
-internal inline infix fun Any?.mustBe(expected: Any?) = Assertions.assertEquals(expected, this)
+internal infix fun Any?.mustBe(expected: Any?) = Assertions.assertEquals(expected, this)
 
-internal inline infix fun Any?.mustNotBe(expected: Any?) = Assertions.assertNotEquals(expected, this)
+internal infix fun Any?.mustNotBe(expected: Any?) = Assertions.assertNotEquals(expected, this)
 
 internal inline infix fun Any?.mustEqual(expected: Any?) = Assertions.assertEquals(expected, this)
 
@@ -53,3 +53,19 @@ internal inline fun <reified T : Throwable> ignoreException(printStackTrace: Boo
 internal inline fun wait(millis: Number) = Thread.sleep(millis.toLong())
 
 internal inline fun Any?.log() = println(this)
+
+// Below for myItem mustBe anyOf("", "example", "") etc
+
+internal class AnyOf(vararg val items: Any? = emptyArray())
+
+internal class AllOf(vararg val items: Any? = emptyArray())
+
+internal inline fun anyOf(vararg expected: Any?) = AnyOf(expected)
+
+internal inline fun allOf(vararg expected: Any?) = AllOf(expected)
+
+// TODO: 26/02/2021 Good idea but needs more thought!
+internal infix fun Any?.mustBe(expected: AllOf) = expected.items.forEach { this mustBe it }
+
+// TODO: 26/02/2021 Good idea but needs more thought!
+internal infix fun Any?.mustNotBe(expected: AnyOf) = expected.items.forEach { this mustNotBe it }
