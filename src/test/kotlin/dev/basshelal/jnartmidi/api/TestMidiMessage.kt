@@ -114,8 +114,13 @@ internal class TestMidiMessage {
     }
 
     @Test
-    fun `Read and Modify Contents`() {
-        fail("TODO Not Implemented yet!") // TODO: 26/02/2021 Implement
+    fun `Get First Byte`() {
+        val midiMessage = MidiMessage(0);
+        { midiMessage.status } mustThrow IndexOutOfBoundsException::class
+        { midiMessage.channel } mustThrow IndexOutOfBoundsException::class
+        { midiMessage.command } mustThrow IndexOutOfBoundsException::class
+        midiMessage.size = 1
+        fail("Not yet implemented") // TODO: 26/02/2021 Implement!
     }
 
 }
