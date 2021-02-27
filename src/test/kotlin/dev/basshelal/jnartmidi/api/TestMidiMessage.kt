@@ -36,7 +36,7 @@ internal class TestMidiMessage {
     @Test
     fun `Array Constructor & MidiMessage Constructor`() {
         val size = 7
-        val array = IntArray(size) { it }
+        val array = ByteArray(size) { it.toByte() }
         val midiMessage = MidiMessage(array)
         midiMessage.data.size mustBe size
         midiMessage.data mustBe array
@@ -74,9 +74,9 @@ internal class TestMidiMessage {
 
     @Test
     fun `Set Data`() {
-        val default = IntArray(MidiMessage.DEFAULT_DATA_SIZE)
+        val default = ByteArray(MidiMessage.DEFAULT_DATA_SIZE)
         val midiMessage = MidiMessage()
-        val data = intArrayOf(0, 1, 2, 3, 4)
+        val data = byteArrayOf(0, 1, 2, 3, 4)
         midiMessage.data mustBe default
         midiMessage.setData(data)
         midiMessage.data mustBe data
@@ -88,7 +88,7 @@ internal class TestMidiMessage {
 
     @Test
     fun `Set Data From MidiMessage`() {
-        val data = intArrayOf(0, 1, 2, 3, 4)
+        val data = byteArrayOf(0, 1, 2, 3, 4)
         val midiMessage = MidiMessage(data)
         val copy = MidiMessage()
         copy.data mustNotBe data
@@ -103,23 +103,23 @@ internal class TestMidiMessage {
     fun `Modify data`() {
         val value = 69
         val midiMessage = MidiMessage(2)
-        midiMessage.data[0] = value
+        midiMessage.data[0] = value.toByte()
         midiMessage[0] mustBe value
         midiMessage[1] mustBe 0
     }
 
     @Test
     fun `Get Data Copies`() {
-        val data = intArrayOf(0, 1, 2, 3, 4)
+        val data = byteArrayOf(0, 1, 2, 3, 4)
         val midiMessage = MidiMessage(data)
         midiMessage.data mustBe data
         midiMessage.data mustNotBeSameAs data
         midiMessage.data mustBe midiMessage.dataCopy
         midiMessage.data mustNotBeSameAs midiMessage.dataCopy
 
-        var copyBuffer = IntArray(0);
+        var copyBuffer = ByteArray(0);
         { midiMessage.getDataCopy(copyBuffer) } mustThrow IllegalArgumentException::class
-        copyBuffer = IntArray(data.size * 2)
+        copyBuffer = ByteArray(data.size * 2)
         midiMessage.getDataCopy(copyBuffer)
         midiMessage.data.forEachIndexed { index, it -> copyBuffer[index] mustBe it }
         copyBuffer.size mustNotBe data.size

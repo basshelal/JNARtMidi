@@ -63,7 +63,7 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
             // rare but necessary memalloc in RealTimeCritical code
             if (messageBuffer.size < midiMessage.size) messageBuffer = ByteArray(midiMessage.size)
             // put midiMessage in messageBuffer and send only midiMessage size because it is the source of truth
-            for (i in 0 until midiMessage.size) messageBuffer[i] = midiMessage[i].toByte()
+            for (i in 0 until midiMessage.size) messageBuffer[i] = midiMessage[i]
             RtMidiLibrary.instance.rtmidi_out_send_message(ptr, messageBuffer, midiMessage.size)
             checkErrors()
         }

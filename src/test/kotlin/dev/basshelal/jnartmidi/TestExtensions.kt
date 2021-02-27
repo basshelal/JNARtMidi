@@ -46,6 +46,8 @@ internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exce
     }
 }
 
+internal infix fun Number?.mustBe(expected: Number?) = Assertions.assertEquals(expected?.toInt(), this?.toInt())
+
 // Array Overloads
 
 internal inline infix fun BooleanArray?.mustBe(expected: BooleanArray?) = Assertions.assertArrayEquals(expected, this)

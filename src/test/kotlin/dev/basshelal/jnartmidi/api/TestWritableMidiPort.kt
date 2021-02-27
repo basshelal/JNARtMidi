@@ -213,7 +213,7 @@ internal class TestWritableMidiPort {
         val port = WritableMidiPort(info)
 
         val receivedMessage = MidiMessage()
-        val midiMessage = MidiMessage(intArrayOf(MidiMessage.NOTE_ON, 69, 69));
+        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69));
 
         // sending without opening should do nothing
         { port.sendMessage(midiMessage) } mustNotThrow Throwable::class

@@ -75,7 +75,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
                 midiMessage?.also { midiMessage ->
                     // rare but necessary memalloc in RealTimeCritical code
                     if (midiMessage.size < size) midiMessage.size = size
-                    for (i in 0 until size) midiMessage[i] = message.getByte(i.toLong()).toInt()
+                    for (i in 0 until size) midiMessage[i] = message.getByte(i.toLong())
                     midiMessageCallback?.onMessage(midiMessage, timeStamp)
                 }
             } // end RealTimeCritical
