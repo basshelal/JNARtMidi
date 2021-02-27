@@ -9,11 +9,12 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
     private var messageBuffer: ByteArray = ByteArray(0)
 
-    constructor(info: Info) : super(info) {
+    constructor(portInfo: Info) : super(portInfo) {
         this.createPtr()
     }
 
-    constructor(info: Info, api: RtMidiApi, name: String) : super(info, api, name) {
+    @JvmOverloads
+    constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED) : super(portInfo, clientName, api) {
         this.createPtr()
     }
 
@@ -24,16 +25,17 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
         isDestroyed = true
     }
 
-    override fun getApi(): RtMidiApi {
-        checkIsDestroyed()
-        val result = RtMidiLibrary.instance.rtmidi_out_get_current_api(ptr)
-        checkErrors()
-        return RtMidiApi.fromInt(result)
-    }
+    override val api: RtMidiApi
+        get() {
+            checkIsDestroyed()
+            val result = RtMidiLibrary.instance.rtmidi_out_get_current_api(ptr)
+            checkErrors()
+            return RtMidiApi.fromInt(result)
+        }
 
     override fun createPtr() {
         ptr = chosenApi?.let { api ->
-            chosenClientName?.let { clientName ->
+            clientName?.let { clientName ->
                 RtMidiLibrary.instance.rtmidi_out_create(api.number, clientName)
             }
         } ?: RtMidiLibrary.instance.rtmidi_out_create_default()

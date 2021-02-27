@@ -9,6 +9,8 @@ abstract class MidiPort<P : RtMidiPtr> {
 
     protected abstract var ptr: P
 
+    abstract val api: RtMidiApi
+
     val info: Info
 
     /** @return the last sent (if [WritableMidiPort]) or received(if [ReadableMidiPort]) [MidiMessage] in this [MidiPort] */
@@ -24,15 +26,18 @@ abstract class MidiPort<P : RtMidiPtr> {
     protected var isDestroyed = false
 
     protected var chosenApi: RtMidiApi? = null
-    protected var chosenClientName: String? = null
+
+    var clientName: String? = null
+        protected set
 
     protected constructor(portInfo: Info) {
         info = portInfo
     }
 
-    protected constructor(portInfo: Info, api: RtMidiApi, clientName: String) : this(portInfo) {
+    @JvmOverloads
+    protected constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED) : this(portInfo) {
         this.chosenApi = api
-        this.chosenClientName = clientName
+        this.clientName = clientName
     }
 
     /**
@@ -43,11 +48,11 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     abstract fun destroy()
 
-    /**
-     * @return the [RtMidiApi] that this port is using
-     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
-     */
-    abstract fun getApi(): RtMidiApi
+//    /**
+//     * @return the [RtMidiApi] that this port is using
+//     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
+//     */
+//    abstract fun getApi(): RtMidiApi
 
     /**
      * Create [.ptr] to be used in this port.
@@ -121,8 +126,8 @@ abstract class MidiPort<P : RtMidiPtr> {
     override fun toString(): String {
         return """${this.javaClass.simpleName} {
                 |$info
-                |api = $chosenApi
-                |clientName = '$chosenClientName'
+                |api = $api
+                |clientName = '$clientName'
                 |isOpen = $isOpen
                 |isVirtual = $isVirtual
                 |isDestroyed = $isDestroyed

@@ -20,7 +20,8 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         this.createPtr()
     }
 
-    constructor(portInfo: Info, api: RtMidiApi, clientName: String) : super(portInfo, api, clientName) {
+    @JvmOverloads
+    constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED) : super(portInfo, clientName, api) {
         this.createPtr()
     }
 
@@ -33,16 +34,17 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         isDestroyed = true
     }
 
-    override fun getApi(): RtMidiApi {
-        checkIsDestroyed()
-        val result = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
-        checkErrors()
-        return RtMidiApi.fromInt(result)
-    }
+    override val api: RtMidiApi
+        get() {
+            checkIsDestroyed()
+            val result = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
+            checkErrors()
+            return RtMidiApi.fromInt(result)
+        }
 
     override fun createPtr() {
         ptr = chosenApi?.let { api ->
-            chosenClientName?.let { clientName ->
+            clientName?.let { clientName ->
                 RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
             }
         } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
