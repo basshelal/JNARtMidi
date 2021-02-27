@@ -71,6 +71,9 @@ class MidiMessage
     /** Copies the data from [data] into this [MidiMessage]'s data */
     fun setData(data: IntArray) = this.setData(data, data.size)
 
+    /** Copies the data from [midiMessage] into this [MidiMessage] without modifying [midiMessage]'s data */
+    fun setDataFrom(midiMessage: MidiMessage) = this.setData(midiMessage.data)
+
     /**
      * @return a *copy* of the [data] of this [MidiMessage] into the passed in [buffer]
      * @throws IllegalArgumentException if the passed in [buffer]'s length is less than this [size]

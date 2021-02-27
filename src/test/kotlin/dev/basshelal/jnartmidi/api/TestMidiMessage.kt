@@ -87,6 +87,19 @@ internal class TestMidiMessage {
     }
 
     @Test
+    fun `Set Data From MidiMessage`() {
+        val data = intArrayOf(0, 1, 2, 3, 4)
+        val midiMessage = MidiMessage(data)
+        val copy = MidiMessage()
+        copy.data mustNotBe data
+        copy.setDataFrom(midiMessage)
+        copy.data mustBe data
+        copy.data mustBe midiMessage.data
+        copy.data mustNotBeSameAs data
+        copy.data mustNotBeSameAs midiMessage.data
+    }
+
+    @Test
     fun `Modify data`() {
         val value = 69
         val midiMessage = MidiMessage(2)
