@@ -11,6 +11,10 @@ abstract class MidiPort<P : RtMidiPtr> {
 
     val info: Info
 
+    /** @return the last sent (if [WritableMidiPort]) or received(if [ReadableMidiPort]) [MidiMessage] in this [MidiPort] */
+    var midiMessage: MidiMessage? = null
+        protected set
+
     var isOpen = false
         protected set
 
@@ -33,7 +37,7 @@ abstract class MidiPort<P : RtMidiPtr> {
 
     /**
      * Destroys this port such that it can and will no longer be used, attempting to use the port
-     * after this should throw an [RtMidiException], see [.checkIsDestroyed]
+     * after this will throw an [RtMidiException], see [checkIsDestroyed]
      *
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
@@ -58,7 +62,6 @@ abstract class MidiPort<P : RtMidiPtr> {
     fun open(info: Info = this.info) {
         checkIsDestroyed()
         requireNotNull(info) { "info cannot be null!" }
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_open_port(ptr, info.number, info.name)
         checkErrors()
         isOpen = true
@@ -77,7 +80,6 @@ abstract class MidiPort<P : RtMidiPtr> {
         checkIsDestroyed()
         if (!RtMidi.supportsVirtualPorts())
             throw RtMidiPortException("Platform ${Platform.RESOURCE_PREFIX} does not support virtual ports")
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_open_virtual_port(ptr, name)
         checkErrors()
         isOpen = true
@@ -92,7 +94,6 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     fun close() {
         checkIsDestroyed()
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_close_port(ptr)
         checkErrors()
         isOpen = false
@@ -101,30 +102,15 @@ abstract class MidiPort<P : RtMidiPtr> {
         createPtr()
     }
 
-    /**
-     * Call this before any call to [RtMidiLibrary.getInstance].
-     *
-     * @throws NullPointerException if [.ptr] is null to prevent segfaults happening in the native code,
-     * A segfault will always crash the VM without any way to catch it, so this is the safest thing to do to
-     * prevent that.
-     */
-    protected fun preventSegfault() {
-        requireNotNull(ptr) { "ptr cannot be null!" }
-    }
-
-    protected fun checkIsDestroyed() {
-        if (isDestroyed)
-            throw RtMidiPortException("Cannot proceed, the MidiPort:\n$this\n has already been destroyed")
-    }
+    protected fun checkIsDestroyed() =
+            if (isDestroyed) throw RtMidiPortException("Cannot proceed, the MidiPort:\n$this\n has already been destroyed") else Unit
 
     /**
-     * Call this after any call to [RtMidiLibrary.getInstance].
+     * Call this after any call to [RtMidiLibrary.getInstance]
      *
-     * @throws RtMidiException if RtMidi reported that something went wrong
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    protected fun checkErrors() {
-        if (!ptr.ok) throw RtMidiNativeException(ptr)
-    }
+    protected fun checkErrors() = if (!ptr.ok) throw RtMidiNativeException(ptr) else Unit
 
     override fun hashCode(): Int = Objects.hash(ptr, info)
 

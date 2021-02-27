@@ -6,7 +6,6 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
 
-// TODO: 23/02/2021 More specific exceptions!
 class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     override lateinit var ptr: RtMidiInPtr
@@ -16,49 +15,31 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     private var cCallback: RtMidiCCallback? = null
     private var midiMessageCallback: MidiMessageCallback? = null
 
-    /**
-     * @return the last received [MidiMessage] from the callback or `null` if none exists
-     */
-    var midiMessage: MidiMessage? = null
-        private set
-
-
     constructor(portInfo: Info) : super(portInfo) {
         // TODO: 23/02/2021 Require type of portInfo to be READABLE?? Same for WritableMidiPort??
-        createPtr()
+        this.createPtr()
     }
 
     constructor(portInfo: Info, api: RtMidiApi, clientName: String) : super(portInfo, api, clientName) {
-        createPtr()
+        this.createPtr()
     }
 
-    /**
-     * @inheritDoc
-     */
     override fun destroy() {
         // TODO: 23/02/2021 do nothing if is already destroyed
         checkIsDestroyed()
         removeCallback()
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_in_free(ptr)
         checkErrors()
         isDestroyed = true
     }
 
-    /**
-     * @inheritDoc
-     */
     override fun getApi(): RtMidiApi {
         checkIsDestroyed()
-        preventSegfault()
         val result = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
         checkErrors()
         return RtMidiApi.fromInt(result)
     }
 
-    /**
-     * @inheritDoc
-     */
     override fun createPtr() {
         ptr = chosenApi?.let { api ->
             chosenClientName?.let { clientName ->
@@ -71,17 +52,16 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     /**
      * Set this [ReadableMidiPort]'s callback which will be triggered when a new [MidiMessage] is sent to
-     * this port. Ensure that the message you expect is not being ignored by calling [.ignoreTypes] before
+     * this port. Ensure that the message you expect is not being ignored by calling [ignoreTypes] before
      * setting the callback.
      *
-     * @param callback the callback which will be triggered when a new [MidiMessage] is sent to this port
-     * @throws NullPointerException if `callback` is `null`
-     * @throws RtMidiPortException  if a callback already exists for this port which must be removed using [.removeCallback]
+     * @param callback the [MidiMessageCallback] which will be triggered when a new [MidiMessage] is sent to this port
+     * @throws RtMidiPortException  if a callback already exists for this port which must be removed using [removeCallback]
      */
-    fun setCallback(callback: MidiMessageCallback?) {
+    fun setCallback(callback: MidiMessageCallback) {
         checkIsDestroyed()
-        if (midiMessageCallback != null) throw RtMidiPortException("Cannot set callback there is an existing callback registered, " +
-                "call removeCallback() to remove.")
+        if (midiMessageCallback != null)
+            throw RtMidiPortException("Cannot set callback there is an existing callback registered, call removeCallback() to remove.")
         midiMessageCallback = callback
         midiMessage = MidiMessage()
         cCallback = object : RtMidiCCallback {
@@ -95,9 +75,7 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
                     midiMessageCallback?.onMessage(midiMessage, timeStamp)
                 }
             }
-        }
-        cCallback?.also { cCallback ->
-            preventSegfault()
+        }.also { cCallback ->
             RtMidiLibrary.instance.rtmidi_in_set_callback(ptr, cCallback, null)
             checkErrors()
         }
@@ -105,12 +83,11 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     /**
      * Removes this [ReadableMidiPort]'s [MidiMessageCallback] if it exists, otherwise does nothing.
-     * You must call this before calling [.setCallback] if one already exists.
+     * You must call this before calling [setCallback] if one already exists.
      */
     fun removeCallback() {
         checkIsDestroyed()
         if (midiMessageCallback == null) return
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_in_cancel_callback(ptr)
         checkErrors()
         cCallback = null
@@ -120,15 +97,12 @@ class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     fun ignoreTypes(midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean) {
         checkIsDestroyed()
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_in_ignore_types(ptr, midiSysex, midiTime, midiSense)
         checkErrors()
     }
 
     companion object {
-        /**
-         * This is the default queue size RtMidi uses if no size is passed in
-         */
-        private const val DEFAULT_QUEUE_SIZE_LIMIT = 100
+        /** This is the default queue size RtMidi uses if no size is passed in */
+        internal const val DEFAULT_QUEUE_SIZE_LIMIT = 100
     }
 }

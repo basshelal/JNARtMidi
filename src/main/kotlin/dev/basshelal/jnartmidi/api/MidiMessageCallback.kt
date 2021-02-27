@@ -3,8 +3,8 @@ package dev.basshelal.jnartmidi.api
 /**
  * Used in [ReadableMidiPort] to listen to [MidiMessage]s that the [ReadableMidiPort] receives.
  *
- * @author Bassam Helal
  * @see ReadableMidiPort.setCallback
+ * @author Bassam Helal
  */
 interface MidiMessageCallback {
 

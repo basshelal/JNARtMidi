@@ -10,36 +10,36 @@ import com.sun.jna.Structure.FieldOrder
  * @author Bassam Helal
  */
 @FieldOrder("ptr", "data", "ok", "msg")
-open class RtMidiPtr : Structure {
+open class RtMidiPtr : Structure { // should be internal but because MidiPort uses it then must be public :/
 
     /** C type : void* */
     @JvmField
-    var ptr: Pointer? = null
+    internal var ptr: Pointer? = null
 
     /** C type : void* */
     @JvmField
-    var data: Pointer? = null
+    internal var data: Pointer? = null
 
     /** C type : bool */
     @JvmField
-    var ok: Boolean = false
+    internal var ok: Boolean = false
 
     /** C type : const char* */
     @JvmField
-    var msg: String? = null
+    internal var msg: String? = null
 
-    constructor() : super()
+    internal constructor() : super()
 
-    constructor(peer: Pointer?) : super(peer)
+    internal constructor(peer: Pointer?) : super(peer)
 
-    constructor(ptr: Pointer?, data: Pointer?, ok: Boolean, msg: String?) : super() {
+    internal constructor(ptr: Pointer?, data: Pointer?, ok: Boolean, msg: String?) : super() {
         this.ptr = ptr
         this.data = data
         this.ok = ok
         this.msg = msg
     }
 
-    constructor(other: RtMidiPtr) : this(other.pointer) {
+    internal constructor(other: RtMidiPtr) : this(other.pointer) {
         this.ptr = other.ptr
         this.data = other.data
         this.ok = other.ok

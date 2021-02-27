@@ -312,7 +312,6 @@ internal class TestRtMidiLibrary {
         copy.data mustBe `in`.data
         lib.rtmidi_in_free(`in`)
         copy.ptr mustNotBe `in`.ptr
-        copy.data mustNotBe `in`.data
 
         // using `in` should cause a fatal error SIGSEGV (ie segfault)
     }
@@ -465,7 +464,6 @@ internal class TestRtMidiLibrary {
         copy.data mustBe out.data
         lib.rtmidi_out_free(out)
         copy.ptr mustNotBe out.ptr
-        copy.data mustNotBe out.data
 
         /// using `out` should cause a fatal error SIGSEGV (ie segfault)
     }

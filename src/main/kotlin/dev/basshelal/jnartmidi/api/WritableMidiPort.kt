@@ -19,7 +19,6 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
     override fun destroy() {
         checkIsDestroyed()
-        preventSegfault()
         RtMidiLibrary.instance.rtmidi_out_free(ptr)
         checkErrors()
         isDestroyed = true
@@ -27,7 +26,6 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
     override fun getApi(): RtMidiApi {
         checkIsDestroyed()
-        preventSegfault()
         val result = RtMidiLibrary.instance.rtmidi_out_get_current_api(ptr)
         checkErrors()
         return RtMidiApi.fromInt(result)
@@ -44,27 +42,15 @@ class WritableMidiPort : MidiPort<RtMidiOutPtr> {
     }
 
     /**
-     * Sends the passed in `message` to this port.
-     *
-     * @param message the message to send, this array will not be modified
-     * @throws NullPointerException if `message` is null
-     * @throws RtMidiException      if an error occurred in RtMidi's native code
+     * Sends the passed in [midiMessage] to this port, the data of the message will not be modified
+     * @throws RtMidiException if an error occurred in RtMidi's native code
      */
-    fun sendMessage(message: IntArray) {
+    fun sendMessage(midiMessage: MidiMessage) {
         checkIsDestroyed()
-        preventSegfault()
-        if (messageBuffer.size < message.size) messageBuffer = ByteArray(message.size)
-        message.forEachIndexed { index, it -> messageBuffer[index] = it.toByte() }
+        this.midiMessage = MidiMessage(midiMessage)
+        if (messageBuffer.size < midiMessage.size) messageBuffer = ByteArray(midiMessage.size)
+        midiMessage.data.forEachIndexed { index, it -> messageBuffer[index] = it.toByte() }
         RtMidiLibrary.instance.rtmidi_out_send_message(ptr, messageBuffer, messageBuffer.size)
         checkErrors()
     }
-
-    /**
-     * Sends the passed in `midiMessage` to this port.
-     *
-     * @param midiMessage the message to send, the data of the message will not be modified
-     * @throws NullPointerException if `midiMessage` is null
-     * @throws RtMidiException      if an error occurred in RtMidi's native code
-     */
-    fun sendMessage(midiMessage: MidiMessage) = this.sendMessage(midiMessage.data)
 }
