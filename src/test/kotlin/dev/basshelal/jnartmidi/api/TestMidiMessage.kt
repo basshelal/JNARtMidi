@@ -8,7 +8,6 @@ import dev.basshelal.jnartmidi.mustThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 
 /** Tests [MidiMessage] */
 internal class TestMidiMessage {
@@ -133,7 +132,7 @@ internal class TestMidiMessage {
         { midiMessage.channel } mustThrow IndexOutOfBoundsException::class
         { midiMessage.command } mustThrow IndexOutOfBoundsException::class
         midiMessage.size = 1
-        fail("Not yet implemented") // TODO: 26/02/2021 Implement!
+        throw NotImplementedError("Not yet implemented") // TODO: 26/02/2021 Implement!
     }
 
 }

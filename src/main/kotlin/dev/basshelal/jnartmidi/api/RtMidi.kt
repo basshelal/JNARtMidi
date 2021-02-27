@@ -93,7 +93,7 @@ object RtMidi {
         if (!ptr.ok) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
             MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
-                    number = it, type = MidiPort.Info.Type.READABLE)
+                    index = it, type = MidiPort.Info.Type.READABLE)
         }
         RtMidiLibrary.instance.rtmidi_in_free(ptr)
         return result
@@ -110,7 +110,7 @@ object RtMidi {
         if (!ptr.ok) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
             MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
-                    number = it, type = MidiPort.Info.Type.WRITABLE)
+                    index = it, type = MidiPort.Info.Type.WRITABLE)
         }
         RtMidiLibrary.instance.rtmidi_out_free(ptr)
         return result

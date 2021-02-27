@@ -14,31 +14,41 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     // TODO: 23/02/2021 Test idea! Make a Port and set its callback then make it unreachable and thus ready for GC,
     //  then force a GC and see what happens.
+
+    /** Need to hold a reference to this because JNA, otherwise if it gets GCed will cause unexpected behavior */
     private var cCallback: RtMidiCCallback? = null
+
+    /** Invoked from inside [cCallback] */
     private var midiMessageCallback: MidiMessageCallback? = null
 
+    public override lateinit var api: RtMidiApi
+        protected set
+
     public constructor(portInfo: Info) : super(portInfo) {
-        // TODO: 23/02/2021 Require type of portInfo to be READABLE?? Same for WritableMidiPort??
+        require(portInfo.type == Info.Type.READABLE) {
+            "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo: $portInfo"
+        }
         this.createPtr()
     }
 
     @JvmOverloads
-    public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED) : super(portInfo,
-            clientName, api) {
+    public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
+            : super(portInfo, clientName, api) {
+        require(portInfo.type == Info.Type.READABLE) {
+            "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo: $portInfo"
+        }
         this.createPtr()
     }
 
     public override fun destroy() {
-        // TODO: 23/02/2021 do nothing if is already destroyed
-        checkIsDestroyed()
-        removeCallback()
-        RtMidiLibrary.instance.rtmidi_in_free(ptr)
-        checkErrors()
-        isDestroyed = true
+        if (!this.isDestroyed) {
+            close()
+            removeCallback()
+            RtMidiLibrary.instance.rtmidi_in_free(ptr)
+            checkErrors()
+            isDestroyed = true
+        }
     }
-
-    public override lateinit var api: RtMidiApi
-        protected set
 
     protected override fun createPtr() {
         ptr = chosenApi?.let { api ->
@@ -59,7 +69,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      * setting the callback.
      *
      * @param callback the [MidiMessageCallback] which will be triggered when a new [MidiMessage] is sent to this port
-     * @throws RtMidiPortException  if a callback already exists for this port which must be removed using [removeCallback]
+     * @throws RtMidiPortException if a callback already exists for this port which must be removed using [removeCallback]
      */
     public fun setCallback(callback: MidiMessageCallback) {
         checkIsDestroyed()
@@ -88,6 +98,8 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     /**
      * Removes this [ReadableMidiPort]'s [MidiMessageCallback] if it exists, otherwise does nothing.
      * You must call this before calling [setCallback] if one already exists.
+     * @throws RtMidiPortException if this port has already been destroyed
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public fun removeCallback() {
         checkIsDestroyed()
@@ -106,7 +118,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     }
 
     internal companion object {
-        /** This is the default queue size RtMidi uses if no size is passed in */
+        /** This is the default queue size RtMidi uses internally if no size is passed in */
         internal const val DEFAULT_QUEUE_SIZE_LIMIT = 100
     }
 }

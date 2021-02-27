@@ -7,35 +7,42 @@ import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
 
 public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
-    /** Used in [sendMessage], wraps the passed in [MidiMessage] data */
-    private var messageBuffer: ByteArray = ByteArray(0)
-
     /** Initialized in [createPtr] */
     protected override lateinit var ptr: RtMidiOutPtr
 
-
     public override lateinit var api: RtMidiApi
+        /** Set once only in [createPtr] */
         protected set
 
     /**
      * Create a [WritableMidiPort] from the passed in [portInfo]
+     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
+     * @throws IllegalArgumentException if the passed in [portInfo] was not of type WRITABLE
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public constructor(portInfo: Info) : super(portInfo) {
+        require(portInfo.type == Info.Type.WRITABLE) {
+            "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo: $portInfo"
+        }
         this.createPtr()
     }
 
     /**
      * Create a [WritableMidiPort] from the passed in [portInfo].
+     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
      * @param clientName the name which is used by RtMidi to group similar ports
      * (like those belonging to the same application).
      * @param api the [RtMidiApi] that this port will use, defaults to [RtMidiApi.UNSPECIFIED],
      * ie let RtMidi choose the first working API it finds which you can query using [MidiPort.api]
+     * @throws IllegalArgumentException if the passed in [portInfo] was not of type WRITABLE
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmOverloads
     public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
             : super(portInfo, clientName, api) {
+        require(portInfo.type == Info.Type.WRITABLE) {
+            "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo: $portInfo"
+        }
         this.createPtr()
     }
 
@@ -56,16 +63,12 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * @throws RtMidiException if an error occurred in RtMidi's native code
      */
     public fun sendMessage(midiMessage: MidiMessage) {
-        // RealTimeCritical
+        // RealTimeCritical because of potential use in callback for a Midi-Through application
         checkIsDestroyed()
         if (isOpen) {
-            this.midiMessage = midiMessage
-            // rare but necessary memalloc in RealTimeCritical code
-            if (messageBuffer.size < midiMessage.size) messageBuffer = ByteArray(midiMessage.size)
-            // put midiMessage in messageBuffer and send only midiMessage size because it is the source of truth
-            for (i in 0 until midiMessage.size) messageBuffer[i] = midiMessage[i]
-            RtMidiLibrary.instance.rtmidi_out_send_message(ptr, messageBuffer, midiMessage.size)
+            RtMidiLibrary.instance.rtmidi_out_send_message(ptr, midiMessage.data, midiMessage.size)
             checkErrors()
+            this.midiMessage = midiMessage // assign only if message was successful in case caller caught exceptions
         }
     } // end RealTimeCritical
 
