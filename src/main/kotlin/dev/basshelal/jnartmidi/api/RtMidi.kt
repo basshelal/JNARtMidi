@@ -28,8 +28,8 @@ object RtMidi {
      * Use this to add search paths for the RtMidi native library.
      *
      * If the user already has RtMidi installed on their system using the default library installing mechanisms,
-     * this shouldn't be necessary, however, if you are bundling built RtMidi libraries with your application,
-     * you must call this function with the locations to your libraries.
+     * this shouldn't be necessary, however, if you are bundling built RtMidi libraries with your application
+     * (more likely), you must call this function with the locations to your libraries.
      *
      * The convention is to separate folders by [com.sun.jna.Platform.RESOURCE_PREFIX] such as:
      *
@@ -54,6 +54,8 @@ object RtMidi {
      *
      * This is all from JNA's handling and convention of library loading, see [com.sun.jna.NativeLibrary] or
      * the JNA documentation for more.
+     *
+     * You are of course free to handle this in any variety of ways as you see fit.
      *
      * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
      */
