@@ -36,22 +36,22 @@ You can query all readable and writable MIDI ports in the system by using the
 [`RtMidi`](src/main/kotlin/dev/basshelal/jnartmidi/api/RtMidi.kt) class's static functions:
 
 ```java
-List<MidiPort.Info>readablePorts=RtMidi.readableMidiPorts();
-List<MidiPort.Info>writablePorts=RtMidi.writableMidiPorts();
+List<MidiPort.Info> readablePorts = RtMidi.readableMidiPorts();
+List<MidiPort.Info> writablePorts = RtMidi.writableMidiPorts();
 ```
 
 These return `MidiPort.Info`s which are then used to create a port such as:
 
 ```java
-ReadableMidiPort readablePort=new ReadableMidiPort(readablePorts.get(0));
-WritableMidiPort writablePort=new WritableMidiPort(writablePorts.get(0));
+ReadableMidiPort readablePort = new ReadableMidiPort(readablePorts.get(0));
+WritableMidiPort writablePort = new WritableMidiPort(writablePorts.get(0));
 ```
 
 You can then `open()` a port to be ready to send or receive messages:
 
 ```java
 readablePort.open(/*portName=*/"My Readable Port");
-readablePort.setCallback((MidiMessage midiMessage,double deltaTime)->{
+readablePort.setCallback((MidiMessage midiMessage,double deltaTime) -> {
     // Your callback code here, note this code is real time critical!
 });
 ```
