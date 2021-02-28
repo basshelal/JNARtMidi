@@ -18,7 +18,7 @@ Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack) (hence the 
 
 Before using anything, ensure that you point JNARtMidi to the location(s) of your built libraries of RtMidi:
 
-```
+```java
 RtMidi.addLibrarySearchPath("bin/my-libraries-path");
 ```
 
@@ -35,36 +35,36 @@ is one that you as a programmer can send messages to.
 You can query all readable and writable MIDI ports in the system by using the
 [`RtMidi`](src/main/kotlin/dev/basshelal/jnartmidi/api/RtMidi.kt) class's static functions:
 
-```
-List<MidiPort.Info> readablePorts = RtMidi.readableMidiPorts();
-List<MidiPort.Info> writablePorts = RtMidi.writableMidiPorts();
+```java
+List<MidiPort.Info>readablePorts=RtMidi.readableMidiPorts();
+        List<MidiPort.Info>writablePorts=RtMidi.writableMidiPorts();
 ```
 
 These return `MidiPort.Info`s which are then used to create a port such as:
 
-```
-ReadableMidiPort readablePort = new ReadableMidiPort(readablePorts.get(0));
-WritableMidiPort writablePort = new WritableMidiPort(writablePorts.get(0));
+```java
+ReadableMidiPort readablePort=new ReadableMidiPort(readablePorts.get(0));
+        WritableMidiPort writablePort=new WritableMidiPort(writablePorts.get(0));
 ```
 
 You can then `open()` a port to be ready to send or receive messages:
 
-```
+```java
 readablePort.open(/*portName=*/"My Readable Port");
-readablePort.setCallback((MidiMessage midiMessage, double deltaTime) -> {
-    // Your callback code here, note this code is real time critical!
-});
+        readablePort.setCallback((MidiMessage midiMessage,double deltaTime)->{
+        // Your callback code here, note this code is real time critical!
+        });
 ```
 
 Once you are done with a port, be sure to call `destroy()`, after which you will only be able to query the port
 
-```
+```java
 readablePort.destroy(); // closes and destroys
-readablePort.getInfo(); // ok
+        readablePort.getInfo(); // ok
 
-readablePort.isDestroyed(); // ok
-readablePort.open(/*portName=*/"My Readable Port"); // ERROR: will throw RtMidiPortException!
-readablePort.destroy(); // ok, will not do anything if already destroyed
+        readablePort.isDestroyed(); // ok
+        readablePort.open(/*portName=*/"My Readable Port"); // ERROR: will throw RtMidiPortException!
+        readablePort.destroy(); // ok, will not do anything if already destroyed
 ```
 
 JNARtMidi's documentation is extensive and thorough and it is recommended to read through it to understand the
