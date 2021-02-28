@@ -26,11 +26,6 @@ protected constructor(portInfo: Info) {
     /** The [RtMidiApi] that was chosen in the constructor, used in [createPtr] to determine [ptr] creation method */
     protected var chosenApi: RtMidiApi? = null
 
-    // TODO: 27/02/2021 RtMidi uses indexes to open ports, what if the system changed so much that the index here
-    //  is no longer valid?? We can always do a rescan where necessary (open) and maybe even reassign but be careful
-    //  this needs proper testing, make a lot of ports, then close and destroy all but the last one, that last one
-    //  should have a high info number, try opening the port and see what happens
-
     /** The [Info] set in this [MidiPort]'s constructor holding the information of the actual system MIDI port */
     public val info: Info = portInfo
 
@@ -191,7 +186,7 @@ protected constructor(portInfo: Info) {
      */
     public data class Info(val name: String, var index: Int, val type: Type) {
 
-        override fun toString(): String = "name = '$name'\nindex = $index\ntype = $type"
+        override fun toString(): String = "name = '$name', index = $index, type = $type"
 
         enum class Type {
             READABLE, WRITABLE, UNKNOWN

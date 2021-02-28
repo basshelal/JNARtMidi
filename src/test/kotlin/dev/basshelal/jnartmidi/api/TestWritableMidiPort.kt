@@ -24,8 +24,6 @@ internal class TestWritableMidiPort {
         fun `After All`() = Unit
     }
 
-    // TODO: 28/02/2021 Split the big tests
-
     @Test
     fun `Info Constructor`() {
         val allWritableInfos = RtMidi.writableMidiPorts()
@@ -144,7 +142,7 @@ internal class TestWritableMidiPort {
 
         foundReadable mustNotBe null
 
-        // Calling open again should do nothing
+        // Calling openVirtual again should do nothing
 
         { port.openVirtual(portName) } mustNotThrow Throwable::class
         RtMidi.readableMidiPorts().size mustBe newReadableSize
@@ -233,11 +231,54 @@ internal class TestWritableMidiPort {
                 { port.clientName },
                 { port.api },
                 { port.info },
-                { port.isVirtual }) mustNotThrow Throwable::class
+                { port.isVirtual },
+                { port.toString() }) mustNotThrow Throwable::class
     }
 
     @Test
     fun `Send Message`() {
+        val allWritableInfos = RtMidi.writableMidiPorts()
+        allWritableInfos.isNotEmpty() mustBe true
+        val info = allWritableInfos.first()
+        val allApis = RtMidi.availableApis()
+        allApis.isNotEmpty() mustBe true
+
+        val writablePort = WritableMidiPort(info)
+
+        val receivedMessage = MidiMessage()
+        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69));
+
+        val writablePortName = "Test Writable Port ${Random.nextInt()}"
+
+        writablePort.open(writablePortName)
+
+        val foundReadableInfo = RtMidi.readableMidiPorts().find { it.name.contains(writablePortName) }
+
+        foundReadableInfo mustNotBe null
+        require(foundReadableInfo != null) // for smart cast
+
+        val readablePortName = "Test Readable Port ${Random.nextInt()}"
+
+        val readablePort = ReadableMidiPort(foundReadableInfo)
+        readablePort.open(readablePortName)
+        readablePort.setCallback(MidiMessageCallback { message: MidiMessage ->
+            receivedMessage.setDataFrom(message)
+        })
+
+        writablePort.sendMessage(midiMessage)
+
+        wait(200)
+
+        receivedMessage.data mustBe midiMessage.data
+        readablePort.midiMessage mustBe midiMessage
+        writablePort.midiMessage mustBe readablePort.midiMessage
+
+        readablePort.destroy()
+        writablePort.destroy()
+    }
+
+    @Test
+    fun `Send Message To Invalid Port`() {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
@@ -270,14 +311,6 @@ internal class TestWritableMidiPort {
             receivedMessage.setDataFrom(message)
         })
 
-        writablePort.sendMessage(midiMessage)
-
-        wait(200)
-
-        receivedMessage.data mustBe midiMessage.data
-        readablePort.midiMessage mustBe midiMessage
-        writablePort.midiMessage mustBe readablePort.midiMessage
-
         // close and try to send
         writablePort.close()
         val newMessage = MidiMessage(0)
@@ -303,6 +336,9 @@ internal class TestWritableMidiPort {
         // even though the receiving end does not exist anymore, we can't know that so the message gets
         // "sent", so port gets a new midiMessage because sending sent nowhere but was not unsuccessful
         writablePort.midiMessage?.data mustBe newMessage.data
+
+        readablePort.destroy()
+        writablePort.destroy()
     }
 
     @Test
@@ -344,6 +380,8 @@ internal class TestWritableMidiPort {
             { it.open(portName) } mustThrow RtMidiPortException::class
         }
 
+        readablePorts.onEach { it.destroy() }
+        writablePorts.onEach { it.destroy() }
     }
 
 }
