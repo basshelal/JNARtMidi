@@ -37,34 +37,34 @@ You can query all readable and writable MIDI ports in the system by using the
 
 ```java
 List<MidiPort.Info>readablePorts=RtMidi.readableMidiPorts();
-        List<MidiPort.Info>writablePorts=RtMidi.writableMidiPorts();
+List<MidiPort.Info>writablePorts=RtMidi.writableMidiPorts();
 ```
 
 These return `MidiPort.Info`s which are then used to create a port such as:
 
 ```java
 ReadableMidiPort readablePort=new ReadableMidiPort(readablePorts.get(0));
-        WritableMidiPort writablePort=new WritableMidiPort(writablePorts.get(0));
+WritableMidiPort writablePort=new WritableMidiPort(writablePorts.get(0));
 ```
 
 You can then `open()` a port to be ready to send or receive messages:
 
 ```java
 readablePort.open(/*portName=*/"My Readable Port");
-        readablePort.setCallback((MidiMessage midiMessage,double deltaTime)->{
-        // Your callback code here, note this code is real time critical!
-        });
+readablePort.setCallback((MidiMessage midiMessage,double deltaTime)->{
+    // Your callback code here, note this code is real time critical!
+});
 ```
 
 Once you are done with a port, be sure to call `destroy()`, after which you will only be able to query the port
 
 ```java
 readablePort.destroy(); // closes and destroys
-        readablePort.getInfo(); // ok
+readablePort.getInfo(); // ok
 
-        readablePort.isDestroyed(); // ok
-        readablePort.open(/*portName=*/"My Readable Port"); // ERROR: will throw RtMidiPortException!
-        readablePort.destroy(); // ok, will not do anything if already destroyed
+readablePort.isDestroyed(); // ok
+readablePort.open(/*portName=*/"My Readable Port"); // ERROR: will throw RtMidiPortException!
+readablePort.destroy(); // ok, will not do anything if already destroyed
 ```
 
 JNARtMidi's documentation is extensive and thorough and it is recommended to read through it to understand the
