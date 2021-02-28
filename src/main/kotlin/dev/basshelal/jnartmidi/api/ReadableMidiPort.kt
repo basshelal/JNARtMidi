@@ -26,7 +26,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     public constructor(portInfo: Info) : super(portInfo) {
         require(portInfo.type == Info.Type.READABLE) {
-            "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo: $portInfo"
+            "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo:\n$portInfo"
         }
         this.createPtr()
     }

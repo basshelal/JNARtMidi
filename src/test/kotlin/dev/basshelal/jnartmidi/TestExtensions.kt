@@ -26,6 +26,16 @@ internal inline infix fun Any?.mustNotBeSameAs(expected: Any?) = Assertions.asse
 internal inline infix fun <reified T : Throwable> (() -> Any?).mustThrow(exception: Class<T>) =
         Assertions.assertThrows(exception, this as () -> Unit)
 
+@Suppress("UNCHECKED_CAST")
+internal inline infix fun <reified T : Throwable> (() -> Any?).mustThrow(exception: KClass<T>) =
+        Assertions.assertThrows(exception.java, this as () -> Unit)
+
+internal inline infix fun <reified T : Throwable> Iterable<() -> Any?>.mustThrow(exception: Class<T>) =
+        this.forEach { it mustThrow exception }
+
+internal inline infix fun <reified T : Throwable> Iterable<() -> Any?>.mustThrow(exception: KClass<T>) =
+        this.forEach { it mustThrow exception }
+
 internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exception: Class<T>) {
     try {
         this()
@@ -34,10 +44,6 @@ internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exce
     }
 }
 
-@Suppress("UNCHECKED_CAST")
-internal inline infix fun <reified T : Throwable> (() -> Any?).mustThrow(exception: KClass<T>) =
-        Assertions.assertThrows(exception.java, this as () -> Unit)
-
 internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exception: KClass<T>) {
     try {
         this()
@@ -45,6 +51,12 @@ internal inline infix fun <reified T : Throwable> (() -> Any?).mustNotThrow(exce
         if (e is T) throw AssertionFailedError("Expected would not throw ${e.javaClass.simpleName} but actually did throw")
     }
 }
+
+internal inline infix fun <reified T : Throwable> Iterable<() -> Any?>.mustNotThrow(exception: KClass<T>) =
+        this.forEach { it mustNotThrow exception }
+
+internal inline infix fun <reified T : Throwable> Iterable<() -> Any?>.mustNotThrow(exception: Class<T>) =
+        this.forEach { it mustNotThrow exception }
 
 internal infix fun Number?.mustBe(expected: Number?) = Assertions.assertEquals(expected?.toInt(), this?.toInt())
 

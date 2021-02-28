@@ -16,4 +16,7 @@ internal class TestReadableMidiPort {
         @JvmStatic
         fun `After All`() = Unit
     }
+
+    // TODO: 28/02/2021 Create a writable port then a readable port to read it,
+    //  then destroy the writable port and see what happens with the callback, with the port etc
 }

@@ -78,13 +78,15 @@ protected constructor(portInfo: Info) {
     /**
      * Opens this [MidiPort] ready to send and receive messages, if this [MidiPort] is already open nothing will happen
      * @param portName an optional port name to be used, defaults to this [info] name
+     * @throws RtMidiPortException if this port cannot be opened because the system MIDI port represented by [info]
+     * could not be found
      * @throws RtMidiPortException if this port has already been destroyed
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    @JvmOverloads
-    public fun open(portName: String = info.name) { // TODO: 27/02/2021 Change params, no default??
+    public fun open(portName: String) {
         checkIsDestroyed()
         if (!isOpen) {
+            resetInfoIndex()
             RtMidiLibrary.instance.rtmidi_open_port(ptr, info.index, portName)
             checkErrors()
             isOpen = true
@@ -100,7 +102,8 @@ protected constructor(portInfo: Info) {
      * or if this port has already been destroyed
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public fun openVirtual(portName: String = info.name) { // TODO: 27/02/2021 Change params, no default??
+    public fun openVirtual(portName: String) {
+        // TODO: 28/02/2021 resetInfoIndex() ? What even is a virtual port??
         checkIsDestroyed()
         if (!RtMidi.supportsVirtualPorts())
             throw RtMidiPortException("Platform ${Platform.RESOURCE_PREFIX} does not support virtual ports")
@@ -144,12 +147,19 @@ protected constructor(portInfo: Info) {
     /** Call this after any call to [RtMidiLibrary.instance] */
     protected fun checkErrors() = if (!ptr.ok) throw RtMidiNativeException(ptr) else Unit
 
-    protected fun rescanInfo() {
+    /**
+     * Fixes the index of this [MidiPort]'s [info]
+     * RtMidi [open]s ports by index, ie [Info.index], but the index in this [info] may have changed since this
+     * [MidiPort] was created, so we need to reset the index by finding the [Info] with the same [Info.name] and
+     * [Info.type] and get its current index, that way the correct port will be opened.
+     * If the [Info] cannot be found then we cannot proceed and the port cannot be opened.
+     */
+    protected fun resetInfoIndex() {
         val found = (RtMidi.writableMidiPorts() + RtMidi.readableMidiPorts()).find {
-            it.name == this.info.name && it.type == this.info.type
+            it.type == this.info.type && it.name == this.info.name
         }
-        check(found != null) { "Could not find info:$info" }
-        this.info.index = info.index
+        if (found == null) throw RtMidiPortException("Cannot open port, could not find port with info:\n$info")
+        this.info.index = found.index
     }
 
     override fun hashCode(): Int = Objects.hash(ptr, info)
@@ -171,6 +181,8 @@ protected constructor(portInfo: Info) {
     /**
      * Contains the information of a system MIDI port which is used to create new [MidiPort]s
      * You can query the system's MIDI ports using [RtMidi.readableMidiPorts] and [RtMidi.writableMidiPorts].
+     * Creating and opening a new [WritableMidiPort] means that it can now be found as a readable port in
+     * [RtMidi.readableMidiPorts] and vice versa.
      * @param name the name of the port
      * @param index the index of the port, this can change throughout an port's lifecycle because it simply
      * represents its order in the system's list of MIDI ports, RtMidi uses this internally to identify ports

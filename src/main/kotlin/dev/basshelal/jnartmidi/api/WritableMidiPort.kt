@@ -22,7 +22,7 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      */
     public constructor(portInfo: Info) : super(portInfo) {
         require(portInfo.type == Info.Type.WRITABLE) {
-            "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo: $portInfo"
+            "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo:\n$portInfo"
         }
         this.createPtr()
     }
@@ -59,6 +59,8 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * Sends the passed in [midiMessage] to this port, the data of the message will not be modified
      * This port must be open for the message to be sent, you can check this by calling [MidiPort.isOpen],
      * otherwise nothing will happen
+     * If the system MIDI port that this [WritableMidiPort] was created with no longer exists (this is represented by
+     * [info]), nothing will happen
      * @throws RtMidiPortException if this port has already been destroyed
      * @throws RtMidiException if an error occurred in RtMidi's native code
      */
