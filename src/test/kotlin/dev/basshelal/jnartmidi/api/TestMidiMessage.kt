@@ -125,14 +125,5 @@ internal class TestMidiMessage {
         copyBuffer[data.lastIndex + 1] mustBe 0
     }
 
-    @Test
-    fun `Get First Byte`() {
-        val midiMessage = MidiMessage(0);
-        { midiMessage.status } mustThrow IndexOutOfBoundsException::class
-        { midiMessage.channel } mustThrow IndexOutOfBoundsException::class
-        { midiMessage.command } mustThrow IndexOutOfBoundsException::class
-        midiMessage.size = 1
-        throw NotImplementedError("Not yet implemented") // TODO: 26/02/2021 Implement!
-    }
 
 }

@@ -98,7 +98,6 @@ protected constructor(portInfo: Info) {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public fun openVirtual(portName: String) {
-        // TODO: 28/02/2021 resetInfoIndex() ? What even is a virtual port??
         checkIsDestroyed()
         if (!RtMidi.supportsVirtualPorts())
             throw RtMidiPortException("Platform ${Platform.RESOURCE_PREFIX} does not support virtual ports")

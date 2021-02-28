@@ -7,8 +7,8 @@ import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
 
 /**
  * A [MidiPort] that can be written to, meaning you can send a [MidiMessage] to via [WritableMidiPort.sendMessage].
- * This can be thought of as a MIDI out device, ie it is going out of the application, but the choice of "Writable"
- * is more intuitive to the programmer.
+ * This can be thought of as a MIDI out device, ie it is going out of the application,
+ * but the choice of "writable" is more intuitive to the programmer as it means the programmer can "write" to the [MidiPort].
  * After creating and [open]ing a [WritableMidiPort] it will appear in the system's readable MIDI ports in
  * [RtMidi.readableMidiPorts].
  * @author Bassam Helal
@@ -67,8 +67,6 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * Sends the passed in [midiMessage] to this port, the data of the message will not be modified
      * This port must be open for the message to be sent, you can check this by calling [MidiPort.isOpen],
      * otherwise nothing will happen
-     * If the system MIDI port that this [WritableMidiPort] was created with no longer exists (this is represented by
-     * [info]), nothing will happen
      * @throws RtMidiPortException if this port has already been destroyed
      * @throws RtMidiException if an error occurred in RtMidi's native code
      */
