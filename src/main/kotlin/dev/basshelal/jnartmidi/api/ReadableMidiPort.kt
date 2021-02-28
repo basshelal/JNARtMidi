@@ -10,6 +10,7 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
 
 public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
+    /** Initialized in [createPtr] */
     protected override lateinit var ptr: RtMidiInPtr
 
     // TODO: 23/02/2021 Test idea! Make a Port and set its callback then make it unreachable and thus ready for GC,
@@ -22,6 +23,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     private var midiMessageCallback: MidiMessageCallback? = null
 
     public override lateinit var api: RtMidiApi
+        /** Set once only in [createPtr] */
         protected set
 
     public constructor(portInfo: Info) : super(portInfo) {
@@ -50,19 +52,6 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         }
     }
 
-    protected override fun createPtr() {
-        ptr = chosenApi?.let { api ->
-            clientName?.let { clientName ->
-                RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
-            }
-        } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
-        checkErrors()
-        isDestroyed = false
-        val apiInt = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
-        checkErrors()
-        api = RtMidiApi.fromInt(apiInt)
-    }
-
     /**
      * Set this [ReadableMidiPort]'s callback which will be triggered when a new [MidiMessage] is sent to
      * this port. Ensure that the message you expect is not being ignored by calling [ignoreTypes] before
@@ -70,6 +59,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      *
      * @param callback the [MidiMessageCallback] which will be triggered when a new [MidiMessage] is sent to this port
      * @throws RtMidiPortException if a callback already exists for this port which must be removed using [removeCallback]
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public fun setCallback(callback: MidiMessageCallback) {
         checkIsDestroyed()
@@ -111,10 +101,29 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         midiMessage = null
     }
 
+    /**
+     * Instructs RtMidi to ignore messages of a given type such that this [ReadableMidiPort]'s callback
+     * will not be triggered for such messages. `true` means ignore such messages and `false` means do *not* ignore them
+     * @throws RtMidiPortException if this port has already been destroyed
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
+     */
     public fun ignoreTypes(midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean) {
         checkIsDestroyed()
         RtMidiLibrary.instance.rtmidi_in_ignore_types(ptr, midiSysex, midiTime, midiSense)
         checkErrors()
+    }
+
+    protected override fun createPtr() {
+        ptr = chosenApi?.let { api ->
+            clientName?.let { clientName ->
+                RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
+            }
+        } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
+        checkErrors()
+        isDestroyed = false
+        val apiInt = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
+        checkErrors()
+        api = RtMidiApi.fromInt(apiInt)
     }
 
     internal companion object {

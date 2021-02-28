@@ -20,6 +20,8 @@ import java.nio.ByteBuffer
  *
  * To use the library use [RtMidiLibrary.instance].
  *
+ * This is `internal` because we can't make any promises about the signatures of the functions remaining the same.
+ *
  * @author Bassam Helal
  */
 @Suppress("FunctionName")
@@ -38,6 +40,7 @@ internal interface RtMidiLibrary : Library {
     //=============================================================================================
     //====================================     Types     ==========================================
     //=============================================================================================
+
     /** MIDI API specifier arguments. See RtMidi::Api */
     interface RtMidiApi {
         companion object {
@@ -218,6 +221,7 @@ internal interface RtMidiLibrary : Library {
     //  Using a large number to avoid flooding is a bad idea because that memory is allocated
     //  The only thing we can do is allow it to flood our output, a solution would be to have the error logging be
     //  conditional in the C++ code so that a version can be built where this will be silent
+    //  I have created an issue on RtMidi's GitHub about this
     fun rtmidi_in_create(api: Int, clientName: String, queueSizeLimit: Int): RtMidiInPtr
 
     /**

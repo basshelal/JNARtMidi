@@ -9,8 +9,10 @@ import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
  * A [MidiPort] that can be written to, meaning you can send a [MidiMessage] to via [WritableMidiPort.sendMessage].
  * This can be thought of as a MIDI out device, ie it is going out of the application,
  * but the choice of "writable" is more intuitive to the programmer as it means the programmer can "write" to the [MidiPort].
+ *
  * After creating and [open]ing a [WritableMidiPort] it will appear in the system's readable MIDI ports in
  * [RtMidi.readableMidiPorts].
+ *
  * @author Bassam Helal
  */
 public class WritableMidiPort : MidiPort<RtMidiOutPtr> {

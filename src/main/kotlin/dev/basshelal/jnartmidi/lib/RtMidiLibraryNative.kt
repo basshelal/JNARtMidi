@@ -19,6 +19,8 @@ internal class RtMidiLibraryNative : RtMidiLibrary {
          * The instance of [RtMidiLibrary] that corresponds to the RtMidi Native Library with functions "implemented".
          * If this is used anywhere before calling [dev.basshelal.jnartmidi.api.RtMidi.addLibrarySearchPath]
          * then you may have an [UnsatisfiedLinkError] or [NoClassDefFoundError] because the library could not be found.
+         * Such an error is irreversible meaning you cannot fix your way out of it.
+         * Currently I am unsure of a **clean and elegant** way to fix this but it shouldn't be an issue anyway.
          */
         @JvmStatic
         val instance: RtMidiLibrary by lazy { RtMidiLibraryNative() }

@@ -6,7 +6,7 @@ import com.sun.jna.Structure.FieldOrder
 
 /**
  * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
- *
+ * This should only be used internally for interaction with [RtMidiLibrary].
  * @author Bassam Helal
  */
 @FieldOrder("ptr", "data", "ok", "msg")

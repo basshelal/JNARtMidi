@@ -9,7 +9,9 @@ import dev.basshelal.jnartmidi.lib.RtMidiPtr
 import java.util.Objects
 
 /**
- * TODO doc!
+ * Represents a MIDI port, which can receive messages or send messages.
+ * A MIDI port that can receive messages is readable by the programmer and thus is a [ReadableMidiPort].
+ * A MIDI port that can send messages is writable by the programmer and thus is a [WritableMidiPort].
  *
  * You should always *try* to call [destroy] once you are no longer using this [MidiPort],
  * if unsure about needing the port later, call [close] to at least close the connection
@@ -63,19 +65,19 @@ protected constructor(portInfo: Info) {
     }
 
     /**
-     * Closes [close] and destroys this port (if it is not already destroyed) such that it can and will no longer be used,
-     * attempting to use the port after this will throw an [RtMidiPortException] except when calling [destroy], which
-     * is intentionally safe to call even if the port is already destroyed, in which case nothing will happen
+     * Closes and destroys this port (if it is not already destroyed) such that it can and will no longer be used.
+     * Attempting to use the port (except for querying state such as [isOpen], [isDestroyed] etc) after this will throw
+     * an [RtMidiPortException] except when calling [destroy], which is intentionally safe to call even if the port
+     * is already destroyed, in which case nothing will happen
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public abstract fun destroy()
 
     /**
      * Opens this [MidiPort] ready to send and receive messages, if this [MidiPort] is already open nothing will happen
-     * @param portName an optional port name to be used, defaults to this [info] name
+     * @param portName the name that this port will use
      * @throws RtMidiPortException if this port cannot be opened because the system MIDI port represented by [info]
-     * could not be found
-     * @throws RtMidiPortException if this port has already been destroyed
+     * could not be found or if this port has already been destroyed
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public fun open(portName: String) {
@@ -90,9 +92,9 @@ protected constructor(portInfo: Info) {
     }
 
     /**
-     * TODO doc!
-     *
-     * @param portName an optional port name to be used, defaults to this [info] name
+     * Similar to [open] except using a "virtual" port, which may not be supported on all platforms,
+     * see [RtMidi.supportsVirtualPorts]
+     * @param portName the name that this port will use
      * @throws RtMidiPortException if this platform does not support virtual ports, see [RtMidi.supportsVirtualPorts]
      * or if this port has already been destroyed
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
@@ -151,8 +153,7 @@ protected constructor(portInfo: Info) {
     protected fun resetInfoIndex() {
         val found = (RtMidi.writableMidiPorts() + RtMidi.readableMidiPorts()).find {
             it.type == this.info.type && it.name == this.info.name
-        }
-        if (found == null) throw RtMidiPortException("Cannot open port, could not find port with info:\n$info")
+        } ?: throw RtMidiPortException("Cannot open port, could not find port with info:\n$info")
         this.info.index = found.index
     }
 
