@@ -2,6 +2,11 @@ package dev.basshelal.jnartmidi.api
 
 import dev.basshelal.jnartmidi.lib.RtMidiPtr
 
+/**
+ * Superclass of all exceptions in JNARtMidi, this is never actually thrown, instead, its subclasses are thrown
+ * containing more detailed information, such as [RtMidiPortException] or [RtMidiNativeException]
+ * You can use this as a means to "catch all" exceptions from this library.
+ */
 open class RtMidiException(msg: String) : RuntimeException(msg)
 
 /**
@@ -20,4 +25,10 @@ class RtMidiNativeException : RtMidiException {
 
 }
 
+/**
+ * An [RtMidiException] signalling that something went wrong with regards to a [MidiPort].
+ * Most often this is thrown when a destroyed port is trying to be used after destruction but can also be thrown if
+ * an operation was unsuccessful such as when opening a port that no longer exists trying to open a virtual port on a
+ * platform that does not support them etc.
+ */
 class RtMidiPortException(msg: String) : RtMidiException(msg)

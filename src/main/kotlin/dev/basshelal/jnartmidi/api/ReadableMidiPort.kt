@@ -8,6 +8,28 @@ import dev.basshelal.jnartmidi.lib.RtMidiLibrary
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
 
+/**
+ * A [MidiPort] that can be read from, meaning you can have a callback registered to listen when new MIDI events are
+ * received by using [setCallback].
+ * This can be thought of as a MIDI in device, ie it is going in to the application,
+ * but the choice of "readable" is more intuitive to the programmer as it means the programmer can "read" from the [MidiPort].
+ *
+ * After creating and [open]ing a [ReadableMidiPort] it will appear in the system's writable MIDI ports in
+ * [RtMidi.writableMidiPorts].
+ *
+ * Read [MidiPort]'s documentation for further details.
+ *
+ * **Be careful of memory leaks!**
+ *
+ * If you create a [ReadableMidiPort] and [open] it and call [setCallback] then lose access to that variable
+ * containing the [ReadableMidiPort] and the port is garbage collected, the [MidiMessageCallback] you provided in [setCallback]
+ * **will still run** and you will have no way to close or destroy that port without killing your JVM process.
+ * Ensure that any open ports are still accessible to be [destroy]ed and make sure to call [destroy] when you are
+ * done with a port to avoid memory leaks, meaning open ports that you no longer have access to and thus cannot
+ * close and destroy without killing your JVM process.
+ *
+ * @author Bassam Helal
+ */
 public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
 
     /** Initialized in [createPtr] */
@@ -23,6 +45,12 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         /** Set once only in [createPtr] */
         protected set
 
+    /**
+     * Create a [ReadableMidiPort] from the passed in [portInfo]
+     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
+     * @throws IllegalArgumentException if the passed in [portInfo] was not of type READABLE
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
+     */
     public constructor(portInfo: Info) : super(portInfo) {
         require(portInfo.type == Info.Type.READABLE) {
             "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo:\n$portInfo"
@@ -30,6 +58,16 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         this.createPtr()
     }
 
+    /**
+     * Create a [ReadableMidiPort] from the passed in [portInfo].
+     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
+     * @param clientName the name which is used by RtMidi to group similar ports
+     * (like those belonging to the same application).
+     * @param api the [RtMidiApi] that this port will use, defaults to [RtMidiApi.UNSPECIFIED],
+     * ie let RtMidi choose the first working API it finds which you can query using [MidiPort.api]
+     * @throws IllegalArgumentException if the passed in [portInfo] was not of type READABLE
+     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
+     */
     @JvmOverloads
     public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
             : super(portInfo, clientName, api) {
