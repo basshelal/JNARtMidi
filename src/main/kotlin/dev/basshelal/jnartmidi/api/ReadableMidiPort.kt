@@ -13,9 +13,6 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     /** Initialized in [createPtr] */
     protected override lateinit var ptr: RtMidiInPtr
 
-    // TODO: 23/02/2021 Test idea! Make a Port and set its callback then make it unreachable and thus ready for GC,
-    //  then force a GC and see what happens.
-
     /** Need to hold a reference to this because JNA, otherwise if it gets GCed will cause unexpected behavior */
     private var cCallback: RtMidiCCallback? = null
 

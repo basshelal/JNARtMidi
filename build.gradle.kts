@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.basshelal"
-version = "0.1"
+version = "1.0"
 
 val javaVersion = JavaVersion.VERSION_1_8
 

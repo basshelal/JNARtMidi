@@ -13,6 +13,8 @@ import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
  * After creating and [open]ing a [WritableMidiPort] it will appear in the system's readable MIDI ports in
  * [RtMidi.readableMidiPorts].
  *
+ * Read [MidiPort]'s documentation for further details.
+ *
  * @author Bassam Helal
  */
 public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
