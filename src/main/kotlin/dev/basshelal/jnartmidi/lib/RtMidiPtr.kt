@@ -14,36 +14,39 @@ open class RtMidiPtr : Structure { // should be internal but because MidiPort us
 
     /** C type : void* */
     @JvmField
-    internal var ptr: Pointer? = null
+    internal val ptr: Pointer?
 
     /** C type : void* */
     @JvmField
-    internal var data: Pointer? = null
+    internal val data: Pointer?
 
     /** C type : bool */
     @JvmField
-    internal var ok: Boolean = false
+    internal val ok: Boolean
 
     /** C type : const char* */
     @JvmField
-    internal var msg: String? = null
+    internal val msg: String?
 
-    internal constructor() : super()
+    internal constructor() : super() {
+        this.ptr = null
+        this.data = null
+        this.ok = false
+        this.msg = null
+    }
 
-    internal constructor(peer: Pointer?) : super(peer)
+    internal constructor(peer: Pointer?) : super(peer) {
+        this.ptr = null
+        this.data = null
+        this.ok = false
+        this.msg = null
+    }
 
     internal constructor(ptr: Pointer?, data: Pointer?, ok: Boolean, msg: String?) : super() {
         this.ptr = ptr
         this.data = data
         this.ok = ok
         this.msg = msg
-    }
-
-    internal constructor(other: RtMidiPtr) : this(other.pointer) {
-        this.ptr = other.ptr
-        this.data = other.data
-        this.ok = other.ok
-        this.msg = other.msg
     }
 }
 
