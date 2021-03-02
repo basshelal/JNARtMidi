@@ -314,7 +314,6 @@ internal class TestRtMidiLibrary {
         val `in` = inCreateDefault()
         val ptr = `in`.ptr
         `in`.ptr mustNotBe null
-        `in`.log()
         lib.rtmidi_in_free(`in`)
         `in`.ptr mustNotBe ptr
 
@@ -466,7 +465,6 @@ internal class TestRtMidiLibrary {
         val out = outCreateDefault()
         val ptr = out.ptr
         out.ptr mustNotBe null
-        out.log()
         lib.rtmidi_out_free(out)
         out.ptr mustNotBe ptr
 
