@@ -24,16 +24,16 @@ RtMidi.addLibrarySearchPath("bin/my-libraries-path");
 
 This library **does not** provide built versions of RtMidi, you must already have them before using this library.
 
-Read the documentation of [`RtMidi.addLibrarySearchPath`](src/main/kotlin/dev/basshelal/jnartmidi/api/RtMidi.kt)
+Read the documentation of [`RtMidi.addLibrarySearchPath`](src/main/kotlin/dev/basshelal/jrtmidi/api/RtMidi.kt)
 for more details regarding adding the library search path as this can be somewhat of a pain point at first.
 
-A [`ReadableMidiPort`](src/main/kotlin/dev/basshelal/jnartmidi/api/ReadableMidiPort.kt)
+A [`ReadableMidiPort`](src/main/kotlin/dev/basshelal/jrtmidi/api/ReadableMidiPort.kt)
 is one that you as a programmer can read messages from, similarly a
-[`WritableMidiPort`](src/main/kotlin/dev/basshelal/jnartmidi/api/WritableMidiPort.kt)
+[`WritableMidiPort`](src/main/kotlin/dev/basshelal/jrtmidi/api/WritableMidiPort.kt)
 is one that you as a programmer can send messages to.
 
 You can query all readable and writable MIDI ports in the system by using the
-[`RtMidi`](src/main/kotlin/dev/basshelal/jnartmidi/api/RtMidi.kt) class's static functions:
+[`RtMidi`](src/main/kotlin/dev/basshelal/jrtmidi/api/RtMidi.kt) class's static functions:
 
 ```java
 List<MidiPort.Info> readablePorts = RtMidi.readableMidiPorts();
