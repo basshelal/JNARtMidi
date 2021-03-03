@@ -5,7 +5,7 @@ import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 
 /**
- * The entry point to the JNARtMidi Library.
+ * The entry point to the JRtMidi Library.
  *
  * ### Getting Started:
  *

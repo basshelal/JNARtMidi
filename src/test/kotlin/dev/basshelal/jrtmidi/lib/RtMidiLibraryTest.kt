@@ -69,9 +69,9 @@ internal class RtMidiLibraryTest {
 
     private fun outCreateDefault(): RtMidiOutPtr = lib.rtmidi_out_create_default().also { it.isOk() }
 
-    private fun inPortName(): String = "Test JNARtMidi In Port at ${Random.nextInt()}"
+    private fun inPortName(): String = "Test JRtMidi In Port at ${Random.nextInt()}"
 
-    private fun outPortName(): String = "Test JNARtMidi Out Port at ${Random.nextInt()}"
+    private fun outPortName(): String = "Test JRtMidi Out Port at ${Random.nextInt()}"
 
     // GC or JUnit causes something to go wong when running all tests in succession, a slight wait fixes it somehow
     @BeforeEach
@@ -286,7 +286,7 @@ internal class RtMidiLibraryTest {
         val totalApis = lib.rtmidi_get_compiled_api(apis, apis.size)
         totalApis mustBeGreaterThan 0
 
-        lib.rtmidi_in_create(apis.first(), "Test JNARtMidi Client", 1024).also {
+        lib.rtmidi_in_create(apis.first(), "Test JRtMidi Client", 1024).also {
             it.isOk()
         }.free()
     }
@@ -322,7 +322,7 @@ internal class RtMidiLibraryTest {
         val totalApis = lib.rtmidi_get_compiled_api(apis, apis.size)
         totalApis mustBeGreaterThan 0
         val api = apis.first()
-        val clientName = "Test JNARtMidi Client"
+        val clientName = "Test JRtMidi Client"
         val queueSizeLimit = 1024
         lib.rtmidi_in_create(api, clientName, queueSizeLimit).also {
             it.isOk()
@@ -448,7 +448,7 @@ internal class RtMidiLibraryTest {
         val apis = IntArray(RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM)
         val totalApis = lib.rtmidi_get_compiled_api(apis, apis.size)
         totalApis mustBeGreaterThan 0
-        val clientName = "Test JNARtMidi Client"
+        val clientName = "Test JRtMidi Client"
         lib.rtmidi_out_create(apis.first(), clientName).also {
             it.isOk()
         }.free()
@@ -473,7 +473,7 @@ internal class RtMidiLibraryTest {
         val totalApis = lib.rtmidi_get_compiled_api(apis, apis.size)
         totalApis mustBeGreaterThan 0
         val api = apis.first()
-        val clientName = "Test JNARtMidi Client"
+        val clientName = "Test JRtMidi Client"
         lib.rtmidi_out_create(api, clientName).also {
             it.isOk()
             val usedApi = lib.rtmidi_out_get_current_api(it)

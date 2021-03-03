@@ -40,9 +40,9 @@ internal class LatencyTest {
         fun `After All`() = Unit
     }
 
-    private fun inPortName(): String = "Test JNARtMidi In Port at ${Random.nextInt()}"
+    private fun inPortName(): String = "Test JRtMidi In Port at ${Random.nextInt()}"
 
-    private fun outPortName(): String = "Test JNARtMidi Out Port at ${Random.nextInt()}"
+    private fun outPortName(): String = "Test JRtMidi Out Port at ${Random.nextInt()}"
 
     @Test
     fun JNA() {

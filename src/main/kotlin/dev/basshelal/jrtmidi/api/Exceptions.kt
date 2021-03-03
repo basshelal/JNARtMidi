@@ -3,7 +3,7 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
 
 /**
- * Superclass of all exceptions in JNARtMidi, this is never actually thrown, instead, its subclasses are thrown
+ * Superclass of all exceptions in JRtMidi, this is never actually thrown, instead, its subclasses are thrown
  * containing more detailed information, such as [RtMidiPortException] or [RtMidiNativeException]
  * You can use this as a means to "catch all" exceptions from this library.
  */
