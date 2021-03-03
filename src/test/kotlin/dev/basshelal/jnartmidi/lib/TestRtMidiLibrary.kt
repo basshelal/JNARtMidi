@@ -2,12 +2,8 @@
 
 package dev.basshelal.jnartmidi.lib
 
-import com.sun.jna.Library
-import com.sun.jna.Memory
-import com.sun.jna.Native
 import com.sun.jna.Platform
 import com.sun.jna.Pointer
-import com.sun.jna.ptr.PointerByReference
 import dev.basshelal.jnartmidi.anyOf
 import dev.basshelal.jnartmidi.api.MidiMessage
 import dev.basshelal.jnartmidi.api.RtMidi
@@ -17,7 +13,6 @@ import dev.basshelal.jnartmidi.assume
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSizeByReference
 import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
-import dev.basshelal.jnartmidi.log
 import dev.basshelal.jnartmidi.mustBe
 import dev.basshelal.jnartmidi.mustBeGreaterThan
 import dev.basshelal.jnartmidi.mustBeLessThanOrEqualTo
@@ -525,49 +520,4 @@ internal class TestRtMidiLibrary {
         message mustBe receivedMessage
         free(`in`, out)
     }
-
-
-    // TODO: 02/03/2021 Delete later...
-    @Test
-    fun `test`() {
-        val bytes = 32
-        val ptr = PointerByReference(Memory(bytes.toLong()))
-        (0..5).forEach {
-            val result = LibAlsaImpl.instance.snd_card_get_name(it, ptr)
-
-            result.log()
-            String(ptr.value.getByteArray(0, bytes)).log()
-            ptr.value.getByteArray(0, bytes).joinToString().log()
-        }
-    }
-}
-
-interface LibAlsa : Library {
-
-    //    int snd_card_get_name	(	int 	card,
-//    char ** 	name
-//    )
-    fun snd_card_get_name(card: Int, name: PointerByReference): Int
-    fun snd_card_get_longname(card: Int, name: PointerByReference): Int
-}
-
-class LibAlsaImpl : Library {
-
-    companion object {
-        @JvmStatic
-        val instance: LibAlsaImpl by lazy { LibAlsaImpl() }
-
-        init {
-            try {
-                if (Platform.isLinux()) {
-                    Native.register("asound")
-                }
-            } catch (e: LinkageError) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    external fun snd_card_get_name(card: Int, name: PointerByReference): Int
-    external fun snd_card_get_longname(card: Int, name: PointerByReference): Int
 }
