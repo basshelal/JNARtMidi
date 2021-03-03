@@ -1,12 +1,12 @@
-# JNARtMidi
+# JRtMidi
 
-Work In Progress
+Work In Progress...
 
 Java bindings to [RtMidi](https://github.com/thestk/rtmidi)
 using [Java Native Access](https://github.com/java-native-access/jna)
-written in [Koltin JVM](https://kotlinlang.org/).
+written in [Koltin](https://kotlinlang.org/).
 
-Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack) (hence the name).
+Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack).
 
 ## Installation
 
@@ -16,7 +16,7 @@ Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack) (hence the 
 
 <!-- TODO add reference to example repo here -->
 
-Before using anything, ensure that you point JNARtMidi to the location(s) of your built libraries of RtMidi:
+Before using anything, ensure that you point JRtMidi to the location(s) of your built libraries of RtMidi:
 
 ```java
 RtMidi.addLibrarySearchPath("bin/my-libraries-path");
@@ -67,7 +67,7 @@ readablePort.open(/*portName=*/"My Readable Port"); // ERROR: will throw RtMidiP
 readablePort.destroy(); // ok, will not do anything if already destroyed
 ```
 
-JNARtMidi's documentation is extensive and thorough and it is recommended to read through it to understand the
+JRtMidi's documentation is extensive and thorough and it is recommended to read through it to understand the
 capabilities of the library.
 
 ## License
