@@ -1,4 +1,4 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
 /**
  * Represents a MIDI message of arbitrary size, wraps an [ByteArray] in [data].

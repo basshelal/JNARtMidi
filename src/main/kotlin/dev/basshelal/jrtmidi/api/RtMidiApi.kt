@@ -1,6 +1,6 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import java.util.Objects
 
 /**

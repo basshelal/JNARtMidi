@@ -1,9 +1,9 @@
 @file:Suppress("RedundantVisibilityModifier")
 
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
-import dev.basshelal.jnartmidi.lib.RtMidiOutPtr
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiOutPtr
 
 /**
  * A [MidiPort] that can be written to, meaning you can send a [MidiMessage] to via [WritableMidiPort.sendMessage].

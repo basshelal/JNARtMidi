@@ -1,12 +1,12 @@
 @file:Suppress("RedundantVisibilityModifier")
 
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
 import com.sun.jna.Pointer
-import dev.basshelal.jnartmidi.lib.RtMidiInPtr
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
+import dev.basshelal.jrtmidi.lib.RtMidiInPtr
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSize
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
 
 /**
  * A [MidiPort] that can be read from, meaning you can have a callback registered to listen when new MIDI events are

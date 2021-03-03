@@ -1,4 +1,4 @@
-package dev.basshelal.jnartmidi.lib
+package dev.basshelal.jrtmidi.lib
 
 import com.sun.jna.Callback
 import com.sun.jna.IntegerType

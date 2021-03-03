@@ -1,9 +1,9 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package dev.basshelal.jnartmidi
+package dev.basshelal.jrtmidi
 
 import com.sun.jna.Platform
-import dev.basshelal.jnartmidi.api.RtMidi
+import dev.basshelal.jrtmidi.api.RtMidi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.assertDoesNotThrow

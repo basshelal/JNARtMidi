@@ -1,14 +1,14 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jnartmidi.defaultBeforeAll
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
-import dev.basshelal.jnartmidi.mustBe
-import dev.basshelal.jnartmidi.mustBeSameAs
+import dev.basshelal.jrtmidi.defaultBeforeAll
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.mustBe
+import dev.basshelal.jrtmidi.mustBeSameAs
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-internal class TestRtMidiApi {
+internal class RtMidiApiTest {
 
     companion object {
         @BeforeAll

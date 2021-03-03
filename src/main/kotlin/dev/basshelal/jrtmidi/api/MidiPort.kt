@@ -1,11 +1,11 @@
 @file:Suppress("RedundantVisibilityModifier")
 
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
 import com.sun.jna.Platform
-import dev.basshelal.jnartmidi.api.MidiPort.Info.Type
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
-import dev.basshelal.jnartmidi.lib.RtMidiPtr
+import dev.basshelal.jrtmidi.api.MidiPort.Info.Type
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiPtr
 import java.util.Objects
 
 /**

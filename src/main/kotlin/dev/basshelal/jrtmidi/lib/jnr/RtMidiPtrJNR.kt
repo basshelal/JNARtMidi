@@ -1,4 +1,4 @@
-package dev.basshelal.jnartmidi.lib.jnr
+package dev.basshelal.jrtmidi.lib.jnr
 
 import jnr.ffi.Runtime
 import jnr.ffi.Struct

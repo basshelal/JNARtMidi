@@ -1,1 +1,1 @@
-rootProject.name = "JNARtMidi"
+rootProject.name = "JRtMidi"

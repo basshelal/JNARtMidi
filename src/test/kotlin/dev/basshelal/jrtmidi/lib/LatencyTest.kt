@@ -1,22 +1,27 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package dev.basshelal.jnartmidi.lib
+package dev.basshelal.jrtmidi.lib
 
 import com.sun.jna.Platform
 import com.sun.jna.Pointer
-import dev.basshelal.jnartmidi.api.MidiMessage
-import dev.basshelal.jnartmidi.api.RtMidi
-import dev.basshelal.jnartmidi.lib.jnr.RtMidiLibraryJNR
-import dev.basshelal.jnartmidi.mustBe
-import dev.basshelal.jnartmidi.wait
+import dev.basshelal.jrtmidi.api.MidiMessage
+import dev.basshelal.jrtmidi.api.RtMidi
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
+import dev.basshelal.jrtmidi.mustBe
+import dev.basshelal.jrtmidi.wait
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIf
 import kotlin.random.Random
 
+@EnabledIf("isEnabled")
 internal class LatencyTest {
 
     companion object {
+        @JvmStatic
+        val isEnabled = false
+
         lateinit var jna: RtMidiLibrary
         lateinit var jnr: RtMidiLibraryJNR
 
@@ -34,14 +39,6 @@ internal class LatencyTest {
         @JvmStatic
         fun `After All`() = Unit
     }
-
-    private inline fun RtMidiPtr.free() = when (this) {
-        is RtMidiInPtr -> jna.rtmidi_in_free(this)
-        is RtMidiOutPtr -> jna.rtmidi_out_free(this)
-        else -> Unit
-    }
-
-    private inline fun free(vararg ptrs: RtMidiPtr) = ptrs.forEach { it.free() }
 
     private fun inPortName(): String = "Test JNARtMidi In Port at ${Random.nextInt()}"
 
@@ -71,8 +68,8 @@ internal class LatencyTest {
         }
         jna.rtmidi_in_set_callback(readable, callback, null)
 
-        (0..10_000).forEach {
-            wait(10)
+        (0..100_000).forEach {
+            wait(5)
             dT = System.nanoTime()
             jna.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
         }
@@ -115,8 +112,8 @@ internal class LatencyTest {
         }
         jnr.rtmidi_in_set_callback(readable, callback, null)
 
-        (0..10_000).forEach {
-            wait(10)
+        (0..100_000).forEach {
+            wait(5)
             dT = System.nanoTime()
             jnr.rtmidi_out_send_message(writable, sentMessage, sentMessage.size)
         }

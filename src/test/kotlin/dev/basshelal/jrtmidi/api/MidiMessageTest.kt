@@ -1,16 +1,16 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jnartmidi.defaultBeforeAll
-import dev.basshelal.jnartmidi.mustBe
-import dev.basshelal.jnartmidi.mustNotBe
-import dev.basshelal.jnartmidi.mustNotBeSameAs
-import dev.basshelal.jnartmidi.mustThrow
+import dev.basshelal.jrtmidi.defaultBeforeAll
+import dev.basshelal.jrtmidi.mustBe
+import dev.basshelal.jrtmidi.mustNotBe
+import dev.basshelal.jrtmidi.mustNotBeSameAs
+import dev.basshelal.jrtmidi.mustThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 /** Tests [MidiMessage] */
-internal class TestMidiMessage {
+internal class MidiMessageTest {
     companion object {
         @BeforeAll
         @JvmStatic

@@ -1,4 +1,4 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
 /**
  * Used in [ReadableMidiPort] to listen to [MidiMessage]s that the [ReadableMidiPort] receives.

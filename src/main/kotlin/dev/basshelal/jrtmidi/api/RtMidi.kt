@@ -1,8 +1,8 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
 import com.sun.jna.NativeLibrary
 import com.sun.jna.Platform
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 
 /**
  * The entry point to the JNARtMidi Library.

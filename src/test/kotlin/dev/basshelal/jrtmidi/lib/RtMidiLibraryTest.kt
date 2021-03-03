@@ -1,23 +1,23 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package dev.basshelal.jnartmidi.lib
+package dev.basshelal.jrtmidi.lib
 
 import com.sun.jna.Platform
 import com.sun.jna.Pointer
-import dev.basshelal.jnartmidi.anyOf
-import dev.basshelal.jnartmidi.api.MidiMessage
-import dev.basshelal.jnartmidi.api.RtMidi
-import dev.basshelal.jnartmidi.api.RtMidi.supportsVirtualPorts
-import dev.basshelal.jnartmidi.api.RtMidiApi
-import dev.basshelal.jnartmidi.assume
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSize
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.NativeSizeByReference
-import dev.basshelal.jnartmidi.lib.RtMidiLibrary.RtMidiCCallback
-import dev.basshelal.jnartmidi.mustBe
-import dev.basshelal.jnartmidi.mustBeGreaterThan
-import dev.basshelal.jnartmidi.mustBeLessThanOrEqualTo
-import dev.basshelal.jnartmidi.mustNotBe
-import dev.basshelal.jnartmidi.wait
+import dev.basshelal.jrtmidi.anyOf
+import dev.basshelal.jrtmidi.api.MidiMessage
+import dev.basshelal.jrtmidi.api.RtMidi
+import dev.basshelal.jrtmidi.api.RtMidi.supportsVirtualPorts
+import dev.basshelal.jrtmidi.api.RtMidiApi
+import dev.basshelal.jrtmidi.assume
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSize
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSizeByReference
+import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
+import dev.basshelal.jrtmidi.mustBe
+import dev.basshelal.jrtmidi.mustBeGreaterThan
+import dev.basshelal.jrtmidi.mustBeLessThanOrEqualTo
+import dev.basshelal.jrtmidi.mustNotBe
+import dev.basshelal.jrtmidi.wait
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -33,7 +33,7 @@ import kotlin.random.Random
  * Tests all 22 of the exported native C functions from the RtMidi library found in [RtMidiLibrary]
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-internal class TestRtMidiLibrary {
+internal class RtMidiLibraryTest {
 
     companion object {
         lateinit var lib: RtMidiLibrary

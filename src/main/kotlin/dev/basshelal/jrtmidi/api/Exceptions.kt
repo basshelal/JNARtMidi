@@ -1,6 +1,6 @@
-package dev.basshelal.jnartmidi.api
+package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jnartmidi.lib.RtMidiPtr
+import dev.basshelal.jrtmidi.lib.RtMidiPtr
 
 /**
  * Superclass of all exceptions in JNARtMidi, this is never actually thrown, instead, its subclasses are thrown

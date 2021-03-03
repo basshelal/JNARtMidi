@@ -1,19 +1,19 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package dev.basshelal.jnartmidi.lib
+package dev.basshelal.jrtmidi.lib
 
 import com.sun.jna.Platform
-import dev.basshelal.jnartmidi.anyOf
-import dev.basshelal.jnartmidi.api.MidiMessage
-import dev.basshelal.jnartmidi.lib.jnr.RtMidiInPtr
-import dev.basshelal.jnartmidi.lib.jnr.RtMidiLibraryJNR
-import dev.basshelal.jnartmidi.lib.jnr.RtMidiOutPtr
-import dev.basshelal.jnartmidi.lib.jnr.RtMidiPtr
-import dev.basshelal.jnartmidi.mustBe
-import dev.basshelal.jnartmidi.mustBeGreaterThan
-import dev.basshelal.jnartmidi.mustBeLessThanOrEqualTo
-import dev.basshelal.jnartmidi.mustNotBe
-import dev.basshelal.jnartmidi.wait
+import dev.basshelal.jrtmidi.anyOf
+import dev.basshelal.jrtmidi.api.MidiMessage
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiInPtr
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiOutPtr
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiPtr
+import dev.basshelal.jrtmidi.mustBe
+import dev.basshelal.jrtmidi.mustBeGreaterThan
+import dev.basshelal.jrtmidi.mustBeLessThanOrEqualTo
+import dev.basshelal.jrtmidi.mustNotBe
+import dev.basshelal.jrtmidi.wait
 import jnr.ffi.Pointer
 import jnr.ffi.TypeAlias
 import jnr.ffi.byref.NumberByReference
@@ -31,7 +31,7 @@ import kotlin.random.Random
  * Tests all 22 of the exported native C functions from the RtMidi library found in [RtMidiLibrary]
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-internal class TestRtMidiLibraryJNR {
+internal class RtMidiLibraryJNRTest {
 
     companion object {
         lateinit var lib: RtMidiLibraryJNR
