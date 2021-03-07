@@ -25,23 +25,6 @@ fun getApis(): List<RtMidiApi> {
     return result
 }
 
-
-internal interface Alsa {
-    fun snd_asoundlib_version(): String
-}
-
-internal interface Core {
-    fun MIDIGetNumberOfDevices(): Int
-}
-
-internal interface Jack {
-    fun jack_activate(client: PointerByReference): Int
-}
-
-internal interface WinMM {
-    fun midiInGetNumDevs(): Int
-}
-
 /**
  * Possible RtMidi Build combinations
  */
@@ -66,4 +49,24 @@ internal enum class RtMidiBuildType {
             }
         }
     }
+}
+
+// Below are minimal mappings of each API, I picked the simplest functions I could find quickly
+// I have tested ALSA and JACK, need to test the proprietary OSes
+// 07-Mar-2021 Bassam Helal
+
+internal interface Alsa {
+    fun snd_asoundlib_version(): String
+}
+
+internal interface Core {
+    fun MIDIGetNumberOfDevices(): Int
+}
+
+internal interface Jack {
+    fun jack_activate(client: PointerByReference): Int
+}
+
+internal interface WinMM {
+    fun midiInGetNumDevs(): Int
 }
