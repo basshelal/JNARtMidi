@@ -13,6 +13,8 @@ import dev.basshelal.jrtmidi.assume
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSizeByReference
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
+import dev.basshelal.jrtmidi.lib.jnr.getApis
+import dev.basshelal.jrtmidi.log
 import dev.basshelal.jrtmidi.mustBe
 import dev.basshelal.jrtmidi.mustBeGreaterThan
 import dev.basshelal.jrtmidi.mustBeLessThanOrEqualTo
@@ -42,7 +44,7 @@ internal class RtMidiLibraryTest {
         @JvmStatic
         fun `Before All`() {
             RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
-            assertDoesNotThrow { RtMidi.availableApis() }
+            assertDoesNotThrow { RtMidi.compiledApis() }
             lib = RtMidiLibrary.instance
             ::lib.isInitialized mustBe true
         }

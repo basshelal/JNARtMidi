@@ -36,7 +36,7 @@ internal class WritableMidiPortTest {
         port.isDestroyed mustBe false
         port.isOpen mustBe false
         port.isVirtual mustBe false
-        (port.api in RtMidi.availableApis()) mustBe true
+        (port.api in RtMidi.compiledApis()) mustBe true
 
         port.destroy()
     }
@@ -46,7 +46,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
         val api = allApis.first()
         val clientName = "Test Client ${Random.nextInt()}"
@@ -75,7 +75,7 @@ internal class WritableMidiPortTest {
         port.isDestroyed mustBe false
         port.isOpen mustBe false
         port.isVirtual mustBe false
-        (port.api in RtMidi.availableApis()) mustBe true
+        (port.api in RtMidi.compiledApis()) mustBe true
 
         port.destroy()
     }
@@ -85,7 +85,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = WritableMidiPort(info)
@@ -120,7 +120,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = WritableMidiPort(info)
@@ -155,7 +155,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = WritableMidiPort(info)
@@ -202,7 +202,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val portName = "Test Writable Port ${Random.nextInt()}"
@@ -240,7 +240,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val writablePort = WritableMidiPort(info)
@@ -282,7 +282,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val info = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val writablePort = WritableMidiPort(info)
@@ -346,7 +346,7 @@ internal class WritableMidiPortTest {
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.isNotEmpty() mustBe true
         val writableInfo = allWritableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val writablePorts = (0..10).map { WritableMidiPort(writableInfo) }

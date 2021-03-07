@@ -3,6 +3,7 @@ package dev.basshelal.jrtmidi.api
 import com.sun.jna.NativeLibrary
 import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
 
 /**
  * The entry point to the JRtMidi Library.
@@ -10,15 +11,14 @@ import dev.basshelal.jrtmidi.lib.RtMidiLibrary
  * ### Getting Started:
  *
  * Before using *anything* in the library be sure to call [RtMidi.addLibrarySearchPath]
- * first to ensure the RtMidi native library is loaded correctly,
- * see [RtMidi.addLibrarySearchPath] for details.
+ * first to ensure the RtMidi native library is loaded correctly, see [RtMidi.addLibrarySearchPath] for details.
  *
  * Create a [ReadableMidiPort] by getting a [MidiPort.Info] from [RtMidi.readableMidiPorts],
  * similarly for [WritableMidiPort]s by calling [RtMidi.writableMidiPorts].
  *
  * [MidiPort]s have a constructor
  * which allows you to choose the [RtMidiApi] to use on the port.
- * The [RtMidiApi]s available to use on the client's machine can be retrieved using [RtMidi.availableApis].
+ * The [RtMidiApi]s available to use on the client's machine can be retrieved using [RtMidi.compiledApis].
  *
  * @author Bassam Helal
  */
@@ -61,6 +61,7 @@ object RtMidi {
      */
     @JvmStatic
     fun addLibrarySearchPath(path: String) {
+        RtMidiLibraryJNR.libPaths.add(path)
         NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
     }
 
@@ -72,12 +73,14 @@ object RtMidi {
     fun supportsVirtualPorts(): Boolean = !Platform.isWindows()
 
     /**
-     * @return the list of all available [RtMidiApi]s usable on this machine,
-     * this should be at most 2, ie on Unix (ALSA and JACK)
+     * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
+     * are usable on this machine, this should be at most 2, ie on Unix (ALSA and JACK).
+     * If an [RtMidiApi] was found by RtMidi at its compile time but then removed later (for example JACK on a Unix
+     * system) it will still be reported as compiled.
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmStatic
-    fun availableApis(): List<RtMidiApi> {
+    fun compiledApis(): List<RtMidiApi> {
         val arr = IntArray(RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM)
         val written = RtMidiLibrary.instance.rtmidi_get_compiled_api(arr, arr.size)
         return if (written < 0) throw RtMidiNativeException("Error trying to get compiled apis")

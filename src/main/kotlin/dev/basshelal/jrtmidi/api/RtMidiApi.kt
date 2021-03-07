@@ -6,7 +6,7 @@ import java.util.Objects
 /**
  * Represents a compiled API that RtMidi uses to interact with MIDI in the system.
  *
- * You can get all available [RtMidiApi]s on a machine by calling [RtMidi.availableApis]
+ * You can get all available [RtMidiApi]s on a machine by calling [RtMidi.compiledApis]
  *
  * [MidiPort]s have a constructor that allow you to choose which [RtMidiApi] the port will use.
  *

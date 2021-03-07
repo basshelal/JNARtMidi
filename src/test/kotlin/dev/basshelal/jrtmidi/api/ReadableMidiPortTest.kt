@@ -39,7 +39,7 @@ internal class ReadableMidiPortTest {
         port.isDestroyed mustBe false
         port.isOpen mustBe false
         port.isVirtual mustBe false
-        (port.api in RtMidi.availableApis()) mustBe true
+        (port.api in RtMidi.compiledApis()) mustBe true
 
         port.destroy()
     }
@@ -49,7 +49,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
         val api = allApis.first()
         val clientName = "Test Client ${Random.nextInt()}"
@@ -78,7 +78,7 @@ internal class ReadableMidiPortTest {
         port.isDestroyed mustBe false
         port.isOpen mustBe false
         port.isVirtual mustBe false
-        (port.api in RtMidi.availableApis()) mustBe true
+        (port.api in RtMidi.compiledApis()) mustBe true
 
         port.destroy()
     }
@@ -88,7 +88,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = ReadableMidiPort(info)
@@ -123,7 +123,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = ReadableMidiPort(info)
@@ -158,7 +158,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val port = ReadableMidiPort(info)
@@ -205,7 +205,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val portName = "Test Readable Port ${Random.nextInt()}"
@@ -243,7 +243,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val readablePort = ReadableMidiPort(info)
@@ -285,7 +285,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val readablePort = ReadableMidiPort(info)
@@ -325,7 +325,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val readablePort = ReadableMidiPort(info)
@@ -394,7 +394,7 @@ internal class ReadableMidiPortTest {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() mustBe true
         val readableInfo = allReadableInfos.first()
-        val allApis = RtMidi.availableApis()
+        val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() mustBe true
 
         val readablePorts = (0..10).map { ReadableMidiPort(readableInfo) }

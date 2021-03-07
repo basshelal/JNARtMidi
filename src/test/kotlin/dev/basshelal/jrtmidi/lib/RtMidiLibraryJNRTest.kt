@@ -5,6 +5,7 @@ package dev.basshelal.jrtmidi.lib
 import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.anyOf
 import dev.basshelal.jrtmidi.api.MidiMessage
+import dev.basshelal.jrtmidi.api.RtMidi
 import dev.basshelal.jrtmidi.lib.jnr.RtMidiInPtr
 import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
 import dev.basshelal.jrtmidi.lib.jnr.RtMidiOutPtr
@@ -39,6 +40,7 @@ internal class RtMidiLibraryJNRTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
+            RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
             lib = RtMidiLibraryJNR.library
             ::lib.isInitialized mustBe true
         }

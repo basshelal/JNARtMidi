@@ -32,7 +32,7 @@ internal class RtMidiTest {
 
     @Test
     fun `Available APIs`() {
-        val apis = RtMidi.availableApis()
+        val apis = RtMidi.compiledApis()
         apis.isNotEmpty() mustBe true
         val expectedCount = RtMidiLibrary.instance.rtmidi_get_compiled_api(null, -1)
         apis.size mustBe expectedCount

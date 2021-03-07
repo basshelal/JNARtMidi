@@ -167,5 +167,5 @@ private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = 
 
 internal fun defaultBeforeAll() {
     RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
-    assertDoesNotThrow { RtMidi.availableApis() }
+    assertDoesNotThrow { RtMidi.compiledApis() }
 }

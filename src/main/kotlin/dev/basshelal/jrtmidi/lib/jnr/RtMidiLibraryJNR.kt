@@ -4,21 +4,27 @@ import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Pointer
 import jnr.ffi.annotations.Delegate
+import jnr.ffi.annotations.IgnoreError
 import jnr.ffi.byref.NumberByReference
 import jnr.ffi.types.size_t
 import java.nio.ByteBuffer
 
+@IgnoreError
 interface RtMidiLibraryJNR {
 
     companion object {
+        internal val libPaths = mutableListOf<String>()
+
         /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"
 
         val library: RtMidiLibraryJNR by lazy {
             LibraryLoader.loadLibrary(
                     RtMidiLibraryJNR::class.java,
-                    mapOf<LibraryOption, Any>(LibraryOption.LoadNow to true),
-                    mapOf(LIBRARY_NAME to listOf("bin/linux-x86-64")),
+                    mapOf<LibraryOption, Any>(
+                            LibraryOption.LoadNow to true,
+                            LibraryOption.IgnoreError to true),
+                    mapOf(LIBRARY_NAME to libPaths),
                     LIBRARY_NAME
             )
         }
@@ -83,5 +89,6 @@ interface RtMidiLibraryJNR {
 
     fun rtmidi_out_get_current_api(device: RtMidiOutPtr): Int
 
+    @IgnoreError
     fun rtmidi_out_send_message(device: RtMidiOutPtr, message: ByteArray, length: Int): Int
 }
