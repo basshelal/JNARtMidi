@@ -527,5 +527,6 @@ internal class RtMidiLibraryTest {
     fun tc() {
         RtMidiBuildType.getInstalledApis().log()
         RtMidiBuildType.getBuildType().log()
+        RtMidiBuildType.getBuildPath().log()
     }
 }

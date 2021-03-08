@@ -65,6 +65,9 @@ object RtMidi {
         NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
     }
 
+    // TODO: 08/03/2021 Make callers to use the default (bundled) libraries!
+    //  we can add custom paths later on
+
     /**
      * @return true if this platform supports virtual ports, false otherwise,
      * currently only Windows does not support virtual ports
