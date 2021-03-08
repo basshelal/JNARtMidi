@@ -21,9 +21,7 @@ interface RtMidiLibraryJNR {
         val library: RtMidiLibraryJNR by lazy {
             LibraryLoader.loadLibrary(
                     RtMidiLibraryJNR::class.java,
-                    mapOf<LibraryOption, Any>(
-                            LibraryOption.LoadNow to true,
-                            LibraryOption.IgnoreError to true),
+                    mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
                     mapOf(LIBRARY_NAME to libPaths),
                     LIBRARY_NAME
             )

@@ -13,7 +13,7 @@ import dev.basshelal.jrtmidi.assume
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSizeByReference
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
-import dev.basshelal.jrtmidi.lib.jnr.getApis
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiBuildType
 import dev.basshelal.jrtmidi.log
 import dev.basshelal.jrtmidi.mustBe
 import dev.basshelal.jrtmidi.mustBeGreaterThan
@@ -521,5 +521,11 @@ internal class RtMidiLibraryTest {
         got mustNotBe -1.0
         message mustBe receivedMessage
         free(`in`, out)
+    }
+
+    @Test
+    fun tc() {
+        RtMidiBuildType.getInstalledApis().log()
+        RtMidiBuildType.getBuildType().log()
     }
 }
