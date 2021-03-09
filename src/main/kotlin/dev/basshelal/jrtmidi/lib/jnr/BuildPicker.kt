@@ -13,8 +13,8 @@ private inline fun <reified T> loadLibrary(name: String) =
  * Possible RtMidi Build combinations
  */
 internal enum class RtMidiBuildType {
-    X86_64_ALSA, X86_64_ALSA_JACK, X86_64_CORE, X86_64_CORE_JACK, X86_64_WIN_MM,
-    AARCH64_ALSA, AARCH64_ALSA_JACK,
+    ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WIN_MM_X86_64,
+    ALSA_AARCH64, ALSA_JACK_AARCH64,
     UNKNOWN;
 
     internal companion object {
@@ -31,7 +31,7 @@ internal enum class RtMidiBuildType {
                 // TODO: 07/03/2021 Unsure about coreMidi name
                 if (runCatching { loadLibrary<Core>("CoreMIDI") }.isSuccess) it += RtMidiApi.MACOSX_CORE
                 if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += RtMidiApi.UNIX_JACK
-                if (runCatching { loadLibrary<WinMM>("Winmm") }.isSuccess) it += RtMidiApi.WINDOWS_MM
+                if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += RtMidiApi.WINDOWS_MM
             }
         }
 
@@ -42,22 +42,22 @@ internal enum class RtMidiBuildType {
                     Platform.CPU.X86_64 -> {
                         when {
                             RtMidiApi.LINUX_ALSA in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> X86_64_ALSA_JACK
-                                else -> X86_64_ALSA
+                                RtMidiApi.UNIX_JACK in apis -> ALSA_JACK_X86_64
+                                else -> ALSA_X86_64
                             }
                             RtMidiApi.MACOSX_CORE in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> X86_64_CORE_JACK
-                                else -> X86_64_CORE
+                                RtMidiApi.UNIX_JACK in apis -> CORE_JACK_X86_64
+                                else -> CORE_X86_64
                             }
-                            RtMidiApi.WINDOWS_MM in apis -> X86_64_WIN_MM
+                            RtMidiApi.WINDOWS_MM in apis -> WIN_MM_X86_64
                             else -> UNKNOWN
                         }
                     }
                     Platform.CPU.AARCH64 -> {
                         when {
                             RtMidiApi.LINUX_ALSA in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> AARCH64_ALSA_JACK
-                                else -> AARCH64_ALSA
+                                RtMidiApi.UNIX_JACK in apis -> ALSA_JACK_AARCH64
+                                else -> ALSA_AARCH64
                             }
                             else -> UNKNOWN
                         }
@@ -72,13 +72,13 @@ internal enum class RtMidiBuildType {
          */
         internal fun getBuildPath(): String {
             return when (getBuildType()) {
-                X86_64_ALSA -> "x86-64/alsa"
-                X86_64_ALSA_JACK -> "x86-64/alsa-jack"
-                X86_64_CORE -> "x86-64/core"
-                X86_64_CORE_JACK -> "x86-64/core-jack"
-                X86_64_WIN_MM -> "x86-64/winmm"
-                AARCH64_ALSA -> "aarch64/alsa"
-                AARCH64_ALSA_JACK -> "aarch64/alsa-jack"
+                ALSA_X86_64 -> "alsa-x86-64"
+                ALSA_JACK_X86_64 -> "alsa-jack-x86-64"
+                CORE_X86_64 -> "core-x86-64"
+                CORE_JACK_X86_64 -> "core-jack-x86-64"
+                WIN_MM_X86_64 -> "winmm-x86-64"
+                ALSA_AARCH64 -> "alsa-aarch64"
+                ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
                 else -> throw IllegalStateException("Unknown build type: ${getBuildType()}\n${platform}")
             }
         }
