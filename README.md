@@ -3,7 +3,7 @@
 Work In Progress...
 
 Java bindings to [RtMidi](https://github.com/thestk/rtmidi)
-using [Java Native Access](https://github.com/java-native-access/jna)
+using [JNR-FFI](https://github.com/jnr/jnr-ffi)
 written in [Koltin](https://kotlinlang.org/).
 
 Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack).
@@ -16,16 +16,7 @@ Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack).
 
 <!-- TODO add reference to example repo here -->
 
-Before using anything, ensure that you point JRtMidi to the location(s) of your built libraries of RtMidi:
-
-```java
-RtMidi.addLibrarySearchPath("bin/my-libraries-path");
-```
-
-This library **does not** provide built versions of RtMidi, you must already have them before using this library.
-
-Read the documentation of [`RtMidi.addLibrarySearchPath`](src/main/kotlin/dev/basshelal/jrtmidi/api/RtMidi.kt)
-for more details regarding adding the library search path as this can be somewhat of a pain point at first.
+<!-- TODO mention supported platforms and the bundled libraries -->
 
 A [`ReadableMidiPort`](src/main/kotlin/dev/basshelal/jrtmidi/api/ReadableMidiPort.kt)
 is one that you as a programmer can read messages from, similarly a
