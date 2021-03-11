@@ -1,57 +1,34 @@
 package dev.basshelal.jrtmidi.lib
 
-import com.sun.jna.Pointer
-import com.sun.jna.Structure
-import com.sun.jna.Structure.FieldOrder
+import jnr.ffi.Runtime
+import jnr.ffi.Struct
 
 /**
  * The struct used by RtMidi to wrap an RtMidi object for C function return statuses.
  * This should only be used internally for interaction with [RtMidiLibrary].
  * @author Bassam Helal
  */
-@FieldOrder("ptr", "data", "ok", "msg")
-open class RtMidiPtr : Structure { // should be internal but because MidiPort uses it then must be public :/
+open class RtMidiPtr(rt: Runtime) : Struct(rt) {
 
     /** C type : void* */
     @JvmField
-    internal val ptr: Pointer?
+    internal val ptr: Pointer = Pointer()
 
     /** C type : void* */
     @JvmField
-    internal val data: Pointer?
+    internal val data: Pointer = Pointer()
 
     /** C type : bool */
     @JvmField
-    internal val ok: Boolean
+    internal val ok: Boolean = Boolean()
 
     /** C type : const char* */
     @JvmField
-    internal val msg: String?
-
-    internal constructor() : super() {
-        this.ptr = null
-        this.data = null
-        this.ok = false
-        this.msg = null
-    }
-
-    internal constructor(peer: Pointer?) : super(peer) {
-        this.ptr = null
-        this.data = null
-        this.ok = false
-        this.msg = null
-    }
-
-    internal constructor(ptr: Pointer?, data: Pointer?, ok: Boolean, msg: String?) : super() {
-        this.ptr = ptr
-        this.data = data
-        this.ok = ok
-        this.msg = msg
-    }
+    internal val msg: String = AsciiString(16)
 }
 
 /** Used for functions expecting an in device like [RtMidiLibrary.rtmidi_in_free] */
-class RtMidiInPtr : RtMidiPtr()
+class RtMidiInPtr(rt: Runtime) : RtMidiPtr(rt)
 
 /** Used for functions expecting an out device like [RtMidiLibrary.rtmidi_out_free] */
-class RtMidiOutPtr : RtMidiPtr()
+class RtMidiOutPtr(rt: Runtime) : RtMidiPtr(rt)

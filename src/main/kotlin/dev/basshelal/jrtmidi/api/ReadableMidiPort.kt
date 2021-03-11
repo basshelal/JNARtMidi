@@ -2,11 +2,10 @@
 
 package dev.basshelal.jrtmidi.api
 
-import com.sun.jna.Pointer
 import dev.basshelal.jrtmidi.lib.RtMidiInPtr
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary.NativeSize
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
+import jnr.ffi.Pointer
 
 /**
  * A [MidiPort] that can be read from, meaning you can have a callback registered to listen when new MIDI events are
@@ -103,7 +102,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         midiMessageCallback = callback
         midiMessage = MidiMessage()
         cCallback = object : RtMidiCCallback {
-            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?) {
+            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
                 // RealTimeCritical
                 if (message == null || messageSize == null) return  // prevent NPE or worse segfault
                 val size = messageSize.toInt()

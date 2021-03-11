@@ -2,10 +2,10 @@
 
 package dev.basshelal.jrtmidi.api
 
-import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.api.MidiPort.Info.Type
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
+import jnr.ffi.Platform
 import java.util.Objects
 
 /**
@@ -102,7 +102,7 @@ protected constructor(portInfo: Info) {
     public fun openVirtual(portName: String) {
         checkIsDestroyed()
         if (!RtMidi.supportsVirtualPorts())
-            throw RtMidiPortException("Platform ${Platform.RESOURCE_PREFIX} does not support virtual ports")
+            throw RtMidiPortException("Platform ${Platform.getNativePlatform().name} does not support virtual ports")
         if (!isOpen) {
             RtMidiLibrary.instance.rtmidi_open_virtual_port(ptr, portName)
             checkErrors()
@@ -141,7 +141,7 @@ protected constructor(portInfo: Info) {
             if (isDestroyed) throw RtMidiPortException("Cannot proceed, the MidiPort:\n$this\n has already been destroyed") else Unit
 
     /** Call this after any call to [RtMidiLibrary.instance] */
-    protected fun checkErrors() = if (!ptr.ok) throw RtMidiNativeException(ptr) else Unit
+    protected fun checkErrors() = if (!ptr.ok.get()) throw RtMidiNativeException(ptr) else Unit
 
     /**
      * Fixes the index of this [MidiPort]'s [info]

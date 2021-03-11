@@ -1,7 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
-import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.defaultBeforeAll
+import dev.basshelal.jrtmidi.isWindows
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.mustBe
 import org.junit.jupiter.api.AfterAll
@@ -26,7 +26,7 @@ internal class RtMidiTest {
 
     @Test
     fun `Supports Virtual Ports`() {
-        val supportsVirtualPorts = !Platform.isWindows()
+        val supportsVirtualPorts = !isWindows()
         RtMidi.supportsVirtualPorts() mustBe supportsVirtualPorts
     }
 

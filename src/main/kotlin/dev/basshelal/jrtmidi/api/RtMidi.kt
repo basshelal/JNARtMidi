@@ -1,10 +1,8 @@
 package dev.basshelal.jrtmidi.api
 
-import com.sun.jna.NativeLibrary
-import com.sun.jna.Platform
+import dev.basshelal.jrtmidi.lib.RtMidiBuildType
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import dev.basshelal.jrtmidi.lib.jnr.RtMidiBuildType
-import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
+import jnr.ffi.Platform
 
 /**
  * The entry point to the JRtMidi Library.
@@ -63,15 +61,13 @@ object RtMidi {
     @JvmStatic
     // TODO: 11/03/2021 Remove from documentation!
     fun addLibrarySearchPath(path: String) {
-        RtMidiLibraryJNR.libPaths.add(path)
-        NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
+        RtMidiLibrary.libPaths.add(path)
     }
 
     @JvmStatic
     fun useBundledLibraries() {
         val path = "bin/${RtMidiBuildType.getBuildPath()}"
-        RtMidiLibraryJNR.libPaths.add(path)
-        NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
+        RtMidiLibrary.libPaths.add(path)
     }
 
     /**
@@ -79,7 +75,7 @@ object RtMidi {
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = !Platform.isWindows()
+    fun supportsVirtualPorts(): Boolean = Platform.getNativePlatform().os != Platform.OS.WINDOWS
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -104,7 +100,7 @@ object RtMidi {
     fun readableMidiPorts(): List<MidiPort.Info> {
         val ptr = RtMidiLibrary.instance.rtmidi_in_create_default()
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
-        if (!ptr.ok) throw RtMidiNativeException(ptr)
+        if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
             MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
                     index = it, type = MidiPort.Info.Type.READABLE)
@@ -121,7 +117,7 @@ object RtMidi {
     fun writableMidiPorts(): List<MidiPort.Info> {
         val ptr = RtMidiLibrary.instance.rtmidi_out_create_default()
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
-        if (!ptr.ok) throw RtMidiNativeException(ptr)
+        if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
             MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
                     index = it, type = MidiPort.Info.Type.WRITABLE)

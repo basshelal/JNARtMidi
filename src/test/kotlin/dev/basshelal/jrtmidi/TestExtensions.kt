@@ -3,6 +3,7 @@
 package dev.basshelal.jrtmidi
 
 import dev.basshelal.jrtmidi.api.RtMidi
+import jnr.ffi.Platform
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -168,3 +169,9 @@ internal fun defaultBeforeAll() {
     RtMidi.useBundledLibraries()
     assertDoesNotThrow { RtMidi.compiledApis() }
 }
+
+internal val platform = Platform.getNativePlatform()
+
+internal fun isLinux() = platform.os == Platform.OS.LINUX
+internal fun isMacOs() = platform.os == Platform.OS.DARWIN
+internal fun isWindows() = platform.os == Platform.OS.WINDOWS

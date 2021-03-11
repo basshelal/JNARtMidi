@@ -1,11 +1,12 @@
 package dev.basshelal.jrtmidi.lib
 
-import com.sun.jna.Callback
-import com.sun.jna.IntegerType
-import com.sun.jna.Library
-import com.sun.jna.Native
-import com.sun.jna.Pointer
-import com.sun.jna.ptr.ByReference
+import jnr.ffi.LibraryLoader
+import jnr.ffi.LibraryOption
+import jnr.ffi.Pointer
+import jnr.ffi.annotations.Delegate
+import jnr.ffi.annotations.IgnoreError
+import jnr.ffi.byref.NumberByReference
+import jnr.ffi.types.size_t
 import java.nio.ByteBuffer
 
 // JNAerator command used:
@@ -23,11 +24,14 @@ import java.nio.ByteBuffer
  * @author Bassam Helal
  */
 @Suppress("FunctionName")
-internal class RtMidiLibrary : Library {
+@IgnoreError
+interface RtMidiLibrary {
 
     companion object {
         /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"
+
+        internal val libPaths = mutableListOf<String>()
 
         /**
          * The instance of [RtMidiLibrary] that corresponds to the RtMidi Native Library with functions "implemented".
@@ -37,10 +41,13 @@ internal class RtMidiLibrary : Library {
          * Currently I am unsure of a **clean and elegant** way to fix this but it shouldn't be an issue anyway.
          */
         @JvmStatic
-        val instance: RtMidiLibrary by lazy { RtMidiLibrary() }
-
-        init {
-            Native.register(LIBRARY_NAME)
+        val instance: RtMidiLibrary by lazy {
+            LibraryLoader.loadLibrary(
+                    RtMidiLibrary::class.java,
+                    mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
+                    mapOf(LIBRARY_NAME to libPaths),
+                    LIBRARY_NAME
+            )
         }
     }
 
@@ -77,49 +84,9 @@ internal class RtMidiLibrary : Library {
     /**
      * typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message, size_t messageSize, void* userData);
      */
-    interface RtMidiCCallback : Callback {
-        // NOTE: Possible optimization in messageSize, make it Pointer? instead of NativeSize?
-        // JNA prefers Pointers and Primitives for performance
-        operator fun invoke(timeStamp: Double, message: Pointer?, messageSize: NativeSize?, userData: Pointer?)
-    }
-
-    /** size_t C type */
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    class NativeSize
-    @JvmOverloads constructor(value: Long = 0) : IntegerType(SIZE, value) {
-        companion object {
-            /** Size of a size_t integer, in bytes. */
-            val SIZE: Int = Native.SIZE_T_SIZE // Platform.is64Bit() ? 8 : 4;
-        }
-
-        // Below is because IntegerType extends java.lang.Number which Kotlin doesn't like
-        // and Kotlin wants us to be a kotlin.Number which require the functions below,
-        // inconvenient but shouldn't be a problem for us at all in theory
-        override fun toByte(): Byte = (this as java.lang.Number).byteValue()
-        override fun toChar(): Char = (this as java.lang.Number).intValue().toChar()
-        override fun toShort(): Short = (this as java.lang.Number).shortValue()
-    }
-
-    /** Like [NativeSize] but passed by reference, ie in C code size_t * */
-    class NativeSizeByReference(value: NativeSize) : ByReference(NativeSize.SIZE) {
-        @JvmOverloads
-        constructor(value: Int = 0) : this(NativeSize(value.toLong()))
-
-        var value: NativeSize
-            get() = when (NativeSize.SIZE) {
-                4 -> NativeSize(pointer.getInt(0).toLong())
-                8 -> NativeSize(pointer.getLong(0))
-                else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
-            }
-            set(value) = when (NativeSize.SIZE) {
-                4 -> pointer.setInt(0, value.toInt())
-                8 -> pointer.setLong(0, value.toLong())
-                else -> throw RuntimeException("GCCLong has to be either 4 or 8 bytes.")
-            }
-
-        init {
-            this.value = value
-        }
+    interface RtMidiCCallback {
+        @Delegate
+        operator fun invoke(timeStamp: Double, message: Pointer?, @size_t messageSize: Long?, userData: Pointer?)
     }
 
     //=============================================================================================
@@ -140,25 +107,25 @@ internal class RtMidiLibrary : Library {
      * number of items written to `apis` array otherwise.
      * A negative return value indicates an error.
      */
-    external fun rtmidi_get_compiled_api(apis: IntArray?, apis_size: Int): Int
+    fun rtmidi_get_compiled_api(apis: IntArray?, apis_size: Int): Int
 
     /**
      * See RtMidi::getApiName()
      * Original signature : `char* rtmidi_api_name(RtMidiApi)`
      */
-    external fun rtmidi_api_name(api: Int): String
+    fun rtmidi_api_name(api: Int): String
 
     /**
      * See RtMidi::getApiDisplayName()
      * Original signature : `char* rtmidi_api_display_name(RtMidiApi)`
      */
-    external fun rtmidi_api_display_name(api: Int): String
+    fun rtmidi_api_display_name(api: Int): String
 
     /**
      * See RtMidi::getCompiledApiByName()
      * Original signature : `RtMidiApi rtmidi_compiled_api_by_name(const char*)`
      */
-    external fun rtmidi_compiled_api_by_name(name: String): Int
+    fun rtmidi_compiled_api_by_name(name: String): Int
 
     /**
      * Open a MIDI port
@@ -167,7 +134,7 @@ internal class RtMidiLibrary : Library {
      * See RtMidi::openPort()
      * Original signature : `void rtmidi_open_port(RtMidiPtr, unsigned int, const char*)`
      */
-    external fun rtmidi_open_port(device: RtMidiPtr, portNumber: Int, portName: String)
+    fun rtmidi_open_port(device: RtMidiPtr, portNumber: Int, portName: String)
 
     /**
      * Creates a virtual MIDI port to which other software applications can connect
@@ -175,28 +142,28 @@ internal class RtMidiLibrary : Library {
      * See RtMidi::openVirtualPort()
      * Original signature : `void rtmidi_open_virtual_port(RtMidiPtr, const char*)`
      */
-    external fun rtmidi_open_virtual_port(device: RtMidiPtr, portName: String)
+    fun rtmidi_open_virtual_port(device: RtMidiPtr, portName: String)
 
     /**
      * Close a MIDI connection
      * See RtMidi::closePort()
      * Original signature : `void rtmidi_close_port(RtMidiPtr)`
      */
-    external fun rtmidi_close_port(device: RtMidiPtr)
+    fun rtmidi_close_port(device: RtMidiPtr)
 
     /**
      * Return the number of available MIDI ports
      * See RtMidi::getPortCount()
      * Original signature : `int rtmidi_get_port_count(RtMidiPtr)`
      */
-    external fun rtmidi_get_port_count(device: RtMidiPtr): Int
+    fun rtmidi_get_port_count(device: RtMidiPtr): Int
 
     /**
      * Return a string identifier for the specified MIDI input port number
      * See RtMidi::getPortName()
      * Original signature : `char* rtmidi_get_port_name(RtMidiPtr, unsigned int)`
      */
-    external fun rtmidi_get_port_name(device: RtMidiPtr, portNumber: Int): String
+    fun rtmidi_get_port_name(device: RtMidiPtr, portNumber: Int): String
 
     //=============================================================================================
     //===============================     RtMidiIn API     ========================================
@@ -207,7 +174,7 @@ internal class RtMidiLibrary : Library {
      * client name, to set these yourself use [rtmidi_in_create]
      * Original signature : `RtMidiInPtr rtmidi_in_create_default()`
      */
-    external fun rtmidi_in_create_default(): RtMidiInPtr
+    fun rtmidi_in_create_default(): RtMidiInPtr
 
     /**
      * Create a [RtMidiInPtr] value, with given api, clientName and queueSizeLimit.
@@ -231,7 +198,7 @@ internal class RtMidiLibrary : Library {
     //  The only thing we can do is allow it to flood our output, a solution would be to have the error logging be
     //  conditional in the C++ code so that a version can be built where this will be silent
     //  I have created an issue on RtMidi's GitHub about this
-    external fun rtmidi_in_create(api: Int, clientName: String, queueSizeLimit: Int): RtMidiInPtr
+    fun rtmidi_in_create(api: Int, clientName: String, queueSizeLimit: Int): RtMidiInPtr
 
     /**
      * Free the given [RtMidiInPtr].
@@ -242,31 +209,31 @@ internal class RtMidiLibrary : Library {
      *
      * @param device the [RtMidiInPtr] to free
      */
-    external fun rtmidi_in_free(device: RtMidiInPtr)
+    fun rtmidi_in_free(device: RtMidiInPtr)
 
     /**
      * See RtMidiIn::getCurrentApi()
      * Original signature : `RtMidiApi rtmidi_in_get_current_api(RtMidiPtr)`
      */
-    external fun rtmidi_in_get_current_api(device: RtMidiInPtr): Int
+    fun rtmidi_in_get_current_api(device: RtMidiInPtr): Int
 
     /**
      * See RtMidiIn::setCallback()
      * Original signature : `void rtmidi_in_set_callback(RtMidiInPtr, RtMidiCCallback, void*)`
      */
-    external fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer?)
+    fun rtmidi_in_set_callback(device: RtMidiInPtr, callback: RtMidiCCallback, userData: Pointer?)
 
     /**
      * See RtMidiIn::cancelCallback()
      * Original signature : `void rtmidi_in_cancel_callback(RtMidiInPtr)`
      */
-    external fun rtmidi_in_cancel_callback(device: RtMidiInPtr)
+    fun rtmidi_in_cancel_callback(device: RtMidiInPtr)
 
     /**
      * See RtMidiIn::ignoreTypes()
      * Original signature : `void rtmidi_in_ignore_types(RtMidiInPtr, bool, bool, bool)`
      */
-    external fun rtmidi_in_ignore_types(device: RtMidiInPtr, midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean)
+    fun rtmidi_in_ignore_types(device: RtMidiInPtr, midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean)
 
     /**
      * Fill the user-provided array with the data bytes for the next available
@@ -277,7 +244,7 @@ internal class RtMidiLibrary : Library {
      * See RtMidiIn::getMessage()
      * Original signature : `double rtmidi_in_get_message(RtMidiInPtr, unsigned char*, size_t*)`
      */
-    external fun rtmidi_in_get_message(device: RtMidiInPtr, message: ByteBuffer, size: NativeSizeByReference): Double
+    fun rtmidi_in_get_message(device: RtMidiInPtr, message: ByteBuffer, @size_t size: NumberByReference): Double
 
     //=============================================================================================
     //================================     RtMidiOut API     ======================================
@@ -288,7 +255,7 @@ internal class RtMidiLibrary : Library {
      * Original signature : `RtMidiOutPtr rtmidi_out_create_default()`<br></br>
      * *native declaration : rtmidi_c.h:171*
      */
-    external fun rtmidi_out_create_default(): RtMidiOutPtr
+    fun rtmidi_out_create_default(): RtMidiOutPtr
 
     /**
      * Create a RtMidiOutPtr value, with given and clientName.
@@ -298,7 +265,7 @@ internal class RtMidiLibrary : Library {
      * See RtMidiOut::RtMidiOut()
      * Original signature : `RtMidiOutPtr rtmidi_out_create(RtMidiApi, const char*)`
      */
-    external fun rtmidi_out_create(api: Int, clientName: String): RtMidiOutPtr
+    fun rtmidi_out_create(api: Int, clientName: String): RtMidiOutPtr
 
     /**
      * Free the given [RtMidiOutPtr].
@@ -309,20 +276,17 @@ internal class RtMidiLibrary : Library {
      *
      * @param device the [RtMidiOutPtr] to free
      */
-    external fun rtmidi_out_free(device: RtMidiOutPtr)
+    fun rtmidi_out_free(device: RtMidiOutPtr)
 
     /**
      * See RtMidiOut::getCurrentApi().
      * Original signature : `RtMidiApi rtmidi_out_get_current_api(RtMidiPtr)`
      */
-    external fun rtmidi_out_get_current_api(device: RtMidiOutPtr): Int
+    fun rtmidi_out_get_current_api(device: RtMidiOutPtr): Int
 
     /**
      * See RtMidiOut::sendMessage().
      * Original signature : `int rtmidi_out_send_message(RtMidiOutPtr, const unsigned char*, int)`
      */
-    // NOTE: Possible optimization: ByteArray to ByteBuffer for performance
-    //  I did this on 02-Mar-21 but message was not correctly (sometimes not at all) being received on the other end
-    external fun rtmidi_out_send_message(device: RtMidiOutPtr, message: ByteArray, length: Int): Int
-
+    fun rtmidi_out_send_message(device: RtMidiOutPtr, message: ByteArray, length: Int): Int
 }
