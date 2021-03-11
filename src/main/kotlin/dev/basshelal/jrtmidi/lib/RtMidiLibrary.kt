@@ -2,6 +2,7 @@ package dev.basshelal.jrtmidi.lib
 
 import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
+import jnr.ffi.Platform
 import jnr.ffi.Pointer
 import jnr.ffi.annotations.Delegate
 import jnr.ffi.annotations.IgnoreError
@@ -42,12 +43,17 @@ interface RtMidiLibrary {
          */
         @JvmStatic
         val instance: RtMidiLibrary by lazy {
-            LibraryLoader.loadLibrary(
-                    RtMidiLibrary::class.java,
-                    mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
-                    mapOf(LIBRARY_NAME to libPaths),
-                    LIBRARY_NAME
-            )
+            try {
+                LibraryLoader.loadLibrary(
+                        RtMidiLibrary::class.java,
+                        mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
+                        mapOf(LIBRARY_NAME to libPaths),
+                        LIBRARY_NAME
+                )
+            } catch (e: LinkageError) {
+                System.err.println("Error linking RtMidi:\nPlatform: ${Platform.getNativePlatform().name}\n")
+                throw e
+            }
         }
     }
 

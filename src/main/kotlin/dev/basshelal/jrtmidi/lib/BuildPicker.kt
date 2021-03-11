@@ -83,7 +83,7 @@ internal enum class RtMidiBuildType {
                 WIN_MM_X86_64 -> "winmm-x86-64"
                 ALSA_AARCH64 -> "alsa-aarch64"
                 ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                else -> throw IllegalStateException("Unknown build type: ${getBuildType()}\n$platform")
+                else -> throw IllegalStateException("Unknown build type: ${getBuildType()}\n${platform.name}")
             }
         }
     }

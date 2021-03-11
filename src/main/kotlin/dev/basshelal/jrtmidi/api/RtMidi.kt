@@ -2,7 +2,6 @@ package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiBuildType
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import jnr.ffi.Platform
 
 /**
  * The entry point to the JRtMidi Library.
@@ -75,7 +74,8 @@ object RtMidi {
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = Platform.getNativePlatform().os != Platform.OS.WINDOWS
+    fun supportsVirtualPorts(): Boolean = RtMidiBuildType.WINMM !in RtMidiBuildType.getInstalledApis()
+    // TODO: 11/03/2021 make a global Platform variable somewhere like RtMidiLibrary or something
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
