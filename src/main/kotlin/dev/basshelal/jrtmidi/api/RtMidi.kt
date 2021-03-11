@@ -3,6 +3,7 @@ package dev.basshelal.jrtmidi.api
 import com.sun.jna.NativeLibrary
 import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.jnr.RtMidiBuildType
 import dev.basshelal.jrtmidi.lib.jnr.RtMidiLibraryJNR
 
 /**
@@ -67,6 +68,12 @@ object RtMidi {
 
     // TODO: 08/03/2021 Make callers to use the default (bundled) libraries!
     //  we can add custom paths later on
+    @JvmStatic
+    fun useBundledLibraries() {
+        val path = "bin/${RtMidiBuildType.getBuildPath()}"
+        RtMidiLibraryJNR.libPaths.add(path)
+        NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
+    }
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,

@@ -1,6 +1,5 @@
 package dev.basshelal.jrtmidi.lib.jnr
 
-import dev.basshelal.jrtmidi.api.RtMidiApi
 import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Platform
@@ -18,6 +17,11 @@ internal enum class RtMidiBuildType {
     UNKNOWN;
 
     internal companion object {
+        const val CORE = 1
+        const val ALSA = 2
+        const val JACK = 3
+        const val WINMM = 4
+
         internal val platform: Platform by lazy { Platform.getNativePlatform() }
 
         /**
@@ -25,38 +29,38 @@ internal enum class RtMidiBuildType {
          * Using this, we can determine which build of RtMidi to use depending on the available APIs. This
          * should work even when APIs are added or removed later on, such as JACK on Linux and MacOS.
          */
-        internal fun getInstalledApis(): List<RtMidiApi> {
-            return mutableListOf<RtMidiApi>().also {
-                if (runCatching { loadLibrary<Alsa>("asound") }.isSuccess) it += RtMidiApi.LINUX_ALSA
+        internal fun getInstalledApis(): List<Int> {
+            return mutableListOf<Int>().also {
+                if (runCatching { loadLibrary<Alsa>("asound") }.isSuccess) it += ALSA
                 // TODO: 07/03/2021 Unsure about coreMidi name
-                if (runCatching { loadLibrary<Core>("CoreMIDI") }.isSuccess) it += RtMidiApi.MACOSX_CORE
-                if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += RtMidiApi.UNIX_JACK
-                if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += RtMidiApi.WINDOWS_MM
+                if (runCatching { loadLibrary<Core>("CoreMIDI") }.isSuccess) it += CORE
+                if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
+                if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
             }
         }
 
         internal fun getBuildType(): RtMidiBuildType {
-            return getInstalledApis().let { apis: List<RtMidiApi> ->
+            return getInstalledApis().let { apis: List<Int> ->
                 val cpu = platform.cpu
                 when (cpu) {
                     Platform.CPU.X86_64 -> {
                         when {
-                            RtMidiApi.LINUX_ALSA in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> ALSA_JACK_X86_64
+                            ALSA in apis -> when {
+                                JACK in apis -> ALSA_JACK_X86_64
                                 else -> ALSA_X86_64
                             }
-                            RtMidiApi.MACOSX_CORE in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> CORE_JACK_X86_64
+                            CORE in apis -> when {
+                                JACK in apis -> CORE_JACK_X86_64
                                 else -> CORE_X86_64
                             }
-                            RtMidiApi.WINDOWS_MM in apis -> WIN_MM_X86_64
+                            WINMM in apis -> WIN_MM_X86_64
                             else -> UNKNOWN
                         }
                     }
                     Platform.CPU.AARCH64 -> {
                         when {
-                            RtMidiApi.LINUX_ALSA in apis -> when {
-                                RtMidiApi.UNIX_JACK in apis -> ALSA_JACK_AARCH64
+                            ALSA in apis -> when {
+                                JACK in apis -> ALSA_JACK_AARCH64
                                 else -> ALSA_AARCH64
                             }
                             else -> UNKNOWN
