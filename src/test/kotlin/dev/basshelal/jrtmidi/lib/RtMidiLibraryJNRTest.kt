@@ -40,8 +40,8 @@ internal class RtMidiLibraryJNRTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
-            RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
-            lib = RtMidiLibraryJNR.library
+            RtMidi.useBundledLibraries()
+            lib = RtMidiLibraryJNR.instance
             ::lib.isInitialized mustBe true
         }
 

@@ -2,7 +2,6 @@
 
 package dev.basshelal.jrtmidi.lib
 
-import com.sun.jna.Platform
 import com.sun.jna.Pointer
 import dev.basshelal.jrtmidi.api.MidiMessage
 import dev.basshelal.jrtmidi.api.RtMidi
@@ -28,9 +27,9 @@ internal class LatencyTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
-            RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
+            RtMidi.useBundledLibraries()
             jna = RtMidiLibrary.instance
-            jnr = RtMidiLibraryJNR.library
+            jnr = RtMidiLibraryJNR.instance
             ::jna.isInitialized mustBe true
             ::jnr.isInitialized mustBe true
         }

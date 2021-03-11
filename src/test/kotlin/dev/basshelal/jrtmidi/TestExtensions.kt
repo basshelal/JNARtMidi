@@ -2,7 +2,6 @@
 
 package dev.basshelal.jrtmidi
 
-import com.sun.jna.Platform
 import dev.basshelal.jrtmidi.api.RtMidi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assumptions
@@ -166,6 +165,6 @@ private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = 
 // Utils
 
 internal fun defaultBeforeAll() {
-    RtMidi.addLibrarySearchPath("bin/${Platform.RESOURCE_PREFIX}")
+    RtMidi.useBundledLibraries()
     assertDoesNotThrow { RtMidi.compiledApis() }
 }

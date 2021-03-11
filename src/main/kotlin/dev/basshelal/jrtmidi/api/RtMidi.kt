@@ -61,13 +61,12 @@ object RtMidi {
      * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
      */
     @JvmStatic
+    // TODO: 11/03/2021 Remove from documentation!
     fun addLibrarySearchPath(path: String) {
         RtMidiLibraryJNR.libPaths.add(path)
         NativeLibrary.addSearchPath(RtMidiLibrary.LIBRARY_NAME, path)
     }
 
-    // TODO: 08/03/2021 Make callers to use the default (bundled) libraries!
-    //  we can add custom paths later on
     @JvmStatic
     fun useBundledLibraries() {
         val path = "bin/${RtMidiBuildType.getBuildPath()}"
