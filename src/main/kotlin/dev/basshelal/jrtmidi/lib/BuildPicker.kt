@@ -13,7 +13,7 @@ private inline fun <reified T> loadLibrary(name: String) =
  */
 internal enum class RtMidiBuildType {
     ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WIN_MM_X86_64,
-    ALSA_AARCH64, ALSA_JACK_AARCH64,
+    ALSA_ARM, ALSA_JACK_ARM, ALSA_AARCH64, ALSA_JACK_AARCH64,
     UNKNOWN;
 
     internal companion object {
@@ -57,6 +57,15 @@ internal enum class RtMidiBuildType {
                             else -> UNKNOWN
                         }
                     }
+                    Platform.CPU.ARM -> {
+                        when {
+                            ALSA in apis -> when {
+                                JACK in apis -> ALSA_JACK_ARM
+                                else -> ALSA_ARM
+                            }
+                            else -> UNKNOWN
+                        }
+                    }
                     Platform.CPU.AARCH64 -> {
                         when {
                             ALSA in apis -> when {
@@ -76,11 +85,13 @@ internal enum class RtMidiBuildType {
          */
         internal fun getBuildPath(): String {
             return when (getBuildType()) {
-                ALSA_X86_64 -> "alsa-x86-64"
-                ALSA_JACK_X86_64 -> "alsa-jack-x86-64"
-                CORE_X86_64 -> "core-x86-64"
-                CORE_JACK_X86_64 -> "core-jack-x86-64"
-                WIN_MM_X86_64 -> "winmm-x86-64"
+                ALSA_X86_64 -> "alsa-x86_64"
+                ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
+                CORE_X86_64 -> "core-x86_64"
+                CORE_JACK_X86_64 -> "core-jack-x86_64"
+                WIN_MM_X86_64 -> "winmm-x86_64"
+                ALSA_ARM -> "alsa-arm"
+                ALSA_JACK_ARM -> "alsa-jack-arm"
                 ALSA_AARCH64 -> "alsa-aarch64"
                 ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
                 else -> throw IllegalStateException("Unknown build type: ${getBuildType()}\n${platform.name}")
