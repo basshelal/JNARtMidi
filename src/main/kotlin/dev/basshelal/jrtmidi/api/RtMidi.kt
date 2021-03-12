@@ -1,6 +1,6 @@
 package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jrtmidi.lib.RtMidiBuildType
+import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import jnr.ffi.Platform
 
@@ -66,17 +66,18 @@ object RtMidi {
 
     @JvmStatic
     fun useBundledLibraries() {
-        val path = "bin/${RtMidiBuildType.getBuildPath()}"
+        val path = "bin/${RtMidiBuild.getBuildPath()}"
         RtMidiLibrary.libPaths.add(path)
     }
 
     @JvmStatic
     fun isPlatformSupported(): Boolean {
-        val platform = Platform.getNativePlatform()
-        return when (platform.cpu) {
-            Platform.CPU.AARCH64 -> platform.os == Platform.OS.LINUX
-            Platform.CPU.X86_64 -> platform.os == Platform.OS.LINUX || platform.os == Platform.OS.DARWIN || platform.os == Platform.OS.WINDOWS
-            else -> false
+        return RtMidiBuild.platform.run {
+            when (cpu) {
+                Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
+                Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
+                else -> false
+            }
         }
     }
 
@@ -85,7 +86,7 @@ object RtMidi {
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = RtMidiBuildType.WINMM !in RtMidiBuildType.getInstalledApis()
+    fun supportsVirtualPorts(): Boolean = RtMidiBuild.WINMM !in RtMidiBuild.getInstalledApis()
     // TODO: 11/03/2021 make a global Platform variable somewhere like RtMidiLibrary or something
 
     /**

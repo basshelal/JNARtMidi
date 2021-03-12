@@ -5,8 +5,8 @@ import dev.basshelal.jrtmidi.mustBe
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 
-/** Tests [RtMidiBuildType] */
-internal class BuildPickerTest {
+/** Tests [RtMidiBuild] */
+internal class RtMidiBuildTest {
 
     companion object {
         lateinit var lib: RtMidiLibrary
@@ -24,5 +24,5 @@ internal class BuildPickerTest {
         fun `After All`() = Unit
     }
 
-    
+
 }
