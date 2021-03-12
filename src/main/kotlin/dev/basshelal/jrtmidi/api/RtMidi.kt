@@ -87,7 +87,6 @@ object RtMidi {
      */
     @JvmStatic
     fun supportsVirtualPorts(): Boolean = RtMidiBuild.WINMM !in RtMidiBuild.getInstalledApis()
-    // TODO: 11/03/2021 make a global Platform variable somewhere like RtMidiLibrary or something
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -136,5 +135,17 @@ object RtMidi {
         }
         RtMidiLibrary.instance.rtmidi_out_free(ptr)
         return result
+    }
+
+    // TODO: 12/03/2021 Idea...
+    object Config {
+        // Use the bundled RtMidi native libraries
+        var useBundledLibraries: Boolean = true
+
+        // Do not use a build with JACK even if JACK exists on the system
+        var disallowJACK: Boolean = false
+
+        // Do not allow virtual ports to keep functionality consistent across platforms
+        var disallowVirtualPorts: Boolean = false // useful???
     }
 }

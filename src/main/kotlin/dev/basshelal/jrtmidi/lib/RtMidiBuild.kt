@@ -9,7 +9,7 @@ import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_JACK_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.UNKNOWN
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.WIN_MM_X86_64
+import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.WINMM_X86_64
 import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Platform
@@ -27,7 +27,7 @@ private inline fun <reified T> loadLibrary(name: String) =
  */
 internal object RtMidiBuild {
     enum class Type {
-        ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WIN_MM_X86_64,
+        ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WINMM_X86_64,
         ALSA_ARM, ALSA_JACK_ARM, ALSA_AARCH64, ALSA_JACK_AARCH64,
         UNKNOWN;
     }
@@ -68,7 +68,7 @@ internal object RtMidiBuild {
                             JACK in apis -> CORE_JACK_X86_64
                             else -> CORE_X86_64
                         }
-                        WINMM in apis -> WIN_MM_X86_64
+                        WINMM in apis -> WINMM_X86_64
                         else -> UNKNOWN
                     }
                 }
@@ -99,17 +99,19 @@ internal object RtMidiBuild {
      * Get the path corresponding to the current build type
      */
     internal fun getBuildPath(): String {
-        return when (getBuildType()) {
-            ALSA_X86_64 -> "alsa-x86_64"
-            ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
-            CORE_X86_64 -> "core-x86_64"
-            CORE_JACK_X86_64 -> "core-jack-x86_64"
-            WIN_MM_X86_64 -> "winmm-x86_64"
-            ALSA_ARM -> "alsa-arm"
-            ALSA_JACK_ARM -> "alsa-jack-arm"
-            ALSA_AARCH64 -> "alsa-aarch64"
-            ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-            else -> throw IllegalStateException("Unknown build type: ${getBuildType()}\n${platform.name}")
+        return getBuildType().let {
+            when (it) {
+                ALSA_X86_64 -> "alsa-x86_64"
+                ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
+                CORE_X86_64 -> "core-x86_64"
+                CORE_JACK_X86_64 -> "core-jack-x86_64"
+                WINMM_X86_64 -> "winmm-x86_64"
+                ALSA_ARM -> "alsa-arm"
+                ALSA_JACK_ARM -> "alsa-jack-arm"
+                ALSA_AARCH64 -> "alsa-aarch64"
+                ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
+                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n${platform.name}")
+            }
         }
     }
 }
