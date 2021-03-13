@@ -47,10 +47,10 @@ internal object RtMidiBuild {
     internal fun getInstalledApis(): List<Int> {
         return mutableListOf<Int>().also {
             if (runCatching { loadLibrary<Alsa>("asound") }.isSuccess) it += ALSA
-            // TODO: 07/03/2021 Unsure about coreMidi name
-            if (runCatching { loadLibrary<Core>("CoreMIDI") }.isSuccess) it += CORE
             if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
             if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
+            // TODO: 13/03/2021 Is there a better way to ensure Darwin has CoreMIDI?
+            if (platform.os == Platform.OS.DARWIN) it += CORE
         }
     }
 
@@ -110,7 +110,7 @@ internal object RtMidiBuild {
                 ALSA_JACK_ARM -> "alsa-jack-arm"
                 ALSA_AARCH64 -> "alsa-aarch64"
                 ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n${platform.name}")
+                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n${platform.cpu}-${platform.os}")
             }
         }
     }
