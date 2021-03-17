@@ -41,13 +41,11 @@ internal object RtMidiBuild {
     const val JACK = 3
     const val WINMM = 4
 
-    internal fun isPlatformSupported(): Boolean {
-        return platform.run {
-            when (cpu) {
-                Platform.CPU.ARM, Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
-                Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
-                else -> false
-            }
+    internal fun isPlatformSupported(): Boolean = platform.run {
+        when (cpu) {
+            Platform.CPU.ARM, Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
+            Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
+            else -> false
         }
     }
 
@@ -56,77 +54,71 @@ internal object RtMidiBuild {
      * Using this, we can determine which build of RtMidi to use depending on the available APIs. This
      * should work even when APIs are added or removed later on, such as JACK on Linux and MacOS.
      */
-    internal fun getInstalledApis(): List<Int> {
-        return mutableListOf<Int>().also {
-            // TODO: 13/03/2021 We can do file checks instead of library loading although it would mean
-            //  having to use default lib paths to determine if a library exists or not,
-            //  the code would be long and ugly
-            if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
-            if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
-            when (platform.os) {
-                Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
-                Platform.OS.DARWIN -> it += CORE // Safe to assume
-            }
+    internal fun getInstalledApis(): List<Int> = mutableListOf<Int>().also {
+        // TODO: 13/03/2021 We can do file checks instead of library loading although it would mean
+        //  having to use default lib paths to determine if a library exists or not,
+        //  the code would be long and ugly
+        if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
+        if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
+        when (platform.os) {
+            Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
+            Platform.OS.DARWIN -> it += CORE // Safe to assume
         }
     }
 
-    internal fun getBuildType(): Type {
-        return getInstalledApis().let { apis: List<Int> ->
-            when (platform.cpu) {
-                Platform.CPU.X86_64 -> {
-                    when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_X86_64
-                            else -> ALSA_X86_64
-                        }
-                        CORE in apis -> when {
-                            JACK in apis -> CORE_JACK_X86_64
-                            else -> CORE_X86_64
-                        }
-                        WINMM in apis -> WINMM_X86_64
-                        else -> UNKNOWN
+    internal fun getBuildType(): Type = getInstalledApis().let { apis: List<Int> ->
+        when (platform.cpu) {
+            Platform.CPU.X86_64 -> {
+                when {
+                    ALSA in apis -> when {
+                        JACK in apis -> ALSA_JACK_X86_64
+                        else -> ALSA_X86_64
                     }
-                }
-                Platform.CPU.ARM -> {
-                    when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_ARM
-                            else -> ALSA_ARM
-                        }
-                        else -> UNKNOWN
+                    CORE in apis -> when {
+                        JACK in apis -> CORE_JACK_X86_64
+                        else -> CORE_X86_64
                     }
+                    WINMM in apis -> WINMM_X86_64
+                    else -> UNKNOWN
                 }
-                Platform.CPU.AARCH64 -> {
-                    when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_AARCH64
-                            else -> ALSA_AARCH64
-                        }
-                        else -> UNKNOWN
-                    }
-                }
-                else -> UNKNOWN
             }
+            Platform.CPU.ARM -> {
+                when {
+                    ALSA in apis -> when {
+                        JACK in apis -> ALSA_JACK_ARM
+                        else -> ALSA_ARM
+                    }
+                    else -> UNKNOWN
+                }
+            }
+            Platform.CPU.AARCH64 -> {
+                when {
+                    ALSA in apis -> when {
+                        JACK in apis -> ALSA_JACK_AARCH64
+                        else -> ALSA_AARCH64
+                    }
+                    else -> UNKNOWN
+                }
+            }
+            else -> UNKNOWN
         }
     }
 
     /**
      * Get the path corresponding to the current build type
      */
-    internal fun getBuildPath(): String {
-        return getBuildType().let {
-            when (it) {
-                ALSA_X86_64 -> "alsa-x86_64"
-                ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
-                CORE_X86_64 -> "core-x86_64"
-                CORE_JACK_X86_64 -> "core-jack-x86_64"
-                WINMM_X86_64 -> "winmm-x86_64"
-                ALSA_ARM -> "alsa-arm"
-                ALSA_JACK_ARM -> "alsa-jack-arm"
-                ALSA_AARCH64 -> "alsa-aarch64"
-                ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n$platformName")
-            }
+    internal fun getBuildPath(): String = getBuildType().let {
+        when (it) {
+            ALSA_X86_64 -> "alsa-x86_64"
+            ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
+            CORE_X86_64 -> "core-x86_64"
+            CORE_JACK_X86_64 -> "core-jack-x86_64"
+            WINMM_X86_64 -> "winmm-x86_64"
+            ALSA_ARM -> "alsa-arm"
+            ALSA_JACK_ARM -> "alsa-jack-arm"
+            ALSA_AARCH64 -> "alsa-aarch64"
+            ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
+            else -> throw IllegalStateException("Unknown/unsupported build type: $it\n$platformName")
         }
     }
 }
