@@ -3,9 +3,9 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.api.MidiPort.Info.Type
+import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
-import jnr.ffi.Platform
 import java.util.Objects
 
 /**
@@ -102,7 +102,7 @@ protected constructor(portInfo: Info) {
     public fun openVirtual(portName: String) {
         checkIsDestroyed()
         if (!RtMidi.supportsVirtualPorts())
-            throw RtMidiPortException("Platform ${Platform.getNativePlatform().name} does not support virtual ports")
+            throw RtMidiPortException("Platform ${RtMidiBuild.platformName} does not support virtual ports")
         if (!isOpen) {
             RtMidiLibrary.instance.rtmidi_open_virtual_port(ptr, portName)
             checkErrors()

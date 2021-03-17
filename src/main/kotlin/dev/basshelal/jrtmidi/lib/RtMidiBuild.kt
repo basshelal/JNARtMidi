@@ -27,7 +27,8 @@ private inline fun <reified T> loadLibrary(name: String) =
  */
 internal object RtMidiBuild {
 
-    internal val platform: Platform by lazy { Platform.getNativePlatform() }
+    internal val platform: Platform = Platform.getNativePlatform()
+    internal val platformName: String = platform.run { "$os-$cpu" }
 
     enum class Type {
         ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WINMM_X86_64,
@@ -39,6 +40,16 @@ internal object RtMidiBuild {
     const val ALSA = 2
     const val JACK = 3
     const val WINMM = 4
+
+    internal fun isPlatformSupported(): Boolean {
+        return platform.run {
+            when (cpu) {
+                Platform.CPU.ARM, Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
+                Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
+                else -> false
+            }
+        }
+    }
 
     /**
      * Dynamic way of finding what APIs are installed on the system by attempting to load each library.
@@ -113,7 +124,7 @@ internal object RtMidiBuild {
                 ALSA_JACK_ARM -> "alsa-jack-arm"
                 ALSA_AARCH64 -> "alsa-aarch64"
                 ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n${platform.cpu}-${platform.os}")
+                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n$platformName")
             }
         }
     }

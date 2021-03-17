@@ -2,7 +2,6 @@ package dev.basshelal.jrtmidi.lib
 
 import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
-import jnr.ffi.Platform
 import jnr.ffi.Pointer
 import jnr.ffi.annotations.Delegate
 import jnr.ffi.annotations.IgnoreError
@@ -51,7 +50,7 @@ interface RtMidiLibrary {
                         LIBRARY_NAME
                 )
             } catch (e: LinkageError) {
-                System.err.println("Error linking RtMidi:\nPlatform: ${Platform.getNativePlatform().name}\n")
+                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\n")
                 throw e
             }
         }

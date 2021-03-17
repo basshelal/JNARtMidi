@@ -2,7 +2,6 @@ package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import jnr.ffi.Platform
 
 /**
  * The entry point to the JRtMidi Library.
@@ -71,15 +70,7 @@ object RtMidi {
     }
 
     @JvmStatic
-    fun isPlatformSupported(): Boolean {
-        return RtMidiBuild.platform.run {
-            when (cpu) {
-                Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
-                Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
-                else -> false
-            }
-        }
-    }
+    fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported()
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,

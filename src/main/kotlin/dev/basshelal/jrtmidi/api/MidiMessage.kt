@@ -1,7 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 /**
- * Represents a MIDI message of arbitrary size, wraps an [ByteArray] in [data].
+ * Represents a MIDI message of arbitrary size, wraps a [ByteArray] in [data].
  *
  * Also contains useful MIDI constants in the companion object, ie as static fields.
  *

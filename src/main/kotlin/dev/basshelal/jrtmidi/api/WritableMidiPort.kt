@@ -45,7 +45,7 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * @param clientName the name which is used by RtMidi to group similar ports
      * (like those belonging to the same application).
      * @param api the [RtMidiApi] that this port will use, defaults to [RtMidiApi.UNSPECIFIED],
-     * ie let RtMidi choose the first working API it finds which you can query using [MidiPort.api]
+     * ie let RtMidi choose the first working API it finds which you can then query using [MidiPort.api]
      * @throws IllegalArgumentException if the passed in [portInfo] was not of type WRITABLE
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
