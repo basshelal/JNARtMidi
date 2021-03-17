@@ -32,8 +32,9 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * @throws IllegalArgumentException if the passed in [portInfo] was not of type WRITABLE
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public constructor(portInfo: Info) : super(portInfo) {
-        require(portInfo.type == Info.Type.WRITABLE) {
+    @JvmOverloads
+    public constructor(portInfo: Info? = null) : super(portInfo) {
+        if (portInfo != null) require(portInfo.type == Info.Type.WRITABLE) {
             "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo:\n$portInfo"
         }
         this.createPtr()

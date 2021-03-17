@@ -20,7 +20,7 @@ import java.util.Objects
  * @author Bassam Helal
  */
 abstract class MidiPort<P : RtMidiPtr>
-protected constructor(portInfo: Info) {
+@JvmOverloads protected constructor(portInfo: Info? = null) {
 
     /** The [RtMidiPtr] we will use to interact with [RtMidiLibrary] */
     protected abstract var ptr: P
@@ -29,7 +29,7 @@ protected constructor(portInfo: Info) {
     protected var chosenApi: RtMidiApi? = null
 
     /** The [Info] set in this [MidiPort]'s constructor holding the information of the actual system MIDI port */
-    public val info: Info = portInfo
+    public val info: Info? = portInfo
 
     /** The [RtMidiApi] that RtMidi is using for this port */
     public abstract var api: RtMidiApi
@@ -82,7 +82,8 @@ protected constructor(portInfo: Info) {
      */
     public fun open(portName: String) {
         checkIsDestroyed()
-        if (!isOpen) {
+        checkHasInfo("Cannot open MidiPort:\n$this\nno RtMidiPort.Info was provided")
+        if (!isOpen && info != null) {
             resetInfoIndex()
             RtMidiLibrary.instance.rtmidi_open_port(ptr, info.index, portName)
             checkErrors()
@@ -140,6 +141,9 @@ protected constructor(portInfo: Info) {
     protected fun checkIsDestroyed() =
             if (isDestroyed) throw RtMidiPortException("Cannot proceed, the MidiPort:\n$this\n has already been destroyed") else Unit
 
+    protected fun checkHasInfo(message: String = "Cannot proceed, no RtMidiPort.Info was provided") =
+            if (info == null) throw RtMidiPortException(message) else Unit
+
     /** Call this after any call to [RtMidiLibrary.instance] */
     protected fun checkErrors() = if (!ptr.ok.get()) throw RtMidiNativeException(ptr) else Unit
 
@@ -151,6 +155,7 @@ protected constructor(portInfo: Info) {
      * If the [Info] cannot be found then we cannot proceed and the port cannot be opened.
      */
     protected fun resetInfoIndex() {
+        if (info == null) return
         val found = (RtMidi.writableMidiPorts() + RtMidi.readableMidiPorts()).find {
             it.type == this.info.type && it.name == this.info.name
         } ?: throw RtMidiPortException("Cannot open port, could not find port with info:\n$info")

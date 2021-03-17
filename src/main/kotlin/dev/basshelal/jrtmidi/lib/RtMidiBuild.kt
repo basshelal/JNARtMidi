@@ -61,11 +61,12 @@ internal object RtMidiBuild {
             // TODO: 13/03/2021 We can do file checks instead of library loading although it would mean
             //  having to use default lib paths to determine if a library exists or not,
             //  the code would be long and ugly
-            if (runCatching { loadLibrary<Alsa>("asound") }.isSuccess) it += ALSA
             if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
             if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
-            // TODO: 13/03/2021 Is there a better way to ensure Darwin has CoreMIDI?
-            if (platform.os == Platform.OS.DARWIN) it += CORE
+            when (platform.os) {
+                Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
+                Platform.OS.DARWIN -> it += CORE // Safe to assume
+            }
         }
     }
 
@@ -134,18 +135,22 @@ internal object RtMidiBuild {
 // I have tested ALSA and JACK, need to test the proprietary OSes
 // 07-Mar-2021 Bassam Helal
 
+@Suppress("unused")
 internal interface Alsa {
     fun snd_asoundlib_version(): String
 }
 
+@Suppress("unused")
 internal interface Core {
     fun MIDIGetNumberOfDevices(): Int
 }
 
+@Suppress("unused")
 internal interface Jack {
     fun jack_activate(client: PointerByReference): Int
 }
 
+@Suppress("unused")
 internal interface WinMM {
     fun midiInGetNumDevs(): Int
 }

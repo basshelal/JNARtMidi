@@ -50,8 +50,9 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      * @throws IllegalArgumentException if the passed in [portInfo] was not of type READABLE
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
-    public constructor(portInfo: Info) : super(portInfo) {
-        require(portInfo.type == Info.Type.READABLE) {
+    @JvmOverloads
+    public constructor(portInfo: Info? = null) : super(portInfo) {
+        if (portInfo != null) require(portInfo.type == Info.Type.READABLE) {
             "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo:\n$portInfo"
         }
         this.createPtr()
