@@ -26,6 +26,9 @@ private inline fun <reified T> loadLibrary(name: String) =
  * * ALSA, ALSA+JACK on aarch64 (64 bit arm)
  */
 internal object RtMidiBuild {
+
+    internal val platform: Platform by lazy { Platform.getNativePlatform() }
+
     enum class Type {
         ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WINMM_X86_64,
         ALSA_ARM, ALSA_JACK_ARM, ALSA_AARCH64, ALSA_JACK_AARCH64,
@@ -37,8 +40,6 @@ internal object RtMidiBuild {
     const val JACK = 3
     const val WINMM = 4
 
-    internal val platform: Platform by lazy { Platform.getNativePlatform() }
-
     /**
      * Dynamic way of finding what APIs are installed on the system by attempting to load each library.
      * Using this, we can determine which build of RtMidi to use depending on the available APIs. This
@@ -46,6 +47,9 @@ internal object RtMidiBuild {
      */
     internal fun getInstalledApis(): List<Int> {
         return mutableListOf<Int>().also {
+            // TODO: 13/03/2021 We can do file checks instead of library loading although it would mean
+            //  having to use default lib paths to determine if a library exists or not,
+            //  the code would be long and ugly
             if (runCatching { loadLibrary<Alsa>("asound") }.isSuccess) it += ALSA
             if (runCatching { loadLibrary<Jack>("jack") }.isSuccess) it += JACK
             if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
@@ -56,8 +60,7 @@ internal object RtMidiBuild {
 
     internal fun getBuildType(): Type {
         return getInstalledApis().let { apis: List<Int> ->
-            val cpu = platform.cpu
-            when (cpu) {
+            when (platform.cpu) {
                 Platform.CPU.X86_64 -> {
                     when {
                         ALSA in apis -> when {
