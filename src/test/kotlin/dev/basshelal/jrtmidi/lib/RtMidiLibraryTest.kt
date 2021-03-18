@@ -38,10 +38,7 @@ internal class RtMidiLibraryTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
-            RtMidi.Config.apply {
-                useBundledLibraries = true
-            }
-            RtMidi.useBundledLibraries()
+            RtMidi.Config.useBundledLibraries(true).disallowJACK(false).load()
             lib = RtMidiLibrary.instance
             ::lib.isInitialized mustBe true
         }
@@ -332,7 +329,7 @@ internal class RtMidiLibraryTest {
         lib.rtmidi_open_port(writable, 0, writableName)
         val readableName = inPortName()
         lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
-        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON, 69, 69)
         var messageReceived = false
         val callback = object : RtMidiLibrary.RtMidiCCallback {
             override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
@@ -361,7 +358,7 @@ internal class RtMidiLibraryTest {
         lib.rtmidi_open_port(writable, 0, writableName)
         val readableName = inPortName()
         lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
-        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        val sentMessage = byteArrayOf(MidiMessage.NOTE_ON, 69, 69)
         var messageReceived = false
         val callback = object : RtMidiLibrary.RtMidiCCallback {
             override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
@@ -400,7 +397,7 @@ internal class RtMidiLibraryTest {
         lib.rtmidi_open_port(readable, lib.rtmidi_get_port_count(readable) - 1, readableName)
         var ignoring = false
         lib.rtmidi_in_ignore_types(readable, midiSysex = ignoring, midiSense = ignoring, midiTime = ignoring)
-        val sentMessage = byteArrayOf(MidiMessage.TIMING_CLOCK.toByte())
+        val sentMessage = byteArrayOf(MidiMessage.TIMING_CLOCK)
         var messageReceived = false
         val callback = object : RtMidiLibrary.RtMidiCCallback {
             override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
@@ -500,7 +497,7 @@ internal class RtMidiLibraryTest {
         lib.rtmidi_open_port(`in`, inPortIndex, inPortName)
 
         // send the out message
-        val message = byteArrayOf(MidiMessage.NOTE_ON.toByte(), 69, 69)
+        val message = byteArrayOf(MidiMessage.NOTE_ON, 69, 69)
         val sent = lib.rtmidi_out_send_message(out, message, message.size)
         sent mustNotBe -1
 

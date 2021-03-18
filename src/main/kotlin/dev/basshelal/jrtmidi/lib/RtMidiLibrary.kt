@@ -1,5 +1,6 @@
 package dev.basshelal.jrtmidi.lib
 
+import dev.basshelal.jrtmidi.api.RtMidi
 import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Pointer
@@ -48,9 +49,11 @@ interface RtMidiLibrary {
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
                         mapOf(LIBRARY_NAME to libPaths),
                         LIBRARY_NAME
-                )
+                ).also {
+                    RtMidi.Config.loaded = true // no more configuring allowed!
+                }
             } catch (e: LinkageError) {
-                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\n")
+                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${libPaths.joinToString()}")
                 throw e
             }
         }

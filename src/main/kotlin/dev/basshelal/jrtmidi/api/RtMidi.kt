@@ -58,26 +58,21 @@ object RtMidi {
      * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
      */
     @JvmStatic
+    @Deprecated("")
     // TODO: 11/03/2021 Remove from documentation!
     fun addLibrarySearchPath(path: String) {
         RtMidiLibrary.libPaths.add(path)
     }
 
     @JvmStatic
-    fun useBundledLibraries() {
-        val path = "bin/${RtMidiBuild.getBuildPath()}"
-        RtMidiLibrary.libPaths.add(path)
-    }
-
-    @JvmStatic
-    fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported()
+    fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts()
+    fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -128,21 +123,36 @@ object RtMidi {
         return result
     }
 
-    // TODO: 12/03/2021 Idea...
     object Config {
-        // becomes true once config has been used and changing anything will have no effect
-        internal var consumed: Boolean = false
+        // When true, no more configuring is allowed
+        internal var loaded: Boolean = false
+
+        @JvmStatic
+        fun load() {
+            if (useBundledLibraries) {
+                RtMidiLibrary.libPaths.add("bin/${RtMidiBuild.buildPath}")
+            } else {
+                RtMidiLibrary.libPaths.addAll(customRtMidiLibraryPaths)
+            }
+            RtMidiLibrary.instance // initializes instance and sets `loaded` to true
+        }
 
         // Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths`
-        var useBundledLibraries: Boolean = true
+        private var useBundledLibraries: Boolean = true
+
+        @JvmStatic
+        fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
         // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
-        val customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
+        private var customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
+
+        @JvmStatic
+        fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
 
         // Do not use a build with JACK even if JACK exists on the system
-        var disallowJACK: Boolean = false
+        internal var disallowJACK: Boolean = false
 
-        // Do not allow virtual ports to keep functionality consistent across platforms
-        var disallowVirtualPorts: Boolean = false // useful???
+        @JvmStatic
+        fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
     }
 }

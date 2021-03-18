@@ -14,7 +14,7 @@ internal class RtMidiBuildTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
-            RtMidi.useBundledLibraries()
+            RtMidi.Config.useBundledLibraries(true).load()
             lib = RtMidiLibrary.instance
             ::lib.isInitialized mustBe true
         }

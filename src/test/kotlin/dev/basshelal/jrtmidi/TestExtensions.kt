@@ -166,7 +166,7 @@ private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = 
 // Utils
 
 internal fun defaultBeforeAll() {
-    RtMidi.useBundledLibraries()
+    RtMidi.Config.useBundledLibraries(true).load()
     assertDoesNotThrow { RtMidi.compiledApis() }
 }
 
