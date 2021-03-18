@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "unused")
 
 package dev.basshelal.jrtmidi.lib
 
@@ -38,6 +38,9 @@ internal class RtMidiLibraryTest {
         @BeforeAll
         @JvmStatic
         fun `Before All`() {
+            RtMidi.Config.apply {
+                useBundledLibraries = true
+            }
             RtMidi.useBundledLibraries()
             lib = RtMidiLibrary.instance
             ::lib.isInitialized mustBe true

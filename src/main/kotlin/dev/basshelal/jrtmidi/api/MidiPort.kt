@@ -1,4 +1,4 @@
-@file:Suppress("RedundantVisibilityModifier")
+@file:Suppress("RedundantVisibilityModifier", "MemberVisibilityCanBePrivate")
 
 package dev.basshelal.jrtmidi.api
 

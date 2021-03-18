@@ -77,7 +77,7 @@ object RtMidi {
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = RtMidiBuild.WINMM !in RtMidiBuild.getInstalledApis()
+    fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts()
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -130,8 +130,14 @@ object RtMidi {
 
     // TODO: 12/03/2021 Idea...
     object Config {
-        // Use the bundled RtMidi native libraries
+        // becomes true once config has been used and changing anything will have no effect
+        internal var consumed: Boolean = false
+
+        // Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths`
         var useBundledLibraries: Boolean = true
+
+        // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
+        val customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
 
         // Do not use a build with JACK even if JACK exists on the system
         var disallowJACK: Boolean = false

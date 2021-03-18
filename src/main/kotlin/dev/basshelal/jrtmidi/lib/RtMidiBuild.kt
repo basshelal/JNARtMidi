@@ -63,6 +63,8 @@ internal object RtMidiBuild {
         when (platform.os) {
             Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
             Platform.OS.DARWIN -> it += CORE // Safe to assume
+            //   Platform.OS.WINDOWS -> it += WINMM // Safe to assume??
+            else -> Unit
         }
     }
 
@@ -121,28 +123,30 @@ internal object RtMidiBuild {
             else -> throw IllegalStateException("Unknown/unsupported build type: $it\n$platformName")
         }
     }
+
+    internal fun supportsVirtualPorts(): Boolean = WINMM !in getInstalledApis()
 }
 
 // Below are minimal mappings of each API, I picked the simplest functions I could find quickly
 // I have tested ALSA and JACK, need to test the proprietary OSes
 // 07-Mar-2021 Bassam Helal
 
-@Suppress("unused")
+@Suppress("unused", "FunctionName")
 internal interface Alsa {
     fun snd_asoundlib_version(): String
 }
 
-@Suppress("unused")
+@Suppress("unused", "FunctionName")
 internal interface Core {
     fun MIDIGetNumberOfDevices(): Int
 }
 
-@Suppress("unused")
+@Suppress("unused", "FunctionName")
 internal interface Jack {
     fun jack_activate(client: PointerByReference): Int
 }
 
-@Suppress("unused")
+@Suppress("unused", "FunctionName")
 internal interface WinMM {
     fun midiInGetNumDevs(): Int
 }
