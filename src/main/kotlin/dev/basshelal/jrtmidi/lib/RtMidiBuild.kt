@@ -22,7 +22,7 @@ private inline fun <reified T> loadLibrary(name: String) =
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { path: String ->
-    File(path).let { it.exists() && it.isFile && it.canRead() }
+    File(path).let { it.exists() && it.isFile }
 }
 
 /**
@@ -33,8 +33,6 @@ private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { pa
  * * ALSA, ALSA+JACK on aarch64 (64 bit arm)
  */
 internal object RtMidiBuild {
-
-    // TODO: 19/03/2021 Convert lazys to runs? Why even use lazy?
 
     internal val platform: Platform = Platform.getNativePlatform()
     internal val platformName: String = platform.run { "$os-$cpu" }
@@ -50,26 +48,24 @@ internal object RtMidiBuild {
     private const val JACK = 3
     private const val WINMM = 4
 
-    internal val isPlatformSupported: Boolean by lazy {
-        platform.run {
-            when (cpu) {
-                Platform.CPU.ARM, Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
-                Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
-                else -> false
-            }
+    internal val isPlatformSupported: Boolean = platform.run {
+        when (cpu) {
+            Platform.CPU.ARM, Platform.CPU.AARCH64 -> os == Platform.OS.LINUX
+            Platform.CPU.X86_64 -> os == Platform.OS.LINUX || os == Platform.OS.DARWIN || os == Platform.OS.WINDOWS
+            else -> false
         }
     }
 
-    internal val isJackInstalled: Boolean by lazy {
+    internal val isJackInstalled: Boolean = platform.run {
         val usrLocalLib = "/usr/local/lib/libjack"
-        when (platform.os) {
-            Platform.OS.LINUX -> when (platform.cpu) {
+        when (os) {
+            Platform.OS.LINUX -> when (cpu) {
                 Platform.CPU.X86_64 -> anyFileExists("/usr/lib/x86_64-linux-gnu/libjack.so", "$usrLocalLib.so")
                 Platform.CPU.ARM -> anyFileExists("/usr/lib/arm-linux-gnueabihf/libjack.so", "$usrLocalLib.so")
                 Platform.CPU.AARCH64 -> anyFileExists("/usr/lib/aarch64-linux-gnu/libjack.so", "$usrLocalLib.so")
                 else -> false
             }
-            Platform.OS.DARWIN -> when (platform.cpu) {
+            Platform.OS.DARWIN -> when (cpu) {
                 Platform.CPU.X86_64 -> anyFileExists("$usrLocalLib.dylib")
                 else -> false
             }
@@ -82,67 +78,62 @@ internal object RtMidiBuild {
      * Using this, we can determine which build of RtMidi to use depending on the available APIs. This
      * should work even when APIs are added or removed later on, such as JACK on Linux and MacOS.
      */
-    internal val installedApis: List<Int> by lazy {
-        mutableListOf<Int>().also {
-            when (platform.os) {
-                Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
-                Platform.OS.DARWIN -> it += CORE // Safe to assume
-                Platform.OS.WINDOWS -> it += WINMM // Safe to assume??
-                else -> Unit
-            }
-            if (!RtMidi.Config.disallowJACK && isJackInstalled) it += JACK
+    internal val installedApis: List<Int> = mutableListOf<Int>().also {
+        when (platform.os) {
+            Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
+            Platform.OS.DARWIN -> it += CORE // Safe to assume
+            Platform.OS.WINDOWS -> it += WINMM // Safe to assume??
+            else -> Unit
         }
+        if (!RtMidi.Config.disallowJACK && isJackInstalled) it += JACK
     }
 
-    internal val buildType: Type by lazy {
-        installedApis.let { apis: List<Int> ->
-            when (platform.cpu) {
-                Platform.CPU.X86_64 -> {
-                    when {
-                        ALSA in apis -> if (JACK in apis) ALSA_JACK_X86_64 else ALSA_X86_64
-                        CORE in apis -> if (JACK in apis) CORE_JACK_X86_64 else CORE_X86_64
-                        WINMM in apis -> WINMM_X86_64
-                        else -> UNKNOWN
-                    }
+
+    internal val buildType: Type = installedApis.let { apis: List<Int> ->
+        when (platform.cpu) {
+            Platform.CPU.X86_64 -> {
+                when {
+                    ALSA in apis -> if (JACK in apis) ALSA_JACK_X86_64 else ALSA_X86_64
+                    CORE in apis -> if (JACK in apis) CORE_JACK_X86_64 else CORE_X86_64
+                    WINMM in apis -> WINMM_X86_64
+                    else -> UNKNOWN
                 }
-                Platform.CPU.ARM -> {
-                    when {
-                        ALSA in apis -> if (JACK in apis) ALSA_JACK_ARM else ALSA_ARM
-                        else -> UNKNOWN
-                    }
-                }
-                Platform.CPU.AARCH64 -> {
-                    when {
-                        ALSA in apis -> if (JACK in apis) ALSA_JACK_AARCH64 else ALSA_AARCH64
-                        else -> UNKNOWN
-                    }
-                }
-                else -> UNKNOWN
             }
+            Platform.CPU.ARM -> {
+                when {
+                    ALSA in apis -> if (JACK in apis) ALSA_JACK_ARM else ALSA_ARM
+                    else -> UNKNOWN
+                }
+            }
+            Platform.CPU.AARCH64 -> {
+                when {
+                    ALSA in apis -> if (JACK in apis) ALSA_JACK_AARCH64 else ALSA_AARCH64
+                    else -> UNKNOWN
+                }
+            }
+            else -> UNKNOWN
         }
     }
 
     /**
      * Get the path corresponding to the current build type
      */
-    internal val buildPath: String by lazy {
-        buildType.let {
-            when (it) {
-                ALSA_X86_64 -> "alsa-x86_64"
-                ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
-                CORE_X86_64 -> "core-x86_64"
-                CORE_JACK_X86_64 -> "core-jack-x86_64"
-                WINMM_X86_64 -> "winmm-x86_64"
-                ALSA_ARM -> "alsa-arm"
-                ALSA_JACK_ARM -> "alsa-jack-arm"
-                ALSA_AARCH64 -> "alsa-aarch64"
-                ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                UNKNOWN -> throw IllegalStateException("Unknown/unsupported build type!\nPlatform: $platformName")
-            }
+    internal val buildPath: String = buildType.let {
+        when (it) {
+            ALSA_X86_64 -> "alsa-x86_64"
+            ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
+            CORE_X86_64 -> "core-x86_64"
+            CORE_JACK_X86_64 -> "core-jack-x86_64"
+            WINMM_X86_64 -> "winmm-x86_64"
+            ALSA_ARM -> "alsa-arm"
+            ALSA_JACK_ARM -> "alsa-jack-arm"
+            ALSA_AARCH64 -> "alsa-aarch64"
+            ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
+            UNKNOWN -> throw IllegalStateException("Unknown/unsupported build type!\nPlatform: $platformName")
         }
     }
 
-    internal val supportsVirtualPorts: Boolean by lazy { WINMM !in installedApis }
+    internal val supportsVirtualPorts: Boolean = WINMM !in installedApis
 }
 
 // Below are minimal mappings of each API, I picked the simplest functions I could find quickly
