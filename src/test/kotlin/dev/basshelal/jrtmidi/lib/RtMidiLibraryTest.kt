@@ -23,16 +23,24 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.condition.EnabledIf
 import java.nio.ByteBuffer
 import kotlin.random.Random
 
 /**
  * Tests all 22 of the exported native C functions from the RtMidi library found in [RtMidiLibrary]
  */
+@EnabledIf("isEnabled")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 internal class RtMidiLibraryTest {
 
     companion object {
+        @JvmStatic
+        fun isEnabled(): Boolean {
+            `Before All`()
+            return RtMidi.readableMidiPorts().isNotEmpty() && RtMidi.writableMidiPorts().isNotEmpty()
+        }
+
         lateinit var lib: RtMidiLibrary
 
         @BeforeAll

@@ -127,6 +127,15 @@ object RtMidi {
         // When true, no more configuring is allowed
         internal var loaded: Boolean = false
 
+        // Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths`
+        private var useBundledLibraries: Boolean = true
+
+        // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
+        private var customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
+
+        // Do not use a build with JACK even if JACK exists on the system
+        internal var disallowJACK: Boolean = false
+
         @JvmStatic
         fun load() {
             if (useBundledLibraries) {
@@ -137,20 +146,13 @@ object RtMidi {
             RtMidiLibrary.instance // initializes instance and sets `loaded` to true
         }
 
-        // Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths`
-        private var useBundledLibraries: Boolean = true
-
+        // Experimental
         @JvmStatic
-        fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
+        internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
-        // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
-        private var customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
-
+        // Experimental
         @JvmStatic
-        fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
-
-        // Do not use a build with JACK even if JACK exists on the system
-        internal var disallowJACK: Boolean = false
+        internal fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
 
         @JvmStatic
         fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }

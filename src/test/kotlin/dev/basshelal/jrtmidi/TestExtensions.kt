@@ -165,6 +165,14 @@ private fun fail(message: String = "", expected: Any?, actual: Any?): Nothing = 
 
 // Utils
 
+private var beforeTestSuiteInvoked = false
+internal fun beforeTestSuite() {
+    if (!beforeTestSuiteInvoked) {
+
+        beforeTestSuiteInvoked = true
+    }
+}
+
 internal fun defaultBeforeAll() {
     RtMidi.Config.useBundledLibraries(true).load()
     assertDoesNotThrow { RtMidi.compiledApis() }

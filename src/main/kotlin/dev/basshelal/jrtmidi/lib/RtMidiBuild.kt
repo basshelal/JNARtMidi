@@ -15,9 +15,15 @@ import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Platform
 import jnr.ffi.byref.PointerByReference
+import java.io.File
 
 private inline fun <reified T> loadLibrary(name: String) =
         LibraryLoader.loadLibrary(T::class.java, mapOf(LibraryOption.LoadNow to true), name)
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { path: String ->
+    File(path).let { it.exists() && it.isFile && it.canRead() }
+}
 
 /**
  * Possible RtMidi Build combinations.
@@ -28,6 +34,8 @@ private inline fun <reified T> loadLibrary(name: String) =
  */
 internal object RtMidiBuild {
 
+    // TODO: 19/03/2021 Convert lazys to runs? Why even use lazy?
+
     internal val platform: Platform = Platform.getNativePlatform()
     internal val platformName: String = platform.run { "$os-$cpu" }
 
@@ -37,10 +45,10 @@ internal object RtMidiBuild {
         UNKNOWN;
     }
 
-    const val CORE = 1
-    const val ALSA = 2
-    const val JACK = 3
-    const val WINMM = 4
+    private const val CORE = 1
+    private const val ALSA = 2
+    private const val JACK = 3
+    private const val WINMM = 4
 
     internal val isPlatformSupported: Boolean by lazy {
         platform.run {
@@ -52,6 +60,23 @@ internal object RtMidiBuild {
         }
     }
 
+    internal val isJackInstalled: Boolean by lazy {
+        val usrLocalLib = "/usr/local/lib/libjack"
+        when (platform.os) {
+            Platform.OS.LINUX -> when (platform.cpu) {
+                Platform.CPU.X86_64 -> anyFileExists("/usr/lib/x86_64-linux-gnu/libjack.so", "$usrLocalLib.so")
+                Platform.CPU.ARM -> anyFileExists("/usr/lib/arm-linux-gnueabihf/libjack.so", "$usrLocalLib.so")
+                Platform.CPU.AARCH64 -> anyFileExists("/usr/lib/aarch64-linux-gnu/libjack.so", "$usrLocalLib.so")
+                else -> false
+            }
+            Platform.OS.DARWIN -> when (platform.cpu) {
+                Platform.CPU.X86_64 -> anyFileExists("$usrLocalLib.dylib")
+                else -> false
+            }
+            else -> false
+        }
+    }
+
     /**
      * Dynamic way of finding what APIs are installed on the system by attempting to load each library.
      * Using this, we can determine which build of RtMidi to use depending on the available APIs. This
@@ -59,17 +84,13 @@ internal object RtMidiBuild {
      */
     internal val installedApis: List<Int> by lazy {
         mutableListOf<Int>().also {
-            // TODO: 13/03/2021 We can do file checks instead of library loading although it would mean
-            //  having to use default lib paths to determine if a library exists or not,
-            //  the code would be long and ugly
-            if (runCatching { loadLibrary<Jack>("jack") }.isSuccess && !RtMidi.Config.disallowJACK) it += JACK
-            if (runCatching { loadLibrary<WinMM>("winmm") }.isSuccess) it += WINMM
             when (platform.os) {
                 Platform.OS.LINUX -> it += ALSA // Safe to assume, ALSA is part of the kernel
                 Platform.OS.DARWIN -> it += CORE // Safe to assume
-                //   Platform.OS.WINDOWS -> it += WINMM // Safe to assume??
+                Platform.OS.WINDOWS -> it += WINMM // Safe to assume??
                 else -> Unit
             }
+            if (!RtMidi.Config.disallowJACK && isJackInstalled) it += JACK
         }
     }
 
@@ -78,33 +99,21 @@ internal object RtMidiBuild {
             when (platform.cpu) {
                 Platform.CPU.X86_64 -> {
                     when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_X86_64
-                            else -> ALSA_X86_64
-                        }
-                        CORE in apis -> when {
-                            JACK in apis -> CORE_JACK_X86_64
-                            else -> CORE_X86_64
-                        }
+                        ALSA in apis -> if (JACK in apis) ALSA_JACK_X86_64 else ALSA_X86_64
+                        CORE in apis -> if (JACK in apis) CORE_JACK_X86_64 else CORE_X86_64
                         WINMM in apis -> WINMM_X86_64
                         else -> UNKNOWN
                     }
                 }
                 Platform.CPU.ARM -> {
                     when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_ARM
-                            else -> ALSA_ARM
-                        }
+                        ALSA in apis -> if (JACK in apis) ALSA_JACK_ARM else ALSA_ARM
                         else -> UNKNOWN
                     }
                 }
                 Platform.CPU.AARCH64 -> {
                     when {
-                        ALSA in apis -> when {
-                            JACK in apis -> ALSA_JACK_AARCH64
-                            else -> ALSA_AARCH64
-                        }
+                        ALSA in apis -> if (JACK in apis) ALSA_JACK_AARCH64 else ALSA_AARCH64
                         else -> UNKNOWN
                     }
                 }
@@ -128,7 +137,7 @@ internal object RtMidiBuild {
                 ALSA_JACK_ARM -> "alsa-jack-arm"
                 ALSA_AARCH64 -> "alsa-aarch64"
                 ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
-                else -> throw IllegalStateException("Unknown/unsupported build type: $it\n$platformName")
+                UNKNOWN -> throw IllegalStateException("Unknown/unsupported build type!\nPlatform: $platformName")
             }
         }
     }
