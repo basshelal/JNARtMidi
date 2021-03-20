@@ -4,7 +4,7 @@ plugins {
     java
     `java-library`
     `maven-publish`
-    kotlin("jvm") version "1.4.30"
+    kotlin("jvm") version "1.4.31"
 }
 
 group = "dev.basshelal"
