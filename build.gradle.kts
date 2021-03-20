@@ -33,8 +33,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.github.jnr:jnr-ffi:2.2.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testImplementation("io.kotest:kotest-runner-junit5:4.4.3")
-    testImplementation("io.kotest:kotest-assertions-core:4.4.3")
-    testImplementation("io.kotest:kotest-property:4.4.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.4.3")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.4.3")
+    testImplementation("io.kotest:kotest-property-jvm:4.4.3")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
