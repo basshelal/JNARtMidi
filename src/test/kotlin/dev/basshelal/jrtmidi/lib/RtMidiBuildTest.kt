@@ -1,28 +1,17 @@
 package dev.basshelal.jrtmidi.lib
 
 import dev.basshelal.jrtmidi.api.RtMidi
-import dev.basshelal.jrtmidi.mustBe
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
+import io.kotest.core.spec.style.StringSpec
 
 /** Tests [RtMidiBuild] */
-internal class RtMidiBuildTest {
+internal class RtMidiBuildTest : StringSpec({
+    lateinit var lib: RtMidiLibrary
 
-    companion object {
-        lateinit var lib: RtMidiLibrary
-
-        @BeforeAll
-        @JvmStatic
-        fun `Before All`() {
-            RtMidi.Config.useBundledLibraries(true).load()
-            lib = RtMidiLibrary.instance
-            ::lib.isInitialized mustBe true
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun `After All`() = Unit
+    beforeSpec {
+        RtMidi.Config.useBundledLibraries(true).load()
+        lib = RtMidiLibrary.instance
     }
 
+    afterSpec { }
 
-}
+})

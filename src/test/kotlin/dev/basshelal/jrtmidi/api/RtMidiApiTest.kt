@@ -2,91 +2,77 @@ package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import dev.basshelal.jrtmidi.mustBe
-import dev.basshelal.jrtmidi.mustBeSameAs
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 
-internal class RtMidiApiTest {
+internal class RtMidiApiTest : StringSpec({
 
-    companion object {
-        @BeforeAll
-        @JvmStatic
-        fun `Before All`() = defaultBeforeAll()
+    beforeSpec { defaultBeforeAll() }
 
-        @AfterAll
-        @JvmStatic
-        fun `After All`() = Unit
-    }
+    afterSpec { }
 
-    @Test
-    fun Unspecified() {
+    "Unspecified" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED
         val api = RtMidiApi.UNSPECIFIED
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `MacOSX Core`() {
+    "MacOSX Core" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE
         val api = RtMidiApi.MACOSX_CORE
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `Linux ALSA`() {
+    "Linux ALSA" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA
         val api = RtMidiApi.LINUX_ALSA
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `Unix JACK`() {
+    "Unix JACK" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK
         val api = RtMidiApi.UNIX_JACK
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `Windows MM`() {
+    "Windows MM" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM
         val api = RtMidiApi.WINDOWS_MM
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `RTMidi Dummy`() {
+    "RTMidi Dummy"{
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY
         val api = RtMidiApi.RTMIDI_DUMMY
-        api mustBeSameAs RtMidiApi.fromInt(number)
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
 
-    @Test
-    fun `From Int`() {
+    "From Int" {
         val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY
         val api = RtMidiApi.fromInt(number)
-        api mustBeSameAs RtMidiApi.RTMIDI_DUMMY
-        api.number mustBe number
-        api.name mustBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName mustBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api shouldBeSameInstanceAs RtMidiApi.RTMIDI_DUMMY
+        api.number shouldBe number
+        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
+        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
     }
-}
+
+})

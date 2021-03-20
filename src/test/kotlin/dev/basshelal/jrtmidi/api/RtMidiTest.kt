@@ -3,66 +3,53 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.isWindows
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
-import dev.basshelal.jrtmidi.mustBe
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
 /**
  * Tests [RtMidi]
  * @author Bassam Helal
  */
-internal class RtMidiTest {
+internal class RtMidiTest : StringSpec({
+    beforeSpec { defaultBeforeAll() }
 
-    companion object {
-        @BeforeAll
-        @JvmStatic
-        fun `Before All`() = defaultBeforeAll()
+    afterSpec { }
 
-        @AfterAll
-        @JvmStatic
-        fun `After All`() = Unit
-    }
-
-    @Test
-    fun `Supports Virtual Ports`() {
+    "Supports Virtual Ports" {
         val supportsVirtualPorts = !isWindows()
-        RtMidi.supportsVirtualPorts() mustBe supportsVirtualPorts
+        RtMidi.supportsVirtualPorts() shouldBe supportsVirtualPorts
     }
 
-    @Test
-    fun `Available APIs`() {
+    "Available APIs" {
         val apis = RtMidi.compiledApis()
-        apis.isNotEmpty() mustBe true
+        apis.isNotEmpty() shouldBe true
         val expectedCount = RtMidiLibrary.instance.rtmidi_get_compiled_api(null, -1)
-        apis.size mustBe expectedCount
-        apis.contains(RtMidiApi.UNSPECIFIED) mustBe false
+        apis.size shouldBe expectedCount
+        apis.contains(RtMidiApi.UNSPECIFIED) shouldBe false
     }
 
-    @Test
-    fun `Readable MIDI Ports`() {
+    "Readable MIDI Ports" {
         val ports = RtMidi.readableMidiPorts()
-        ports.isNotEmpty() mustBe true
+        ports.isNotEmpty() shouldBe true
         val ptr = RtMidiLibrary.instance.rtmidi_in_create_default()
         val expectedCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
-        ports.size mustBe expectedCount
+        ports.size shouldBe expectedCount
         val distinctTypes = ports.map { it.type }.distinct()
-        distinctTypes.size mustBe 1
-        distinctTypes.first() mustBe MidiPort.Info.Type.READABLE
+        distinctTypes.size shouldBe 1
+        distinctTypes.first() shouldBe MidiPort.Info.Type.READABLE
         RtMidiLibrary.instance.rtmidi_in_free(ptr)
     }
 
-    @Test
-    fun `Writable MIDI Ports`() {
+    "Writable MIDI Ports" {
         val ports = RtMidi.writableMidiPorts()
-        ports.isNotEmpty() mustBe true
+        ports.isNotEmpty() shouldBe true
         val ptr = RtMidiLibrary.instance.rtmidi_out_create_default()
         val expectedCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
-        ports.size mustBe expectedCount
+        ports.size shouldBe expectedCount
         val distinctTypes = ports.map { it.type }.distinct()
-        distinctTypes.size mustBe 1
-        distinctTypes.first() mustBe MidiPort.Info.Type.WRITABLE
+        distinctTypes.size shouldBe 1
+        distinctTypes.first() shouldBe MidiPort.Info.Type.WRITABLE
         RtMidiLibrary.instance.rtmidi_out_free(ptr)
     }
 
-}
+})

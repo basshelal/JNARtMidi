@@ -1,129 +1,122 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.mustBe
-import dev.basshelal.jrtmidi.mustNotBe
-import dev.basshelal.jrtmidi.mustNotBeSameAs
-import dev.basshelal.jrtmidi.mustThrow
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowUnit
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 
 /** Tests [MidiMessage] */
-internal class MidiMessageTest {
-    companion object {
-        @BeforeAll
-        @JvmStatic
-        fun `Before All`() = defaultBeforeAll()
+internal class MidiMessageTest : StringSpec({
+    beforeSpec { defaultBeforeAll() }
 
-        @AfterAll
-        @JvmStatic
-        fun `After All`() = Unit
-    }
+    afterSpec { }
 
-    @Test
-    fun `Empty Constructor & Size Constructor`() {
+    "Empty Constructor & Size Constructor" {
         var midiMessage = MidiMessage()
-        midiMessage.data.size mustBe MidiMessage.DEFAULT_DATA_SIZE
-        midiMessage.data.forEach { it mustBe 0 }
+        midiMessage.data.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
+        midiMessage.data.forEach { it shouldBe 0 }
         val newSize = 9
         midiMessage = MidiMessage(newSize)
-        midiMessage.data.size mustBe newSize
-        midiMessage.data.forEach { it mustBe 0 }
+        midiMessage.data.size shouldBe newSize
+        midiMessage.data.forEach { it shouldBe 0 }
     }
 
-    @Test
-    fun `Array Constructor & MidiMessage Constructor`() {
+    "Array Constructor & MidiMessage Constructor" {
         val size = 7
         val array = ByteArray(size) { it.toByte() }
         val midiMessage = MidiMessage(array)
-        midiMessage.data.size mustBe size
-        midiMessage.data mustBe array
-        midiMessage.data mustNotBeSameAs array
+        midiMessage.data.size shouldBe size
+        midiMessage.data shouldBe array
+        midiMessage.data shouldNotBeSameInstanceAs array
         val newMidiMessage = MidiMessage(midiMessage)
-        midiMessage.data.size mustBe newMidiMessage.data.size
-        midiMessage.data mustBe newMidiMessage.data
-        midiMessage.data mustNotBeSameAs newMidiMessage.data
-        midiMessage mustBe midiMessage
+        midiMessage.data.size shouldBe newMidiMessage.data.size
+        midiMessage.data shouldBe newMidiMessage.data
+        midiMessage.data shouldNotBeSameInstanceAs newMidiMessage.data
+        midiMessage shouldBe midiMessage
     }
 
-    @Test
-    fun `Operator functions Set & Get`() {
+    "Operator functions Set & Get" {
         val size = 9
         val value = 100
         val midiMessage = MidiMessage(size)
         midiMessage[0] = value
         midiMessage[8] = value
-        { midiMessage[9] = value } mustThrow IndexOutOfBoundsException::class
-        midiMessage[0] mustBe value
-        midiMessage[8] mustBe value
-        { midiMessage[9] } mustThrow IndexOutOfBoundsException::class
+        shouldThrowUnit<IndexOutOfBoundsException> {
+            midiMessage[9] = value
+        }
+        midiMessage[0].toInt() shouldBe value
+        midiMessage[8].toInt() shouldBe value
+        shouldThrow<IndexOutOfBoundsException> {
+            midiMessage[9]
+        }
     }
 
-    @Test
-    fun Size() {
+    "Size" {
         var size = 9
         val midiMessage = MidiMessage(size)
-        midiMessage.size mustBe size
+        midiMessage.size shouldBe size
         size = 100
         midiMessage.size = size
-        midiMessage.size mustBe size
-        midiMessage.data.size mustBe size
+        midiMessage.size shouldBe size
+        midiMessage.data.size shouldBe size
     }
 
-    @Test
-    fun `Set Data`() {
+    "Set Data" {
         val default = ByteArray(MidiMessage.DEFAULT_DATA_SIZE)
         val midiMessage = MidiMessage()
         val data = byteArrayOf(0, 1, 2, 3, 4)
-        midiMessage.data mustBe default
+        midiMessage.data shouldBe default
         midiMessage.setData(data)
-        midiMessage.data mustBe data
-        midiMessage.data mustNotBeSameAs data
+        midiMessage.data shouldBe data
+        midiMessage.data shouldNotBeSameInstanceAs data
         midiMessage.setData(default, 3)
         default.copyInto(data, endIndex = 3)
-        midiMessage.data mustBe data
+        midiMessage.data shouldBe data
     }
 
-    @Test
-    fun `Set Data From MidiMessage`() {
+
+    "Set Data From MidiMessage" {
         val data = byteArrayOf(0, 1, 2, 3, 4)
         val midiMessage = MidiMessage(data)
         val copy = MidiMessage()
-        copy.data mustNotBe data
+        copy.data shouldNotBe data
         copy.setDataFrom(midiMessage)
-        copy.data mustBe data
-        copy.data mustBe midiMessage.data
-        copy.data mustNotBeSameAs data
-        copy.data mustNotBeSameAs midiMessage.data
+        copy.data shouldBe data
+        copy.data shouldBe midiMessage.data
+        copy.data shouldNotBeSameInstanceAs data
+        copy.data shouldNotBeSameInstanceAs midiMessage.data
     }
 
-    @Test
-    fun `Modify data`() {
+
+    "Modify data" {
         val value = 69
         val midiMessage = MidiMessage(2)
         midiMessage.data[0] = value.toByte()
-        midiMessage[0] mustBe value
-        midiMessage[1] mustBe 0
+        midiMessage[0].toInt() shouldBe value
+        midiMessage[1].toInt() shouldBe 0
     }
 
-    @Test
-    fun `Get Data Copies`() {
+
+    "Get Data Copies" {
         val data = byteArrayOf(0, 1, 2, 3, 4)
         val midiMessage = MidiMessage(data)
-        midiMessage.data mustBe data
-        midiMessage.data mustNotBeSameAs data
-        midiMessage.data mustBe midiMessage.dataCopy
-        midiMessage.data mustNotBeSameAs midiMessage.dataCopy
+        midiMessage.data shouldBe data
+        midiMessage.data shouldNotBeSameInstanceAs data
+        midiMessage.data shouldBe midiMessage.dataCopy
+        midiMessage.data shouldNotBeSameInstanceAs midiMessage.dataCopy
 
-        var copyBuffer = ByteArray(0);
-        { midiMessage.getDataCopy(copyBuffer) } mustThrow IllegalArgumentException::class
+        var copyBuffer = ByteArray(0)
+        shouldThrow<IllegalArgumentException> {
+            midiMessage.getDataCopy(copyBuffer)
+        }
         copyBuffer = ByteArray(data.size * 2)
         midiMessage.getDataCopy(copyBuffer)
-        midiMessage.data.forEachIndexed { index, it -> copyBuffer[index] mustBe it }
-        copyBuffer.size mustNotBe data.size
-        copyBuffer[data.lastIndex + 1] mustBe 0
+        midiMessage.data.forEachIndexed { index, it -> copyBuffer[index] shouldBe it }
+        copyBuffer.size shouldNotBe data.size
+        copyBuffer[data.lastIndex + 1] shouldBe 0
     }
 
-
-}
+})
