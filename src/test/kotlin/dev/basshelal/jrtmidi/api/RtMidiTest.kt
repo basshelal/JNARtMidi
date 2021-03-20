@@ -1,7 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.isWindows
+import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -15,12 +15,15 @@ internal class RtMidiTest : StringSpec({
 
     afterSpec { }
 
-    "Supports Virtual Ports" {
-        val supportsVirtualPorts = !isWindows()
-        RtMidi.supportsVirtualPorts() shouldBe supportsVirtualPorts
+    "Is Platform Supported" {
+        RtMidi.isPlatformSupported() shouldBe RtMidiBuild.isPlatformSupported
     }
 
-    "Available APIs" {
+    "Supports Virtual Ports" {
+        RtMidi.supportsVirtualPorts() shouldBe RtMidiBuild.supportsVirtualPorts
+    }
+
+    "Compiled APIs" {
         val apis = RtMidi.compiledApis()
         apis.isNotEmpty() shouldBe true
         val expectedCount = RtMidiLibrary.instance.rtmidi_get_compiled_api(null, -1)

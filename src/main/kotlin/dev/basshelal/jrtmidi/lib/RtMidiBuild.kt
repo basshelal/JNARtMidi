@@ -11,14 +11,9 @@ import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_JACK_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.UNKNOWN
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.WINMM_X86_64
-import jnr.ffi.LibraryLoader
-import jnr.ffi.LibraryOption
 import jnr.ffi.Platform
 import jnr.ffi.byref.PointerByReference
 import java.io.File
-
-private inline fun <reified T> loadLibrary(name: String) =
-        LibraryLoader.loadLibrary(T::class.java, mapOf(LibraryOption.LoadNow to true), name)
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { path: String ->
@@ -140,22 +135,22 @@ internal object RtMidiBuild {
 // I have tested ALSA and JACK, need to test the proprietary OSes
 // 07-Mar-2021 Bassam Helal
 
-@Suppress("unused", "FunctionName")
+@Suppress("FunctionName")
 internal interface Alsa {
     fun snd_asoundlib_version(): String
 }
 
-@Suppress("unused", "FunctionName")
+@Suppress("FunctionName")
 internal interface Core {
     fun MIDIGetNumberOfDevices(): Int
 }
 
-@Suppress("unused", "FunctionName")
+@Suppress("FunctionName")
 internal interface Jack {
     fun jack_activate(client: PointerByReference): Int
 }
 
-@Suppress("unused", "FunctionName")
+@Suppress("FunctionName")
 internal interface WinMM {
     fun midiInGetNumDevs(): Int
 }
