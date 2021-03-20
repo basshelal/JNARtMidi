@@ -8,7 +8,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 
-/** Tests [MidiMessage] */
+/**
+ * Tests [MidiMessage]
+ * @author Bassam Helal
+ */
 internal class MidiMessageTest : StringSpec({
     beforeSpec { defaultBeforeAll() }
 
