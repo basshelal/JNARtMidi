@@ -3,6 +3,7 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.allShouldNotThrow
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
+import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,7 +23,7 @@ internal class ReadableMidiPortTest : StringSpec({
 
     val randomNumber: Int = Random.nextInt(from = 0, until = 100)
 
-    val virtualPortName = "Test virtual port: ${randomNumber}"
+    val virtualPortName = "Test virtual port: $randomNumber"
 
     lateinit var virtualPort: WritableMidiPort
 
@@ -64,7 +65,7 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Client Name only Constructor" {
-        val testClientName = "Test Client ${randomNumber}"
+        val testClientName = "Test Client $randomNumber"
         ReadableMidiPort(clientName = testClientName).apply {
             info shouldBe null
             api shouldNotBe RtMidiApi.UNSPECIFIED
@@ -96,7 +97,7 @@ internal class ReadableMidiPortTest : StringSpec({
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isEmpty() shouldBe false
         val portInfo = allReadableInfos.first()
-        val testClientName = "Test Client ${randomNumber}"
+        val testClientName = "Test Client $randomNumber"
         ReadableMidiPort(portInfo = portInfo, clientName = testClientName).apply {
             info shouldBe portInfo
             api shouldNotBe RtMidiApi.UNSPECIFIED
@@ -115,7 +116,7 @@ internal class ReadableMidiPortTest : StringSpec({
         val allApis = RtMidi.compiledApis()
         allApis.isEmpty() shouldBe false
         val testApi = allApis.first()
-        val testClientName = "Test Client ${randomNumber}"
+        val testClientName = "Test Client $randomNumber"
         ReadableMidiPort(portInfo = portInfo, clientName = testClientName, api = testApi).apply {
             info shouldBe portInfo
             api shouldBe testApi
@@ -129,191 +130,194 @@ internal class ReadableMidiPortTest : StringSpec({
     "Open Without Info" {
         ReadableMidiPort(portInfo = null).apply {
             info shouldBe null
+            isOpen shouldBe false
+            val oldWritableSize = RtMidi.writableMidiPorts().size
+
+            // Opening should throw exception and change no state
             shouldThrow<RtMidiPortException> { open("My test port") }
+            isOpen shouldBe false
+            RtMidi.writableMidiPorts().size shouldBe oldWritableSize
         }
     }
-
-    // TODO: 21/03/2021 Continue below
 
     "Open With Info" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
         val portInfo = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        val testClientName = "Test Client $randomNumber"
 
-        val port = ReadableMidiPort(portInfo)
+        ReadableMidiPort(clientName = testClientName, portInfo = portInfo).apply {
+            val oldWritableSize = RtMidi.writableMidiPorts().size
+            val portName = "Test Readable Port $randomNumber"
 
-        val oldWritableSize = RtMidi.writableMidiPorts().size
+            open(portName)
 
-        val portName = "Test Readable Port ${Random.nextInt()}"
-        port.open(portName)
+            isOpen shouldBe true
+            isVirtual shouldBe false
 
-        port.isOpen shouldBe true
-        port.isVirtual shouldBe false
+            val newWritableSize = RtMidi.writableMidiPorts().size
 
-        val newWritableSize = RtMidi.writableMidiPorts().size
+            newWritableSize shouldBe oldWritableSize + 1
 
-        oldWritableSize shouldNotBe newWritableSize
-        oldWritableSize + 1 shouldBe newWritableSize
+            val foundWritable = RtMidi.writableMidiPorts().find {
+                it.name.contains(testClientName) && it.name.contains(portName)
+            }
+            foundWritable shouldNotBe null
 
-        val foundWritable = RtMidi.writableMidiPorts().find { it.name.contains(portName) }
+            // Calling open again should do nothing
 
-        foundWritable shouldNotBe null
-
-        // Calling open again should do nothing
-
-        shouldNotThrowAny { port.open(portName) }
-        RtMidi.writableMidiPorts().size shouldBe newWritableSize
-
-        port.destroy()
+            shouldNotThrowAny { open(portName) }
+            RtMidi.writableMidiPorts().size shouldBe newWritableSize
+        }.destroy()
     }
 
     "Open Virtual" {
+        if (!RtMidi.supportsVirtualPorts())
+            throw RuntimeException("Platform ${RtMidiBuild.platformName} does not support virtual ports," +
+                    " cannot run this test")
+
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        val portInfo = allReadableInfos.first()
+        val testClientName = "Test Client $randomNumber"
 
-        val port = ReadableMidiPort(info)
+        ReadableMidiPort(clientName = testClientName, portInfo = portInfo).apply {
+            val oldWritableSize = RtMidi.writableMidiPorts().size
+            val portName = "Test Readable Port $randomNumber"
 
-        val oldWritableSize = RtMidi.writableMidiPorts().size
+            openVirtual(portName)
 
-        val portName = "Test Readable Port ${Random.nextInt()}"
-        port.openVirtual(portName)
+            isOpen shouldBe true
+            isVirtual shouldBe true
 
-        port.isOpen shouldBe true
-        port.isVirtual shouldBe true
+            val newWritableSize = RtMidi.writableMidiPorts().size
 
-        val newWritableSize = RtMidi.writableMidiPorts().size
+            newWritableSize shouldBe oldWritableSize + 1
 
-        oldWritableSize shouldNotBe newWritableSize
-        oldWritableSize + 1 shouldBe newWritableSize
+            val foundWritable = RtMidi.writableMidiPorts().find {
+                it.name.contains(testClientName) && it.name.contains(portName)
+            }
+            foundWritable shouldNotBe null
 
-        val foundWritable = RtMidi.writableMidiPorts().find { it.name.contains(portName) }
+            // Calling open again should do nothing
 
-        foundWritable shouldNotBe null
-
-        // Calling open again should do nothing
-
-        shouldNotThrowAny {
-            port.openVirtual(portName)
-        }
-        RtMidi.writableMidiPorts().size shouldBe newWritableSize
-
-        port.destroy()
+            shouldNotThrowAny { open(portName) }
+            isVirtual shouldBe true
+            shouldNotThrowAny { openVirtual(portName) }
+            RtMidi.writableMidiPorts().size shouldBe newWritableSize
+        }.destroy()
     }
 
     "Close" {
         val allReadableInfos = RtMidi.readableMidiPorts()
-        allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        allReadableInfos.isEmpty() shouldBe false
+        val portInfo = allReadableInfos.first()
+        val testClientName = "Test Client $randomNumber"
 
-        val port = ReadableMidiPort(info)
+        ReadableMidiPort(clientName = testClientName, portInfo = portInfo).apply {
+            val oldWritableSize = RtMidi.writableMidiPorts().size
+            val portName = "Test Readable Port $randomNumber"
 
-        val oldWritableSize = RtMidi.writableMidiPorts().size
+            open(portName)
 
-        val portName = "Test Readable Port ${Random.nextInt()}"
-        port.open(portName)
+            isOpen shouldBe true
 
-        port.isOpen shouldBe true
+            val newWritableSize = RtMidi.writableMidiPorts().size
 
-        val newWritableSize = RtMidi.writableMidiPorts().size
+            newWritableSize shouldBe oldWritableSize + 1
 
-        oldWritableSize shouldNotBe newWritableSize
-        oldWritableSize + 1 shouldBe newWritableSize
+            RtMidi.writableMidiPorts().find {
+                it.name.contains(testClientName) && it.name.contains(portName)
+            } shouldNotBe null
 
-        RtMidi.writableMidiPorts().find { it.name.contains(portName) } shouldNotBe null
+            close()
 
-        port.close()
+            isOpen shouldBe false
+            isVirtual shouldBe false
 
-        port.isOpen shouldBe false
-        port.isVirtual shouldBe false
+            RtMidi.writableMidiPorts().size shouldNotBe newWritableSize
+            RtMidi.writableMidiPorts().size shouldBe oldWritableSize
+            RtMidi.writableMidiPorts().find {
+                it.name.contains(testClientName) && it.name.contains(portName)
+            } shouldBe null
 
-        RtMidi.writableMidiPorts().size shouldNotBe newWritableSize
-        RtMidi.writableMidiPorts().size shouldBe oldWritableSize
-        RtMidi.writableMidiPorts().find { it.name.contains(portName) } shouldBe null
+            // Calling close again should do nothing
+            shouldNotThrowAny { close() }
 
-        // Calling close again should do nothing
-        shouldNotThrowAny { port.close() }
+            // Reopening should still work
+            open(portName)
 
-        // Reopening should still work
-        port.open(portName)
+            isOpen shouldBe true
 
-        port.isOpen shouldBe true
-
-        RtMidi.writableMidiPorts().size shouldBe newWritableSize
-        RtMidi.writableMidiPorts().find { it.name.contains(portName) } shouldNotBe null
-
-        port.destroy()
+            RtMidi.writableMidiPorts().size shouldBe newWritableSize
+            RtMidi.writableMidiPorts().find {
+                it.name.contains(testClientName) && it.name.contains(portName)
+            } shouldNotBe null
+        }.destroy()
     }
 
     "Destroy" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        val portInfo = allReadableInfos.first()
+        val testClientName = "Test Client $randomNumber"
 
-        val portName = "Test Readable Port ${Random.nextInt()}"
+        ReadableMidiPort(clientName = testClientName, portInfo = portInfo).apply {
+            isDestroyed shouldBe false
 
-        val port = ReadableMidiPort(info)
+            destroy()
 
-        port.isDestroyed shouldBe false
+            isDestroyed shouldBe true
 
-        port.destroy()
+            // Destroying again should do nothing
+            shouldNotThrowAny { destroy() }
+            isDestroyed shouldBe true
 
-        port.isDestroyed shouldBe true
+            val portName = "Test Readable Port $randomNumber"
 
-        // Destroying again should do nothing
-        shouldNotThrowAny { port.destroy() }
-        port.isDestroyed shouldBe true
+            // doing anything else will throw RtMidiPortExceptions
+            allShouldThrow<RtMidiPortException>(
+                    listOf({ open(portName) },
+                            { openVirtual(portName) },
+                            { close() },
+                            { ignoreTypes(midiSysex = false, midiTime = false, midiSense = false) })
+            )
 
-        // doing anything else will throw RtMidiPortExceptions
-        allShouldThrow<RtMidiPortException>(
-                listOf({ port.open(portName) },
-                        { port.openVirtual(portName) },
-                        { port.close() },
-                        { port.ignoreTypes(false, false, false) })
-        )
-
-        // accessing variables though will not
-        allShouldNotThrow<Throwable>(
-                listOf({ port.isOpen },
-                        { port.isDestroyed },
-                        { port.clientName },
-                        { port.api },
-                        { port.info },
-                        { port.isVirtual },
-                        { port.toString() })
-        )
+            // accessing variables though will not
+            allShouldNotThrow<Throwable>(
+                    listOf({ isOpen },
+                            { isDestroyed },
+                            { clientName },
+                            { api },
+                            { info },
+                            { isVirtual },
+                            { toString() })
+            )
+        }
     }
+
+    // TODO: 21-Mar-2021 @basshelal: Continue below
+
 
     "Set Callback" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        val portInfo = allReadableInfos.first()
 
-        val readablePort = ReadableMidiPort(info)
+        val readablePort = ReadableMidiPort(portInfo)
 
         val receivedMessage = MidiMessage()
-        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69));
+        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
 
-        val readablePortName = "Test Writable Port ${Random.nextInt()}"
+        val readablePortName = "Test Writable Port $randomNumber"
 
         readablePort.open(readablePortName)
 
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
 
         foundWritableInfo shouldNotBe null
-        require(foundWritableInfo != null) // for smart cast
 
-        val writablePortName = "Test Writable Port ${Random.nextInt()}"
+        val writablePortName = "Test Writable Port $randomNumber"
 
         val writablePort = WritableMidiPort(foundWritableInfo)
         writablePort.open(writablePortName)
@@ -343,7 +347,7 @@ internal class ReadableMidiPortTest : StringSpec({
         val readablePort = ReadableMidiPort(info)
 
         val receivedMessage = MidiMessage()
-        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69));
+        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
 
         val readablePortName = "Test Writable Port ${Random.nextInt()}"
 
@@ -352,7 +356,6 @@ internal class ReadableMidiPortTest : StringSpec({
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
 
         foundWritableInfo shouldNotBe null
-        require(foundWritableInfo != null) // for smart cast
 
         val writablePortName = "Test Writable Port ${Random.nextInt()}"
 
@@ -391,7 +394,6 @@ internal class ReadableMidiPortTest : StringSpec({
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
 
         foundWritableInfo shouldNotBe null
-        require(foundWritableInfo != null) // for smart cast
 
         val writablePortName = "Test Writable Port ${Random.nextInt()}"
 
