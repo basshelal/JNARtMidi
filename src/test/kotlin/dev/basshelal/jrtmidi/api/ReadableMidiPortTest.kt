@@ -8,6 +8,7 @@ import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -20,6 +21,15 @@ internal class ReadableMidiPortTest : StringSpec({
 
     // TODO: 21/03/2021 To be 0 physical port safe we need to create virtual ports to test on
     //  this will mean though that testing on Windows will require some physical ports :/
+
+    fun supportsVirtualPorts(testCase: TestCase): Boolean {
+        return RtMidi.supportsVirtualPorts().also {
+            if (!it) {
+                System.err.println("Platform ${RtMidiBuild.platformName} does not support virtual ports\n" +
+                        "Cannot run test: ${testCase.source.fileName} ${testCase.displayName}")
+            }
+        }
+    }
 
     val randomNumber: Int = Random.nextInt(from = 0, until = 100)
 
@@ -172,9 +182,6 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Open Virtual" {
-        if (!RtMidi.supportsVirtualPorts())
-            throw RuntimeException("Platform ${RtMidiBuild.platformName} does not support virtual ports," +
-                    " cannot run this test")
 
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
@@ -297,7 +304,6 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     // TODO: 21-Mar-2021 @basshelal: Continue below
-
 
     "Set Callback" {
         val allReadableInfos = RtMidi.readableMidiPorts()
