@@ -1,3 +1,5 @@
+@file:Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
+
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.allShouldNotThrow
@@ -13,10 +15,12 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.Arrays
+import kotlin.contracts.ExperimentalContracts
 import kotlin.math.min
 import kotlin.random.Random
 
 /** Tests [ReadableMidiPort] including its supertype [MidiPort] */
+@ExperimentalContracts
 internal class ReadableMidiPortTest : StringSpec({
 
     // TODO: 21/03/2021 To be 0 physical port safe we need to create virtual ports to test on
@@ -24,10 +28,8 @@ internal class ReadableMidiPortTest : StringSpec({
 
     fun supportsVirtualPorts(testCase: TestCase): Boolean {
         return RtMidi.supportsVirtualPorts().also {
-            if (!it) {
-                System.err.println("Platform ${RtMidiBuild.platformName} does not support virtual ports\n" +
-                        "Cannot run test: ${testCase.source.fileName} ${testCase.displayName}")
-            }
+            if (!it) System.err.println("Platform ${RtMidiBuild.platformName} does not support virtual ports\n" +
+                    "Cannot run test: ${testCase.source.fileName} ${testCase.displayName}")
         }
     }
 
@@ -39,8 +41,15 @@ internal class ReadableMidiPortTest : StringSpec({
 
     beforeSpec {
         defaultBeforeAll()
-        virtualPort = WritableMidiPort(clientName = "Test Client")
-        virtualPort.openVirtual(virtualPortName)
+        if (RtMidi.supportsVirtualPorts()) {
+            virtualPort = WritableMidiPort(clientName = "Test Client")
+            virtualPort.openVirtual(virtualPortName)
+        } else if (!RtMidi.supportsVirtualPorts() && RtMidi.writableMidiPorts().isNotEmpty()) {
+            virtualPort = WritableMidiPort(clientName = "Test Client", portInfo = RtMidi.writableMidiPorts().first())
+            virtualPort.open(virtualPortName)
+        } else throw RuntimeException("""Unable to run tests!
+            |Platform: ${RtMidiBuild.platformName} does not support virtual ports AND no writable Midi Ports were found
+            |To test this platform, connect some physical Midi devices""".trimMargin())
     }
 
     afterSpec {
@@ -181,7 +190,7 @@ internal class ReadableMidiPortTest : StringSpec({
         }.destroy()
     }
 
-    "Open Virtual" {
+    "Open Virtual".config(enabledIf = { supportsVirtualPorts(it) }) {
 
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
@@ -310,33 +319,31 @@ internal class ReadableMidiPortTest : StringSpec({
         allReadableInfos.isNotEmpty() shouldBe true
         val portInfo = allReadableInfos.first()
 
-        val readablePort = ReadableMidiPort(portInfo)
+        val readablePort = ReadableMidiPort(portInfo = portInfo)
 
         val receivedMessage = MidiMessage()
-        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
+        val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
 
         val readablePortName = "Test Writable Port $randomNumber"
-
         readablePort.open(readablePortName)
 
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
-
         foundWritableInfo shouldNotBe null
 
         val writablePortName = "Test Writable Port $randomNumber"
 
-        val writablePort = WritableMidiPort(foundWritableInfo)
+        val writablePort = WritableMidiPort(portInfo = foundWritableInfo)
         writablePort.open(writablePortName)
         readablePort.setCallback(MidiMessageCallback { message: MidiMessage ->
             receivedMessage.setDataFrom(message)
         })
 
-        writablePort.sendMessage(midiMessage)
+        writablePort.sendMessage(messageToSend)
 
-        wait(200)
+        wait(200) // give some time to receive message
 
-        receivedMessage.data shouldBe midiMessage.data
-        writablePort.midiMessage shouldBe midiMessage
+        receivedMessage.data shouldBe messageToSend.data
+        writablePort.midiMessage shouldBe messageToSend
         readablePort.midiMessage shouldBe writablePort.midiMessage
 
         writablePort.destroy()
@@ -346,24 +353,20 @@ internal class ReadableMidiPortTest : StringSpec({
     "Set Callback On Invalid Port" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
+        val readablePortInfo = allReadableInfos.first()
 
-        val readablePort = ReadableMidiPort(info)
+        val readablePort = ReadableMidiPort(portInfo = readablePortInfo)
 
         val receivedMessage = MidiMessage()
-        val midiMessage = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
+        val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
 
-        val readablePortName = "Test Writable Port ${Random.nextInt()}"
-
+        val readablePortName = "Test Writable Port $randomNumber"
         readablePort.open(readablePortName)
 
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
-
         foundWritableInfo shouldNotBe null
 
-        val writablePortName = "Test Writable Port ${Random.nextInt()}"
+        val writablePortName = "Test Writable Port $randomNumber"
 
         val writablePort = WritableMidiPort(foundWritableInfo)
         writablePort.open(writablePortName)
@@ -372,10 +375,10 @@ internal class ReadableMidiPortTest : StringSpec({
             receivedMessage.setDataFrom(message)
         })
 
-        wait(200)
+        wait(200) // give some time to receive message
 
-        receivedMessage.data shouldNotBe midiMessage.data
-        writablePort.midiMessage shouldNotBe midiMessage
+        receivedMessage.data shouldNotBe messageToSend.data
+        writablePort.midiMessage shouldNotBe messageToSend
         readablePort.midiMessage shouldNotBe writablePort.midiMessage
 
         readablePort.destroy()
@@ -385,36 +388,31 @@ internal class ReadableMidiPortTest : StringSpec({
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
         val info = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
 
         val readablePort = ReadableMidiPort(info)
 
         val receivedMessage = MidiMessage()
         val midiMessage = MidiMessage(byteArrayOf(MidiMessage.TIMING_CLOCK))
 
-        val readablePortName = "Test Writable Port ${Random.nextInt()}"
-
+        val readablePortName = "Test Writable Port $randomNumber"
         readablePort.open(readablePortName)
 
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
-
         foundWritableInfo shouldNotBe null
 
-        val writablePortName = "Test Writable Port ${Random.nextInt()}"
+        val writablePortName = "Test Writable Port $randomNumber"
 
         val writablePort = WritableMidiPort(foundWritableInfo)
         writablePort.open(writablePortName)
 
-        readablePort.ignoreTypes(false, false, false)
-
+        readablePort.ignoreTypes(midiSysex = false, midiTime = false, midiSense = false)
         readablePort.setCallback(MidiMessageCallback { message: MidiMessage ->
             receivedMessage.setDataFrom(message)
         })
 
         writablePort.sendMessage(midiMessage)
 
-        wait(200)
+        wait(200) // give some time to receive message
 
         // Messages get resized, just ensure they are equal until the smallest one of them
 
@@ -429,14 +427,14 @@ internal class ReadableMidiPortTest : StringSpec({
         Arrays.equals(readablePort.midiMessage!!.data, 0, size,
                 writablePort.midiMessage!!.data, 0, size) shouldBe true
 
-        readablePort.ignoreTypes(true, true, true)
+        readablePort.ignoreTypes(midiSysex = true, midiTime = true, midiSense = true)
 
         receivedMessage.size = 1
         receivedMessage.setData(byteArrayOf(0))
 
         writablePort.sendMessage(midiMessage)
 
-        wait(200)
+        wait(200) // give some time to receive message
 
         size = min(receivedMessage.size, midiMessage.size)
         Arrays.equals(receivedMessage.data, 0, size,

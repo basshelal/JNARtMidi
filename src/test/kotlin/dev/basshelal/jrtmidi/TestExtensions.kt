@@ -32,14 +32,14 @@ internal fun defaultBeforeAll() {
 }
 
 internal val platform = Platform.getNativePlatform()
+internal val originalOS = platform.os
+internal val originalCpu = platform.cpu
 
 internal fun isLinux() = platform.os == Platform.OS.LINUX
 internal fun isMacOs() = platform.os == Platform.OS.DARWIN
 internal fun isWindows() = platform.os == Platform.OS.WINDOWS
 
 internal object Reflect {
-    val originalOS = platform.os
-    val originalCpu = platform.cpu
 
     fun setOS(os: Platform.OS) = Platform::class.java.run {
         val osField = getDeclaredField("os")
@@ -60,10 +60,12 @@ internal object Reflect {
 
     fun resetPlatform() = run { setPlatform(originalOS, originalCpu) }
 
-    fun setLibrary(func: () -> RtMidiLibrary) = RtMidiLibrary::class.companionObject?.run {
-        memberProperties.find { it.name == "instance" }?.javaField?.also {
-            it.isAccessible = true
-            it.set(RtMidiLibrary.instance, func())
+    fun setLibrary(func: () -> RtMidiLibrary) {
+        RtMidiLibrary::class.companionObject?.apply {
+            memberProperties.find { it.name == "instance" }?.javaField?.also {
+                it.isAccessible = true
+                it.set(RtMidiLibrary.instance, func())
+            }
         }
-    } ?: Unit
+    }
 }

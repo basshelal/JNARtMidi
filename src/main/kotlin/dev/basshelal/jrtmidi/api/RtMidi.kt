@@ -101,7 +101,8 @@ public object RtMidi {
             } else {
                 RtMidiLibrary.libPaths.addAll(customRtMidiLibraryPaths)
             }
-            RtMidiLibrary.instance // initializes instance and sets `loaded` to true
+            loaded = true
+            RtMidiLibrary.instance // initializes instance
         }
 
         @JvmStatic // Experimental
