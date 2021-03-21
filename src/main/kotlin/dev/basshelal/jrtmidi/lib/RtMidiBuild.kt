@@ -17,7 +17,7 @@ import java.io.File
 
 /** `true` if *any* of the passed in [paths] refers to an existing file, `false` otherwise */
 @Suppress("NOTHING_TO_INLINE")
-private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { path: String ->
+private inline fun anyFileExists(paths: Iterable<String>): Boolean = paths.any { path: String ->
     File(path).let { it.exists() && it.isFile }
 }
 
@@ -46,16 +46,33 @@ internal object RtMidiBuild {
     }
 
     internal val isJackInstalled: Boolean = platform.run {
-        val usrLocalLib = "/usr/local/lib/libjack"
+        val libFile = "libjack" + when (os) {
+            Platform.OS.LINUX -> ".so"
+            Platform.OS.DARWIN -> ".dylib"
+            else -> ""
+        }
+        val usrLocalLibPath = "/usr/local/lib/"
+        val usrLibPath = "/usr/lib/"
+        val libPath = "/lib/"
+        val linuxArch = when (cpu) {
+            Platform.CPU.X86_64 -> "x86_64-linux-gnu"
+            Platform.CPU.ARM -> "arm-linux-gnueabihf"
+            Platform.CPU.AARCH64 -> "aarch64-linux-gnu"
+            else -> ""
+        }
+        // basic unix including darwin, order is intentional!
+        val unixLibPaths = listOf(usrLocalLibPath, usrLibPath, libPath).map { "$it$libFile" }
+
+        // linux is unix + all the paths with the corresponding arch since we support multiple arch
+        val linuxLibPaths = unixLibPaths +
+                listOf(usrLocalLibPath, usrLibPath, libPath).map { "$it$linuxArch$libFile" }
         when (os) {
             Platform.OS.LINUX -> when (cpu) {
-                Platform.CPU.X86_64 -> anyFileExists("/usr/lib/x86_64-linux-gnu/libjack.so", "$usrLocalLib.so")
-                Platform.CPU.ARM -> anyFileExists("/usr/lib/arm-linux-gnueabihf/libjack.so", "$usrLocalLib.so")
-                Platform.CPU.AARCH64 -> anyFileExists("/usr/lib/aarch64-linux-gnu/libjack.so", "$usrLocalLib.so")
+                Platform.CPU.X86_64, Platform.CPU.ARM, Platform.CPU.AARCH64 -> anyFileExists(linuxLibPaths)
                 else -> false
             }
             Platform.OS.DARWIN -> when (cpu) {
-                Platform.CPU.X86_64 -> anyFileExists("$usrLocalLib.dylib")
+                Platform.CPU.X86_64 -> anyFileExists(unixLibPaths)
                 else -> false
             }
             else -> false

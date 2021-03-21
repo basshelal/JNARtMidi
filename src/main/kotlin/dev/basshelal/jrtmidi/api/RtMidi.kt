@@ -1,3 +1,5 @@
+@file:Suppress("RedundantVisibilityModifier")
+
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
@@ -8,8 +10,6 @@ import dev.basshelal.jrtmidi.lib.RtMidiLibrary
  *
  * ### Getting Started:
  *
- * Before using *anything* in the library be sure to call [RtMidi.addLibrarySearchPath]
- * first to ensure the RtMidi native library is loaded correctly, see [RtMidi.addLibrarySearchPath] for details.
  *
  * Create a [ReadableMidiPort] by getting a [MidiPort.Info] from [RtMidi.readableMidiPorts],
  * similarly for [WritableMidiPort]s by calling [RtMidi.writableMidiPorts].
@@ -20,59 +20,17 @@ import dev.basshelal.jrtmidi.lib.RtMidiLibrary
  *
  * @author Bassam Helal
  */
-object RtMidi {
-
-    /**
-     * Use this to add search paths for the RtMidi native library.
-     *
-     * If the user already has RtMidi installed on their system using the default library installing mechanisms,
-     * this shouldn't be necessary, however, if you are bundling built RtMidi libraries with your application
-     * (more likely), you must call this function with the locations to your libraries.
-     *
-     * The convention is to separate folders by [com.sun.jna.Platform.RESOURCE_PREFIX] such as:
-     *
-     *  * linux-x86-64
-     *  * linux-aarch64
-     *  * win32-x86-64
-     *  * darwin-x86-64
-     *  * etc...
-     *
-     * Where each folder contains that platform's shared library using that platform's shared library naming convention
-     * convention, ie `librtmidi.so` on GNU/Linux.
-     *
-     * This way you can only call this function once no matter the platform, as long as it is supported.
-     *
-     * For example, if your application is supported on x86-64 Linux, Windows and MacOS you would just do:
-     *
-     * ```java
-     * if (Platform.ARCH.equals("x86-64") && (Platform.isLinux() || Platform.isWindows() || Platform.isMac())) {
-     *     RtMidi.addSearchPath("your-libs-directory" + Platform.RESOURCE_PREFIX);
-     * } else throw new IllegalStateException("Unsupported Platform " + Platform.RESOURCE_PREFIX);
-     *```
-     *
-     * This is all from JNA's handling and convention of library loading, see [com.sun.jna.NativeLibrary] or
-     * the JNA documentation for more.
-     *
-     * You are of course free to handle this in any variety of ways as you see fit.
-     *
-     * @param path the path to add to the search list for JNA to use when attempting to load the RtMidi native library
-     */
-    @JvmStatic
-    @Deprecated("")
-    // TODO: 11/03/2021 Remove from documentation!
-    fun addLibrarySearchPath(path: String) {
-        RtMidiLibrary.libPaths.add(path)
-    }
+public object RtMidi {
 
     @JvmStatic
-    fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported
+    public fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts
+    public fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -82,7 +40,7 @@ object RtMidi {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmStatic
-    fun compiledApis(): List<RtMidiApi> {
+    public fun compiledApis(): List<RtMidiApi> {
         val arr = IntArray(RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM)
         val written = RtMidiLibrary.instance.rtmidi_get_compiled_api(arr, arr.size)
         return if (written < 0) throw RtMidiNativeException("Error trying to get compiled apis")
@@ -94,7 +52,7 @@ object RtMidi {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmStatic
-    fun readableMidiPorts(): List<MidiPort.Info> {
+    public fun readableMidiPorts(): List<MidiPort.Info> {
         val ptr = RtMidiLibrary.instance.rtmidi_in_create_default()
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
         if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
@@ -111,7 +69,7 @@ object RtMidi {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmStatic
-    fun writableMidiPorts(): List<MidiPort.Info> {
+    public fun writableMidiPorts(): List<MidiPort.Info> {
         val ptr = RtMidiLibrary.instance.rtmidi_out_create_default()
         val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
         if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
@@ -123,7 +81,7 @@ object RtMidi {
         return result
     }
 
-    object Config {
+    public object Config {
         // When true, no more configuring is allowed
         internal var loaded: Boolean = false
 
@@ -137,7 +95,7 @@ object RtMidi {
         internal var disallowJACK: Boolean = false
 
         @JvmStatic
-        fun load() {
+        public fun load() {
             if (useBundledLibraries) {
                 RtMidiLibrary.libPaths.add("bin/${RtMidiBuild.buildPath}")
             } else {
@@ -146,15 +104,13 @@ object RtMidi {
             RtMidiLibrary.instance // initializes instance and sets `loaded` to true
         }
 
-        // Experimental
-        @JvmStatic
+        @JvmStatic // Experimental
         internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
-        // Experimental
-        @JvmStatic
+        @JvmStatic // Experimental
         internal fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
 
         @JvmStatic
-        fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
+        public fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
     }
 }
