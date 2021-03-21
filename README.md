@@ -6,9 +6,9 @@ Java bindings to [RtMidi](https://github.com/thestk/rtmidi)
 using [JNR-FFI](https://github.com/jnr/jnr-ffi)
 written in [Koltin](https://kotlinlang.org/).
 
-Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack).
-
 ## Installation
+
+TODO
 
 <!-- TODO add dependency notation here -->
 
@@ -17,6 +17,8 @@ Loosely inspired by [JNAJack](https://github.com/jaudiolibs/jnajack).
 <!-- TODO add reference to example repo here -->
 
 <!-- TODO mention supported platforms and the bundled libraries -->
+
+<!-- TODO RtMidi.Config -->
 
 A [`ReadableMidiPort`](src/main/kotlin/dev/basshelal/jrtmidi/api/ReadableMidiPort.kt)
 is one that you as a programmer can read messages from, similarly a
