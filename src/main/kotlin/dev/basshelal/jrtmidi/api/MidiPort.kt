@@ -1,4 +1,4 @@
-@file:Suppress("RedundantVisibilityModifier", "MemberVisibilityCanBePrivate")
+@file:Suppress("RedundantVisibilityModifier", "MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
 package dev.basshelal.jrtmidi.api
 
@@ -19,24 +19,23 @@ import java.util.Objects
  *
  * @author Bassam Helal
  */
-abstract class MidiPort<P : RtMidiPtr>
-@JvmOverloads protected constructor(portInfo: Info? = null) {
+abstract class MidiPort<P : RtMidiPtr> {
 
     /** The [RtMidiPtr] we will use to interact with [RtMidiLibrary] */
     protected abstract var ptr: P
 
     /** The [RtMidiApi] that was chosen in the constructor, used in [createPtr] to determine [ptr] creation method */
-    protected var chosenApi: RtMidiApi? = null
+    protected var chosenApi: RtMidiApi
 
     /** The [Info] set in this [MidiPort]'s constructor holding the information of the actual system MIDI port */
-    public val info: Info? = portInfo
+    public val info: Info?
 
     /** The [RtMidiApi] that RtMidi is using for this port */
     public abstract var api: RtMidiApi
         protected set
 
     /**
-     * The last [MidiMessage] sent (if [WritableMidiPort]) or received(if [ReadableMidiPort]) in this [MidiPort]
+     * The last [MidiMessage] sent (if [WritableMidiPort]) or received (if [ReadableMidiPort]) in this [MidiPort],
      * `null` if none exists
      */
     public var midiMessage: MidiMessage? = null
@@ -59,7 +58,8 @@ abstract class MidiPort<P : RtMidiPtr>
         protected set
 
     @JvmOverloads
-    protected constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED) : this(portInfo) {
+    protected constructor(portInfo: Info? = null, clientName: String? = null, api: RtMidiApi = RtMidiApi.UNSPECIFIED) {
+        this.info = portInfo
         this.chosenApi = api
         this.clientName = clientName
     }

@@ -1,4 +1,4 @@
-@file:Suppress("RedundantVisibilityModifier")
+@file:Suppress("RedundantVisibilityModifier", "ConvertSecondaryConstructorToPrimary")
 
 package dev.basshelal.jrtmidi.api
 
@@ -27,20 +27,6 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
         protected set
 
     /**
-     * Create a [WritableMidiPort] from the passed in [portInfo]
-     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
-     * @throws IllegalArgumentException if the passed in [portInfo] was not of type WRITABLE
-     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
-     */
-    @JvmOverloads
-    public constructor(portInfo: Info? = null) : super(portInfo) {
-        if (portInfo != null) require(portInfo.type == Info.Type.WRITABLE) {
-            "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo:\n$portInfo"
-        }
-        this.createPtr()
-    }
-
-    /**
      * Create a [WritableMidiPort] from the passed in [portInfo].
      * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
      * @param clientName the name which is used by RtMidi to group similar ports
@@ -51,9 +37,9 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmOverloads
-    public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
+    public constructor(portInfo: Info? = null, clientName: String? = null, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
             : super(portInfo, clientName, api) {
-        require(portInfo.type == Info.Type.WRITABLE) {
+        if (portInfo != null) require(portInfo.type == Info.Type.WRITABLE) {
             "Type of portInfo must be WRITABLE to create a WritableMidiPort, found portInfo: $portInfo"
         }
         this.createPtr()

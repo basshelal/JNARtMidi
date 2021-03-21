@@ -15,18 +15,12 @@ import jnr.ffi.Platform
 import jnr.ffi.byref.PointerByReference
 import java.io.File
 
+/** `true` if *any* of the passed in [paths] refers to an existing file, `false` otherwise */
 @Suppress("NOTHING_TO_INLINE")
 private inline fun anyFileExists(vararg paths: String): Boolean = paths.any { path: String ->
     File(path).let { it.exists() && it.isFile }
 }
 
-/**
- * Possible RtMidi Build combinations.
- * We support (or plan to support):
- * * ALSA, ALSA+JACK, Core, Core+JACK, WinMM on x86_64
- * * ALSA, ALSA+JACK on arm (32 bit arm)
- * * ALSA, ALSA+JACK on aarch64 (64 bit arm)
- */
 internal object RtMidiBuild {
 
     internal val platform: Platform = Platform.getNativePlatform()
@@ -134,6 +128,7 @@ internal object RtMidiBuild {
 // Below are minimal mappings of each API, I picked the simplest functions I could find quickly
 // I have tested ALSA and JACK, need to test the proprietary OSes
 // 07-Mar-2021 Bassam Helal
+// TODO: 20/03/2021 We may no longer need this, test first on all systems before deleting
 
 @Suppress("FunctionName")
 internal interface Alsa {

@@ -1,4 +1,4 @@
-@file:Suppress("RedundantVisibilityModifier")
+@file:Suppress("RedundantVisibilityModifier", "ConvertSecondaryConstructorToPrimary")
 
 package dev.basshelal.jrtmidi.api
 
@@ -45,20 +45,6 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         protected set
 
     /**
-     * Create a [ReadableMidiPort] from the passed in [portInfo]
-     * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
-     * @throws IllegalArgumentException if the passed in [portInfo] was not of type READABLE
-     * @throws RtMidiNativeException if an error occurred in RtMidi's native code
-     */
-    @JvmOverloads
-    public constructor(portInfo: Info? = null) : super(portInfo) {
-        if (portInfo != null) require(portInfo.type == Info.Type.READABLE) {
-            "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo:\n$portInfo"
-        }
-        this.createPtr()
-    }
-
-    /**
      * Create a [ReadableMidiPort] from the passed in [portInfo].
      * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
      * @param clientName the name which is used by RtMidi to group similar ports
@@ -69,9 +55,9 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmOverloads
-    public constructor(portInfo: Info, clientName: String, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
+    public constructor(portInfo: Info? = null, clientName: String? = null, api: RtMidiApi = RtMidiApi.UNSPECIFIED)
             : super(portInfo, clientName, api) {
-        require(portInfo.type == Info.Type.READABLE) {
+        if (portInfo != null) require(portInfo.type == Info.Type.READABLE) {
             "Type of portInfo must be READABLE to create a ReadableMidiPort, found portInfo: $portInfo"
         }
         this.createPtr()
@@ -149,10 +135,8 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     }
 
     protected override fun createPtr() {
-        ptr = chosenApi?.let { api ->
-            clientName?.let { clientName ->
-                RtMidiLibrary.instance.rtmidi_in_create(api.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
-            }
+        ptr = clientName?.let { clientName ->
+            RtMidiLibrary.instance.rtmidi_in_create(chosenApi.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
         } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
         checkErrors()
         isDestroyed = false
