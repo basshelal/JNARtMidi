@@ -3,6 +3,7 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.allShouldNotThrow
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
+import dev.basshelal.jrtmidi.log
 import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -17,18 +18,63 @@ import kotlin.random.Random
 /** Tests [ReadableMidiPort] including its supertype [MidiPort] */
 internal class ReadableMidiPortTest : StringSpec({
 
-    beforeSpec { defaultBeforeAll() }
+    // TODO: 21/03/2021 To be 0 physical port safe we need to create virtual ports to test on
+    //  this will mean though that testing on Windows will require some physical ports :/
 
-    afterSpec { }
+    val virtualPortName = "Test virtual port: ${Random.nextInt(from = 0, until = 100)}"
+
+    lateinit var virtualPort: WritableMidiPort
+
+    beforeSpec {
+        defaultBeforeAll()
+        virtualPort = WritableMidiPort(clientName = "Test Client")
+        virtualPort.openVirtual(virtualPortName)
+    }
+
+    afterSpec {
+        virtualPort.destroy()
+    }
+
+    "Empty Constructor" {
+
+        RtMidi.readableMidiPorts().joinToString().log()
+
+        ReadableMidiPort().apply {
+            info shouldBe null
+            api shouldNotBe RtMidiApi.UNSPECIFIED
+            clientName shouldBe null
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+            (api in RtMidi.compiledApis()) shouldBe true
+        }.destroy()
+    }
 
     "Info Constructor" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
+        val portInfo = allReadableInfos.first()
+        ReadableMidiPort(portInfo).apply {
+            info shouldBe portInfo
+            api shouldNotBe RtMidiApi.UNSPECIFIED
+            clientName shouldBe null
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+            (api in RtMidi.compiledApis()) shouldBe true
+        }.destroy()
+    }
+
+    "No API Constructor" {
+        val allReadableInfos = RtMidi.readableMidiPorts()
+        allReadableInfos.isNotEmpty() shouldBe true
         val info = allReadableInfos.first()
-        val port = ReadableMidiPort(info)
+
+        val clientName = "Test Client ${Random.nextInt()}"
+        val port = ReadableMidiPort(portInfo = info, clientName = clientName)
         port.info shouldBe info
         port.api shouldNotBe RtMidiApi.UNSPECIFIED
-        port.clientName shouldBe null
+        port.clientName shouldBe clientName
         port.isDestroyed shouldBe false
         port.isOpen shouldBe false
         port.isVirtual shouldBe false
@@ -56,25 +102,11 @@ internal class ReadableMidiPortTest : StringSpec({
         port.destroy()
     }
 
-    "No API Constructor" {
-        val allReadableInfos = RtMidi.readableMidiPorts()
-        allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-
-        val clientName = "Test Client ${Random.nextInt()}"
-        val port = ReadableMidiPort(portInfo = info, clientName = clientName)
-        port.info shouldBe info
-        port.api shouldNotBe RtMidiApi.UNSPECIFIED
-        port.clientName shouldBe clientName
-        port.isDestroyed shouldBe false
-        port.isOpen shouldBe false
-        port.isVirtual shouldBe false
-        (port.api in RtMidi.compiledApis()) shouldBe true
-
-        port.destroy()
+    "Open Without Info" {
+        // should throw exception, that's it
     }
 
-    "Open" {
+    "Open With Info" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
         val info = allReadableInfos.first()

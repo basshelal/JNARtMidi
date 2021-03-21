@@ -72,10 +72,8 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
     } // end RealTimeCritical
 
     protected override fun createPtr() {
-        ptr = chosenApi?.let { api ->
-            clientName?.let { clientName ->
-                RtMidiLibrary.instance.rtmidi_out_create(api.number, clientName)
-            }
+        ptr = clientName?.let { clientName ->
+            RtMidiLibrary.instance.rtmidi_out_create(chosenApi.number, clientName)
         } ?: RtMidiLibrary.instance.rtmidi_out_create_default()
         checkErrors()
         isDestroyed = false

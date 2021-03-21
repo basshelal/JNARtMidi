@@ -17,23 +17,30 @@ internal class MidiMessageTest : StringSpec({
 
     afterSpec { }
 
-    "Empty Constructor & Size Constructor" {
-        var midiMessage = MidiMessage()
+    "Empty Constructor" {
+        val midiMessage = MidiMessage()
         midiMessage.data.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
-        midiMessage.data.forEach { it shouldBe 0 }
-        val newSize = 9
-        midiMessage = MidiMessage(newSize)
-        midiMessage.data.size shouldBe newSize
         midiMessage.data.forEach { it shouldBe 0 }
     }
 
-    "Array Constructor & MidiMessage Constructor" {
+    "Size Constructor" {
+        val size = 9
+        val midiMessage = MidiMessage(size)
+        midiMessage.data.size shouldBe size
+        midiMessage.data.forEach { it shouldBe 0 }
+    }
+
+    "Array Constructor" {
         val size = 7
         val array = ByteArray(size) { it.toByte() }
         val midiMessage = MidiMessage(array)
         midiMessage.data.size shouldBe size
         midiMessage.data shouldBe array
         midiMessage.data shouldNotBeSameInstanceAs array
+    }
+
+    "MidiMessage Constructor" {
+        val midiMessage = MidiMessage(ByteArray(7) { it.toByte() })
         val newMidiMessage = MidiMessage(midiMessage)
         midiMessage.data.size shouldBe newMidiMessage.data.size
         midiMessage.data shouldBe newMidiMessage.data
@@ -80,7 +87,6 @@ internal class MidiMessageTest : StringSpec({
         midiMessage.data shouldBe data
     }
 
-
     "Set Data From MidiMessage" {
         val data = byteArrayOf(0, 1, 2, 3, 4)
         val midiMessage = MidiMessage(data)
@@ -93,7 +99,6 @@ internal class MidiMessageTest : StringSpec({
         copy.data shouldNotBeSameInstanceAs midiMessage.data
     }
 
-
     "Modify data" {
         val value = 69
         val midiMessage = MidiMessage(2)
@@ -101,7 +106,6 @@ internal class MidiMessageTest : StringSpec({
         midiMessage[0].toInt() shouldBe value
         midiMessage[1].toInt() shouldBe 0
     }
-
 
     "Get Data Copies" {
         val data = byteArrayOf(0, 1, 2, 3, 4)

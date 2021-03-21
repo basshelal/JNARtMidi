@@ -14,6 +14,7 @@ import kotlin.random.Random
 
 /** Tests [WritableMidiPort] including its supertype [MidiPort] */
 internal class WritableMidiPortTest : StringSpec({
+    
     beforeSpec { defaultBeforeAll() }
 
     afterSpec { }

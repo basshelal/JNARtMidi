@@ -18,9 +18,7 @@ internal class RtMidiConfigTest : StringSpec({
         RtMidi.Config.useBundledLibraries(true)
         RtMidi.Config.load()
 
-        shouldNotThrowAny {
-            RtMidiLibrary.instance
-        }
+        shouldNotThrowAny { RtMidiLibrary.instance }
 
         RtMidi.compiledApis().contains(RtMidiApi.UNIX_JACK) shouldBe false
     }
