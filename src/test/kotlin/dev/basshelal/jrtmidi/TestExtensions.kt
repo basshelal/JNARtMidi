@@ -4,9 +4,9 @@ package dev.basshelal.jrtmidi
 
 import dev.basshelal.jrtmidi.api.RtMidi
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import jnr.ffi.Platform
-import org.junit.jupiter.api.assertDoesNotThrow
 
 internal inline fun Any?.log() = println(this)
 
@@ -24,7 +24,7 @@ internal inline fun <reified T : Throwable> allShouldNotThrow(funcs: Iterable<()
 
 internal fun defaultBeforeAll() {
     RtMidi.Config.useBundledLibraries(true).load()
-    assertDoesNotThrow { RtMidi.compiledApis() }
+    shouldNotThrowAny { RtMidi.compiledApis() }
 }
 
 internal val platform = Platform.getNativePlatform()

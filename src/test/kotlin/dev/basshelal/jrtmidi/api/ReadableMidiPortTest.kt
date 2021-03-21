@@ -3,7 +3,6 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.allShouldNotThrow
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.log
 import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +20,9 @@ internal class ReadableMidiPortTest : StringSpec({
     // TODO: 21/03/2021 To be 0 physical port safe we need to create virtual ports to test on
     //  this will mean though that testing on Windows will require some physical ports :/
 
-    val virtualPortName = "Test virtual port: ${Random.nextInt(from = 0, until = 100)}"
+    val randomNumber: Int = Random.nextInt(from = 0, until = 100)
+
+    val virtualPortName = "Test virtual port: ${randomNumber}"
 
     lateinit var virtualPort: WritableMidiPort
 
@@ -36,9 +37,6 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Empty Constructor" {
-
-        RtMidi.readableMidiPorts().joinToString().log()
-
         ReadableMidiPort().apply {
             info shouldBe null
             api shouldNotBe RtMidiApi.UNSPECIFIED
@@ -50,9 +48,9 @@ internal class ReadableMidiPortTest : StringSpec({
         }.destroy()
     }
 
-    "Info Constructor" {
+    "Info only Constructor" {
         val allReadableInfos = RtMidi.readableMidiPorts()
-        allReadableInfos.isNotEmpty() shouldBe true
+        allReadableInfos.isEmpty() shouldBe false
         val portInfo = allReadableInfos.first()
         ReadableMidiPort(portInfo).apply {
             info shouldBe portInfo
@@ -65,55 +63,86 @@ internal class ReadableMidiPortTest : StringSpec({
         }.destroy()
     }
 
-    "No API Constructor" {
+    "Client Name only Constructor" {
+        val testClientName = "Test Client ${randomNumber}"
+        ReadableMidiPort(clientName = testClientName).apply {
+            info shouldBe null
+            api shouldNotBe RtMidiApi.UNSPECIFIED
+            clientName shouldBe testClientName
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+            (api in RtMidi.compiledApis()) shouldBe true
+        }.destroy()
+    }
+
+    "API only Constructor" {
+        val apis = RtMidi.compiledApis()
+        apis.isEmpty() shouldBe false
+        val testApi = apis.first()
+        ReadableMidiPort(api = testApi).apply {
+            info shouldBe null
+            api shouldNotBe RtMidiApi.UNSPECIFIED
+            api shouldBe testApi
+            clientName shouldBe null
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+            (api in RtMidi.compiledApis()) shouldBe true
+        }.destroy()
+    }
+
+    "Info & Client Name Constructor" {
         val allReadableInfos = RtMidi.readableMidiPorts()
-        allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
-
-        val clientName = "Test Client ${Random.nextInt()}"
-        val port = ReadableMidiPort(portInfo = info, clientName = clientName)
-        port.info shouldBe info
-        port.api shouldNotBe RtMidiApi.UNSPECIFIED
-        port.clientName shouldBe clientName
-        port.isDestroyed shouldBe false
-        port.isOpen shouldBe false
-        port.isVirtual shouldBe false
-        (port.api in RtMidi.compiledApis()) shouldBe true
-
-        port.destroy()
+        allReadableInfos.isEmpty() shouldBe false
+        val portInfo = allReadableInfos.first()
+        val testClientName = "Test Client ${randomNumber}"
+        ReadableMidiPort(portInfo = portInfo, clientName = testClientName).apply {
+            info shouldBe portInfo
+            api shouldNotBe RtMidiApi.UNSPECIFIED
+            clientName shouldBe testClientName
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+            (api in RtMidi.compiledApis()) shouldBe true
+        }.destroy()
     }
 
     "Full Constructor" {
         val allReadableInfos = RtMidi.readableMidiPorts()
-        allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
+        allReadableInfos.isEmpty() shouldBe false
+        val portInfo = allReadableInfos.first()
         val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
-        val api = allApis.first()
-        val clientName = "Test Client ${Random.nextInt()}"
-        val port = ReadableMidiPort(info, clientName, api)
-        port.info shouldBe info
-        port.api shouldBe api
-        port.clientName shouldBe clientName
-        port.isDestroyed shouldBe false
-        port.isOpen shouldBe false
-        port.isVirtual shouldBe false
-
-        port.destroy()
+        allApis.isEmpty() shouldBe false
+        val testApi = allApis.first()
+        val testClientName = "Test Client ${randomNumber}"
+        ReadableMidiPort(portInfo = portInfo, clientName = testClientName, api = testApi).apply {
+            info shouldBe portInfo
+            api shouldBe testApi
+            clientName shouldBe testClientName
+            isDestroyed shouldBe false
+            isOpen shouldBe false
+            isVirtual shouldBe false
+        }.destroy()
     }
 
     "Open Without Info" {
-        // should throw exception, that's it
+        ReadableMidiPort(portInfo = null).apply {
+            info shouldBe null
+            shouldThrow<RtMidiPortException> { open("My test port") }
+        }
     }
+
+    // TODO: 21/03/2021 Continue below
 
     "Open With Info" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
-        val info = allReadableInfos.first()
+        val portInfo = allReadableInfos.first()
         val allApis = RtMidi.compiledApis()
         allApis.isNotEmpty() shouldBe true
 
-        val port = ReadableMidiPort(info)
+        val port = ReadableMidiPort(portInfo)
 
         val oldWritableSize = RtMidi.writableMidiPorts().size
 
