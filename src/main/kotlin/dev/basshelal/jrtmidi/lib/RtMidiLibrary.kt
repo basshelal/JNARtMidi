@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package dev.basshelal.jrtmidi.lib
 
 import dev.basshelal.jrtmidi.api.RtMidi
@@ -6,13 +8,9 @@ import jnr.ffi.LibraryLoader
 import jnr.ffi.LibraryOption
 import jnr.ffi.Pointer
 import jnr.ffi.annotations.Delegate
-import jnr.ffi.annotations.IgnoreError
 import jnr.ffi.byref.NumberByReference
 import jnr.ffi.types.size_t
 import java.nio.ByteBuffer
-
-// JNAerator command used:
-// java -jar jnaerator.jar -library rtmidi rtmidi_c.h librtmidi.so -o . -v -noJar -noComp -f -runtime JNA
 
 /**
  * [JNA Direct mapping](https://github.com/java-native-access/jna/blob/master/www/DirectMapping.md)
@@ -25,9 +23,8 @@ import java.nio.ByteBuffer
  *
  * @author Bassam Helal
  */
-@Suppress("FunctionName")
-@IgnoreError
-interface RtMidiLibrary {
+@jnr.ffi.annotations.IgnoreError
+internal interface RtMidiLibrary {
 
     companion object {
         /** The name of the native shared library */
@@ -42,8 +39,7 @@ interface RtMidiLibrary {
          * Such an error is irreversible meaning you cannot fix your way out of it.
          * Currently I am unsure of a **clean and elegant** way to fix this but it shouldn't be an issue anyway.
          */
-        @JvmStatic
-        val instance: RtMidiLibrary by lazy {
+        internal val instance: RtMidiLibrary by lazy {
             try {
                 if (!RtMidi.Config.loaded) throw RtMidiException("RtMidi.Config.load() was not called!")
                 LibraryLoader.loadLibrary(
@@ -84,7 +80,7 @@ interface RtMidiLibrary {
             /** A compilable but non-functional API */
             const val RTMIDI_API_RTMIDI_DUMMY = 5
 
-            /** < Number of values in this enum */
+            /** Number of values in this enum */
             const val RTMIDI_API_NUM = 6
         }
     }
@@ -92,6 +88,7 @@ interface RtMidiLibrary {
     /**
      * typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message, size_t messageSize, void* userData);
      */
+    @jnr.ffi.annotations.IgnoreError
     interface RtMidiCCallback {
         @Delegate
         operator fun invoke(timeStamp: Double, message: Pointer?, @size_t messageSize: Long?, userData: Pointer?)

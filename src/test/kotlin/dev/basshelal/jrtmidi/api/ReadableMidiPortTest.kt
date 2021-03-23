@@ -1,5 +1,3 @@
-@file:Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
-
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.allShouldNotThrow
@@ -14,17 +12,11 @@ import io.kotest.core.test.TestCase
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import java.util.Arrays
-import kotlin.contracts.ExperimentalContracts
 import kotlin.math.min
 import kotlin.random.Random
 
 /** Tests [ReadableMidiPort] including its supertype [MidiPort] */
-@ExperimentalContracts
 internal class ReadableMidiPortTest : StringSpec({
-
-    // TODO: 21/03/2021 To be 0 physical port safe we need to create virtual ports to test on
-    //  this will mean though that testing on Windows will require some physical ports :/
 
     fun supportsVirtualPorts(testCase: TestCase): Boolean {
         return RtMidi.supportsVirtualPorts().also {
@@ -49,7 +41,7 @@ internal class ReadableMidiPortTest : StringSpec({
             virtualPort.open(virtualPortName)
         } else throw RuntimeException("""Unable to run tests!
             |Platform: ${RtMidiBuild.platformName} does not support virtual ports AND no writable Midi Ports were found
-            |To test this platform, connect some physical Midi devices""".trimMargin())
+            |To test this platform, please connect some physical Midi devices""".trimMargin())
     }
 
     afterSpec {
@@ -312,8 +304,6 @@ internal class ReadableMidiPortTest : StringSpec({
         }
     }
 
-    // TODO: 21-Mar-2021 @basshelal: Continue below
-
     "Set Callback" {
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
@@ -324,7 +314,7 @@ internal class ReadableMidiPortTest : StringSpec({
         val receivedMessage = MidiMessage()
         val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
 
-        val readablePortName = "Test Writable Port $randomNumber"
+        val readablePortName = "Test Readable Port $randomNumber"
         readablePort.open(readablePortName)
 
         val foundWritableInfo = RtMidi.writableMidiPorts().find { it.name.contains(readablePortName) }
@@ -417,15 +407,13 @@ internal class ReadableMidiPortTest : StringSpec({
         // Messages get resized, just ensure they are equal until the smallest one of them
 
         var size = min(receivedMessage.size, midiMessage.size)
-        Arrays.equals(receivedMessage.data, 0, size,
-                midiMessage.data, 0, size) shouldBe true
+        receivedMessage.data.copyOf(size) shouldBe midiMessage.data.copyOf(size)
 
         readablePort.midiMessage shouldNotBe null
         writablePort.midiMessage shouldNotBe null
 
         size = min(readablePort.midiMessage!!.size, writablePort.midiMessage!!.size)
-        Arrays.equals(readablePort.midiMessage!!.data, 0, size,
-                writablePort.midiMessage!!.data, 0, size) shouldBe true
+        readablePort.midiMessage!!.data.copyOf(size) shouldBe writablePort.midiMessage!!.data.copyOf(size)
 
         readablePort.ignoreTypes(midiSysex = true, midiTime = true, midiSense = true)
 
@@ -437,8 +425,7 @@ internal class ReadableMidiPortTest : StringSpec({
         wait(200) // give some time to receive message
 
         size = min(receivedMessage.size, midiMessage.size)
-        Arrays.equals(receivedMessage.data, 0, size,
-                midiMessage.data, 0, size) shouldBe false
+        receivedMessage.data.copyOf(size) shouldNotBe midiMessage.data.copyOf(size)
 
         receivedMessage.data shouldBe byteArrayOf(0)
 
@@ -454,7 +441,7 @@ internal class ReadableMidiPortTest : StringSpec({
         allApis.isNotEmpty() shouldBe true
 
         val readablePorts = (0..10).map { ReadableMidiPort(readableInfo) }
-        readablePorts.onEach { it.open("Port: ${Random.nextInt()}") }
+        readablePorts.onEach { it.open("Port: $randomNumber") }
 
 
         val allWritableInfos = RtMidi.writableMidiPorts()
@@ -463,14 +450,14 @@ internal class ReadableMidiPortTest : StringSpec({
         val writableInfo = allWritableInfos.last() // The very last readablePort we made above
         val writablePorts = (0..10).map { WritableMidiPort(writableInfo) }
         writablePorts.onEach {
-            shouldNotThrowAny { it.open("Port: ${Random.nextInt()}") }
+            shouldNotThrowAny { it.open("Port: $randomNumber") }
         }
 
         val lastReadablePort = readablePorts.last()
 
         readablePorts.filterNot { it == lastReadablePort }.onEach { it.destroy() }
 
-        val portName = "Test Readable Port ${Random.nextInt()}"
+        val portName = "Test Readable Port $randomNumber"
 
         writablePorts.onEach {
             shouldNotThrowAny { it.close() }
@@ -481,9 +468,7 @@ internal class ReadableMidiPortTest : StringSpec({
 
         writablePorts.onEach {
             shouldNotThrowAny { it.close() }
-            shouldThrow<RtMidiPortException> {
-                it.open(portName)
-            }
+            shouldThrow<RtMidiPortException> { it.open(portName) }
         }
 
         writablePorts.onEach { it.destroy() }
