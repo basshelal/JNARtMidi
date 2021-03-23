@@ -44,6 +44,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         /** Set once only in [createPtr] */
         protected set
 
+    /** `true` is this [ReadableMidiPort] has a [MidiMessageCallback], `false` otherwise, see [setCallback] */
     public val hasCallback: Boolean get() = this.midiMessageCallback != null
 
     /**

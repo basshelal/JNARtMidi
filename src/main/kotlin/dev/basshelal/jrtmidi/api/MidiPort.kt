@@ -1,4 +1,5 @@
-@file:Suppress("RedundantVisibilityModifier", "MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
+@file:Suppress("RedundantVisibilityModifier", "MemberVisibilityCanBePrivate",
+        "ConvertSecondaryConstructorToPrimary", "JoinDeclarationAndAssignment")
 
 package dev.basshelal.jrtmidi.api
 
@@ -189,8 +190,8 @@ abstract class MidiPort<P : RtMidiPtr> {
      * @param type the [Type] of the port, either [Type.READABLE] or [Type.WRITABLE],
      * [Type.UNKNOWN] indicates some error or unknown but should never realistically be seen
      */
-    public data class Info // TODO: 23-Mar-2021 @basshelal: Move outside of class?
-    internal constructor(val name: String, internal var index: Int, val type: Type) {
+    public data class Info
+    internal constructor(val name: String, val type: Type, internal var index: Int) {
 
         override fun toString(): String = "name = '$name', index = $index, type = $type"
 
