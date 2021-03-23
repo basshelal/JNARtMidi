@@ -190,7 +190,7 @@ abstract class MidiPort<P : RtMidiPtr> {
      * [Type.UNKNOWN] indicates some error or unknown but should never realistically be seen
      */
     public data class Info
-    internal constructor(val name: String, var index: Int, val type: Type) {
+    internal constructor(val name: String, internal var index: Int, val type: Type) {
 
         override fun toString(): String = "name = '$name', index = $index, type = $type"
 

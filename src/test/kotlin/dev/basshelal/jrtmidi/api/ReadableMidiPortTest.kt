@@ -437,12 +437,9 @@ internal class ReadableMidiPortTest : StringSpec({
         val allReadableInfos = RtMidi.readableMidiPorts()
         allReadableInfos.isNotEmpty() shouldBe true
         val readableInfo = allReadableInfos.first()
-        val allApis = RtMidi.compiledApis()
-        allApis.isNotEmpty() shouldBe true
 
         val readablePorts = (0..10).map { ReadableMidiPort(readableInfo) }
         readablePorts.onEach { it.open("Port: $randomNumber") }
-
 
         val allWritableInfos = RtMidi.writableMidiPorts()
         allWritableInfos.size shouldBeGreaterThan 10
