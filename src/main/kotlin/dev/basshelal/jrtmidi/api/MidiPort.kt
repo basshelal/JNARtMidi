@@ -189,7 +189,7 @@ abstract class MidiPort<P : RtMidiPtr> {
      * @param type the [Type] of the port, either [Type.READABLE] or [Type.WRITABLE],
      * [Type.UNKNOWN] indicates some error or unknown but should never realistically be seen
      */
-    public data class Info
+    public data class Info // TODO: 23-Mar-2021 @basshelal: Move outside of class?
     internal constructor(val name: String, internal var index: Int, val type: Type) {
 
         override fun toString(): String = "name = '$name', index = $index, type = $type"

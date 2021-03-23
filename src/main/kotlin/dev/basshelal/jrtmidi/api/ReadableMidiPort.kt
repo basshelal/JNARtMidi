@@ -44,6 +44,8 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         /** Set once only in [createPtr] */
         protected set
 
+    public val hasCallback: Boolean get() = this.midiMessageCallback != null
+
     /**
      * Create a [ReadableMidiPort] from the passed in [portInfo].
      * @param portInfo the [MidiPort.Info] that this [MidiPort] represents
@@ -84,7 +86,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      */
     public fun setCallback(callback: MidiMessageCallback) {
         checkIsDestroyed()
-        if (midiMessageCallback != null)
+        if (hasCallback)
             throw RtMidiPortException("Cannot set callback there is an existing callback registered, call removeCallback() to remove.")
         midiMessageCallback = callback
         midiMessage = MidiMessage()
@@ -114,7 +116,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      */
     public fun removeCallback() {
         checkIsDestroyed()
-        if (midiMessageCallback == null) return
+        if (!hasCallback) return
         RtMidiLibrary.instance.rtmidi_in_cancel_callback(ptr)
         checkErrors()
         cCallback = null
