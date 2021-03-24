@@ -91,8 +91,13 @@ public object RtMidi {
         // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
         private var customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
 
-        // Do not use a build with JACK even if JACK exists on the system
+        // Do not use a build with JACK even if JACK exists on the system, because if a JACK server is not found, you
+        // cannot do anything, use JNAJack to interact with JACK on the JVM
         internal var disallowJACK: Boolean = false
+
+        // Disallow virtual ports to keep code truly cross-platform because RtMidi doesn't support virtual ports on
+        // Windows
+        internal var disallowVirtualPorts: Boolean = false
 
         @JvmStatic
         public fun load() {
@@ -105,13 +110,16 @@ public object RtMidi {
             RtMidiLibrary.instance // initializes instance
         }
 
+        @JvmStatic
+        public fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
+
+        @JvmStatic
+        public fun disallowVirtualPorts(value: Boolean): Config = apply { if (!loaded) disallowVirtualPorts = value }
+
         @JvmStatic // Experimental
         internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
         @JvmStatic // Experimental
         internal fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
-
-        @JvmStatic
-        public fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
     }
 }

@@ -140,7 +140,7 @@ internal object RtMidiBuild {
         }
     }
 
-    internal val supportsVirtualPorts: Boolean = WINMM !in installedApis
+    internal val supportsVirtualPorts: Boolean = (WINMM !in installedApis) && !RtMidi.Config.disallowVirtualPorts
 }
 
 // Below are minimal mappings of each API, I picked the simplest functions I could find quickly

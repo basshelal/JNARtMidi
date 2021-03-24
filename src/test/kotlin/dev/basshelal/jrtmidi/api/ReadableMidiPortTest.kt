@@ -191,7 +191,7 @@ internal class ReadableMidiPortTest : StringSpec({
 
     }
 
-    "Open Port After Info Index Change" {
+    "Open Port After Info Index Change".config(enabledIf = { supportsVirtualPorts(it) }) {
 
     }
 
