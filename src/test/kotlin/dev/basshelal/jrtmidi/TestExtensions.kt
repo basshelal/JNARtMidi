@@ -27,7 +27,9 @@ internal inline fun <reified T : Throwable> allShouldNotThrow(funcs: Iterable<()
 // Utils
 
 internal fun defaultBeforeAll() {
-    RtMidi.Config.useBundledLibraries(true).load()
+    RtMidi.Config.disallowJACK(true)
+            .useBundledLibraries(true)
+            .load()
     shouldNotThrowAny { RtMidi.compiledApis() }
 }
 
