@@ -2,8 +2,8 @@
 
 package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiOutPtr
+import dev.basshelal.jrtmidi.lib.library
 
 /**
  * A [MidiPort] that can be written to, meaning you can send a [MidiMessage] to via [WritableMidiPort.sendMessage].
@@ -48,7 +48,7 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
     public override fun destroy() {
         if (!this.isDestroyed) {
             close()
-            RtMidiLibrary.instance.rtmidi_out_free(ptr)
+            library.rtmidi_out_free(ptr)
             checkErrors()
             isDestroyed = true
         }
@@ -65,7 +65,7 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
         // RealTimeCritical because of potential use in callback for a Midi-Through application
         checkIsDestroyed()
         if (isOpen) {
-            RtMidiLibrary.instance.rtmidi_out_send_message(ptr, midiMessage.data, midiMessage.size)
+            library.rtmidi_out_send_message(ptr, midiMessage.data, midiMessage.size)
             checkErrors()
             this.midiMessage = midiMessage // assign only if message was successful in case caller caught exceptions
         }
@@ -73,11 +73,11 @@ public class WritableMidiPort : MidiPort<RtMidiOutPtr> {
 
     protected override fun createPtr() {
         ptr = clientName?.let { clientName ->
-            RtMidiLibrary.instance.rtmidi_out_create(chosenApi.number, clientName)
-        } ?: RtMidiLibrary.instance.rtmidi_out_create_default()
+            library.rtmidi_out_create(chosenApi.number, clientName)
+        } ?: library.rtmidi_out_create_default()
         checkErrors()
         isDestroyed = false
-        val apiInt = RtMidiLibrary.instance.rtmidi_out_get_current_api(ptr)
+        val apiInt = library.rtmidi_out_get_current_api(ptr)
         checkErrors()
         api = RtMidiApi.fromInt(apiInt)
     }

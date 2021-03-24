@@ -1,6 +1,6 @@
 package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.library
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.StringSpec
@@ -18,7 +18,7 @@ internal class RtMidiConfigTest : StringSpec({
         RtMidi.Config.useBundledLibraries(true)
         RtMidi.Config.load()
 
-        shouldNotThrowAny { RtMidiLibrary.instance }
+        shouldNotThrowAny { library }
 
         RtMidi.compiledApis().contains(RtMidiApi.UNIX_JACK) shouldBe false
     }

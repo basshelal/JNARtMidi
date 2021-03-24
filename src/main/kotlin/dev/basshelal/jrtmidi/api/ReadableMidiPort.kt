@@ -3,8 +3,8 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiInPtr
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
+import dev.basshelal.jrtmidi.lib.library
 import jnr.ffi.Pointer
 
 /**
@@ -70,7 +70,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         if (!this.isDestroyed) {
             close()
             removeCallback()
-            RtMidiLibrary.instance.rtmidi_in_free(ptr)
+            library.rtmidi_in_free(ptr)
             checkErrors()
             isDestroyed = true
         }
@@ -108,7 +108,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
                 }
             } // end RealTimeCritical
         }.also { cCallback ->
-            RtMidiLibrary.instance.rtmidi_in_set_callback(ptr, cCallback, null)
+            library.rtmidi_in_set_callback(ptr, cCallback, null)
             checkErrors()
         }
     }
@@ -122,7 +122,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     public fun removeCallback() {
         checkIsDestroyed()
         if (!hasCallback) return
-        RtMidiLibrary.instance.rtmidi_in_cancel_callback(ptr)
+        library.rtmidi_in_cancel_callback(ptr)
         checkErrors()
         cCallback = null
         midiMessageCallback = null
@@ -138,17 +138,17 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
     public fun ignoreTypes(midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean) {
         // TODO: 24-Mar-2021 @basshelal: What are each of these ignores? Test and document this!
         checkIsDestroyed()
-        RtMidiLibrary.instance.rtmidi_in_ignore_types(ptr, midiSysex, midiTime, midiSense)
+        library.rtmidi_in_ignore_types(ptr, midiSysex, midiTime, midiSense)
         checkErrors()
     }
 
     protected override fun createPtr() {
         ptr = clientName?.let { clientName ->
-            RtMidiLibrary.instance.rtmidi_in_create(chosenApi.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
-        } ?: RtMidiLibrary.instance.rtmidi_in_create_default()
+            library.rtmidi_in_create(chosenApi.number, clientName, DEFAULT_QUEUE_SIZE_LIMIT)
+        } ?: library.rtmidi_in_create_default()
         checkErrors()
         isDestroyed = false
-        val apiInt = RtMidiLibrary.instance.rtmidi_in_get_current_api(ptr)
+        val apiInt = library.rtmidi_in_get_current_api(ptr)
         checkErrors()
         api = RtMidiApi.fromInt(apiInt)
     }

@@ -32,7 +32,7 @@ private val emptyMidiMessageCallback: MidiMessageCallback = MidiMessageCallback 
 private val readableMidiPortInfos: List<MidiPort.Info> get() = RtMidi.readableMidiPorts()
 private val writableMidiPortInfos: List<MidiPort.Info> get() = RtMidi.writableMidiPorts()
 
-private val testWritablePortClientName = "Test Client"
+private const val testWritablePortClientName = "Test Client"
 private val testWritablePortName = "Test virtual port: $randomNumber"
 
 private lateinit var testWritablePort: WritableMidiPort

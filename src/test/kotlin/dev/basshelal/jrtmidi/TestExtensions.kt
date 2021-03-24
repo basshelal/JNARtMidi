@@ -4,6 +4,7 @@ package dev.basshelal.jrtmidi
 
 import dev.basshelal.jrtmidi.api.RtMidi
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.library
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -58,7 +59,7 @@ internal object Reflect {
         RtMidiLibrary::class.companionObject?.apply {
             memberProperties.find { it.name == "instance" }?.javaField?.also {
                 it.isAccessible = true
-                it.set(RtMidiLibrary.instance, func())
+                it.set(library, func())
             }
         }
     }

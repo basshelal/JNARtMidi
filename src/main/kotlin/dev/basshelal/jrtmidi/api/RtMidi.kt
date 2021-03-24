@@ -4,6 +4,9 @@ package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.library
+import jnr.ffi.LibraryLoader
+import jnr.ffi.LibraryOption
 
 /**
  * The entry point to the JRtMidi Library.
@@ -30,7 +33,7 @@ public object RtMidi {
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    public fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts
+    public fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts && !Config.disallowVirtualPorts
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -42,7 +45,7 @@ public object RtMidi {
     @JvmStatic
     public fun compiledApis(): List<RtMidiApi> {
         val arr = IntArray(RtMidiLibrary.RtMidiApi.RTMIDI_API_NUM)
-        val written = RtMidiLibrary.instance.rtmidi_get_compiled_api(arr, arr.size)
+        val written = library.rtmidi_get_compiled_api(arr, arr.size)
         return if (written < 0) throw RtMidiNativeException("Error trying to get compiled apis")
         else List(written) { RtMidiApi.fromInt(arr[it]) }
     }
@@ -53,14 +56,14 @@ public object RtMidi {
      */
     @JvmStatic
     public fun readableMidiPorts(): List<MidiPort.Info> {
-        val ptr = RtMidiLibrary.instance.rtmidi_in_create_default()
-        val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
+        val ptr = library.rtmidi_in_create_default()
+        val portCount = library.rtmidi_get_port_count(ptr)
         if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
-            MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
+            MidiPort.Info(name = library.rtmidi_get_port_name(ptr, it),
                     index = it, type = MidiPort.Info.Type.READABLE)
         }
-        RtMidiLibrary.instance.rtmidi_in_free(ptr)
+        library.rtmidi_in_free(ptr)
         return result
     }
 
@@ -70,14 +73,14 @@ public object RtMidi {
      */
     @JvmStatic
     public fun writableMidiPorts(): List<MidiPort.Info> {
-        val ptr = RtMidiLibrary.instance.rtmidi_out_create_default()
-        val portCount = RtMidiLibrary.instance.rtmidi_get_port_count(ptr)
+        val ptr = library.rtmidi_out_create_default()
+        val portCount = library.rtmidi_get_port_count(ptr)
         if (!ptr.ok.get()) throw RtMidiNativeException(ptr)
         val result = List(portCount) {
-            MidiPort.Info(name = RtMidiLibrary.instance.rtmidi_get_port_name(ptr, it),
+            MidiPort.Info(name = library.rtmidi_get_port_name(ptr, it),
                     index = it, type = MidiPort.Info.Type.WRITABLE)
         }
-        RtMidiLibrary.instance.rtmidi_out_free(ptr)
+        library.rtmidi_out_free(ptr)
         return result
     }
 
@@ -101,13 +104,18 @@ public object RtMidi {
 
         @JvmStatic
         public fun load() {
-            if (useBundledLibraries) {
-                RtMidiBuild.libPaths.add("bin/${RtMidiBuild.buildPath}")
-            } else {
-                RtMidiBuild.libPaths.addAll(customRtMidiLibraryPaths)
+            if (useBundledLibraries) RtMidiBuild.libPaths.add("bin/${RtMidiBuild.buildPath}")
+            else RtMidiBuild.libPaths.addAll(customRtMidiLibraryPaths)
+            library = try {
+                LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
+                        mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
+                        mapOf(RtMidiLibrary.LIBRARY_NAME to RtMidiBuild.libPaths),
+                        RtMidiLibrary.LIBRARY_NAME)
+            } catch (e: LinkageError) {
+                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${RtMidiBuild.libPaths.joinToString()}")
+                throw e
             }
             loaded = true
-            RtMidiLibrary.instance // initializes instance
         }
 
         @JvmStatic

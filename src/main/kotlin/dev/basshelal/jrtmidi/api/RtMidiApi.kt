@@ -1,6 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.library
 import java.util.Objects
 
 /**
@@ -66,12 +67,12 @@ class RtMidiApi private constructor(api: Int) {
     /**
      * The name of this [RtMidiApi] as specified by RtMidi, this is different from this [RtMidiApi]'s [displayName]
      */
-    val name: String = RtMidiLibrary.instance.rtmidi_api_name(api)
+    val name: String = library.rtmidi_api_name(api)
 
     /**
      * The display name of this [RtMidiApi] as specified by RtMidi, this is different from this [RtMidiApi]'s [name]
      */
-    val displayName: String = RtMidiLibrary.instance.rtmidi_api_display_name(api)
+    val displayName: String = library.rtmidi_api_display_name(api)
 
     override fun equals(other: Any?): Boolean =
             other is RtMidiApi && this.number == other.number &&

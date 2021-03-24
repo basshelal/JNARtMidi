@@ -7,6 +7,7 @@ import dev.basshelal.jrtmidi.api.MidiPort.Info.Type
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
+import dev.basshelal.jrtmidi.lib.library
 import java.util.Objects
 
 /**
@@ -86,7 +87,7 @@ abstract class MidiPort<P : RtMidiPtr> {
         checkHasInfo("Cannot open MidiPort:\n$this\nno RtMidiPort.Info was provided")
         if (!isOpen && info != null) {
             resetInfoIndex()
-            RtMidiLibrary.instance.rtmidi_open_port(ptr, info.index, portName)
+            library.rtmidi_open_port(ptr, info.index, portName)
             checkErrors()
             isOpen = true
             isVirtual = false
@@ -103,10 +104,11 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     public fun openVirtual(portName: String) {
         checkIsDestroyed()
-        if (!RtMidi.supportsVirtualPorts())
-            throw RtMidiPortException("Platform ${RtMidiBuild.platformName} does not support virtual ports")
+        if (!RtMidi.supportsVirtualPorts()) throw RtMidiPortException(if (!RtMidiBuild.supportsVirtualPorts)
+            "Platform ${RtMidiBuild.platformName} does not support virtual ports"
+        else "Virtual ports have been disabled by config in RtMidi.Config.disallowVirtualPorts()")
         if (!isOpen) {
-            RtMidiLibrary.instance.rtmidi_open_virtual_port(ptr, portName)
+            library.rtmidi_open_virtual_port(ptr, portName)
             checkErrors()
             isOpen = true
             isVirtual = true
@@ -121,7 +123,7 @@ abstract class MidiPort<P : RtMidiPtr> {
     public fun close() {
         checkIsDestroyed()
         if (isOpen) {
-            RtMidiLibrary.instance.rtmidi_close_port(ptr)
+            library.rtmidi_close_port(ptr)
             checkErrors()
             isOpen = false
             isVirtual = false
@@ -138,14 +140,14 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     protected abstract fun createPtr()
 
-    /** Call this early before any call to [RtMidiLibrary.instance] to avoid segfaults */
+    /** Call this early before any call to [library] to avoid segfaults */
     protected fun checkIsDestroyed() =
             if (isDestroyed) throw RtMidiPortException("Cannot proceed, the MidiPort:\n$this\n has already been destroyed") else Unit
 
     protected fun checkHasInfo(message: String = "Cannot proceed, no RtMidiPort.Info was provided") =
             if (info == null) throw RtMidiPortException(message) else Unit
 
-    /** Call this after any call to [RtMidiLibrary.instance] */
+    /** Call this after any call to [library] */
     protected fun checkErrors() = if (!ptr.ok.get()) throw RtMidiNativeException(ptr) else Unit
 
     /**

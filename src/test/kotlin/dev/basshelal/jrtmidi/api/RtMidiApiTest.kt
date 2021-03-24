@@ -2,6 +2,7 @@ package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.library
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -21,8 +22,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.UNSPECIFIED
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "MacOSX Core" {
@@ -30,8 +31,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.MACOSX_CORE
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "Linux ALSA" {
@@ -39,8 +40,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.LINUX_ALSA
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "Unix JACK" {
@@ -48,8 +49,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.UNIX_JACK
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "Windows MM" {
@@ -57,8 +58,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.WINDOWS_MM
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "RTMidi Dummy"{
@@ -66,8 +67,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.RTMIDI_DUMMY
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
     "From Int" {
@@ -75,8 +76,8 @@ internal class RtMidiApiTest : StringSpec({
         val api = RtMidiApi.fromInt(number)
         api shouldBeSameInstanceAs RtMidiApi.RTMIDI_DUMMY
         api.number shouldBe number
-        api.name shouldBe RtMidiLibrary.instance.rtmidi_api_name(number)
-        api.displayName shouldBe RtMidiLibrary.instance.rtmidi_api_display_name(number)
+        api.name shouldBe library.rtmidi_api_name(number)
+        api.displayName shouldBe library.rtmidi_api_display_name(number)
     }
 
 })
