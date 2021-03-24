@@ -4,10 +4,12 @@ import dev.basshelal.jrtmidi.allShouldNotThrow
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
+import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.random.Random
@@ -18,6 +20,8 @@ private fun supportsVirtualPorts(testCase: TestCase): Boolean {
                 "Cannot run test: ${testCase.source.fileName} ${testCase.displayName}")
     }
 }
+
+private fun waitToReceiveMessage() = wait(15)
 
 private val randomNumber: Int get() = Random.nextInt(from = 0, until = 1000)
 private val emptyMidiMessageCallback: MidiMessageCallback = MidiMessageCallback { _ -> }
@@ -218,7 +222,33 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Set Callback & Remove Callback" {
+        val portInfo = readableMidiPortInfos.find { it.name.contains(testWritablePortName) }
+        portInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = portInfo).apply {
+            hasCallback shouldBe false
+            val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
+            val receivedMessage = MidiMessage(size = 0)
+            setCallback(MidiMessageCallback { message -> receivedMessage.setDataFrom(message) })
+            hasCallback shouldBe true
+            open("Readable Port $randomNumber")
+            isOpen shouldBe true
+            testWritablePort.sendMessage(messageToSend)
+            waitToReceiveMessage()
+            receivedMessage shouldBe messageToSend
+            midiMessage shouldBe messageToSend
 
+            // Time to remove callback!
+            receivedMessage.size = 0
+            receivedMessage shouldNotBe messageToSend
+            removeCallback()
+            hasCallback shouldBe false
+            midiMessage shouldBe null
+            isOpen shouldBe true
+            testWritablePort.sendMessage(messageToSend)
+            waitToReceiveMessage()
+            receivedMessage shouldNotBe messageToSend
+            midiMessage shouldNotBe messageToSend
+        }.destroy()
     }
 
     "Set Callback On Invalid Port" {
@@ -226,7 +256,27 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Ignore Types" {
+        val portInfo = readableMidiPortInfos.find { it.name.contains(testWritablePortName) }
+        portInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = portInfo).apply {
+            val messageToSend = MidiMessage(byteArrayOf(MidiMessage.TIMING_CLOCK))
+            val receivedMessage = MidiMessage(size = 0)
+            ignoreTypes(midiSysex = true, midiTime = true, midiSense = true)
+            setCallback(MidiMessageCallback { message -> receivedMessage.setDataFrom(message) })
+            open("Readable Port $randomNumber")
+            testWritablePort.sendMessage(messageToSend)
+            waitToReceiveMessage()
+            receivedMessage shouldNotBe messageToSend
+            midiMessage shouldNotBe messageToSend
+            //     midiMessage shouldBe null // TODO: 23-Mar-2021 @basshelal: Uncomment when fixed
 
+            // don't ignore
+            ignoreTypes(midiSysex = false, midiTime = false, midiSense = false)
+            testWritablePort.sendMessage(messageToSend)
+            waitToReceiveMessage()
+            receivedMessage shouldBe messageToSend
+            midiMessage shouldBe messageToSend
+        }.destroy()
     }
 
 })

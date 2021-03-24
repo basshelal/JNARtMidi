@@ -90,7 +90,11 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         if (hasCallback)
             throw RtMidiPortException("Cannot set callback there is an existing callback registered, call removeCallback() to remove.")
         midiMessageCallback = callback
-        midiMessage = MidiMessage()
+        midiMessage = MidiMessage(0) // TODO: 23-Mar-2021 @basshelal: Remove this! Remain null until first received!
+        // TODO: 24-Mar-2021 @basshelal:
+        //  What if we received a big message then a small one?? midiMessage will still be large
+        //  to fix this we need an "end" pointer in MidiMessage to signify the end of the message, even if the internal
+        //  data is much larger
         cCallback = object : RtMidiCCallback {
             override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
                 // RealTimeCritical
@@ -132,6 +136,7 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     public fun ignoreTypes(midiSysex: Boolean, midiTime: Boolean, midiSense: Boolean) {
+        // TODO: 24-Mar-2021 @basshelal: What are each of these ignores? Test and document this!
         checkIsDestroyed()
         RtMidiLibrary.instance.rtmidi_in_ignore_types(ptr, midiSysex, midiTime, midiSense)
         checkErrors()
