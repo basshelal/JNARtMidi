@@ -5,10 +5,13 @@ import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.wait
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -156,11 +159,32 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Open Without PortInfo" {
-
+        ReadableMidiPort().apply {
+            info shouldBe null
+            isOpen shouldBe false
+            shouldThrow<RtMidiPortException> { open("Test Port $randomNumber") }
+            isOpen shouldBe false
+        }.destroy()
     }
 
     "Open With PortInfo" {
+        val portName = "Test Port $randomNumber"
+        val foundPortNameAsWritablePort = { writableMidiPortInfos.find { it.name.contains(portName) } }
+        readableMidiPortInfos.isEmpty() shouldBe false
+        val portInfo = readableMidiPortInfos.first()
+        ReadableMidiPort(portInfo).apply {
+            info shouldBe portInfo
+            isOpen shouldBe false
 
+            // should not find it as a writable port
+            foundPortNameAsWritablePort().shouldBeNull()
+
+            shouldNotThrow<RtMidiPortException> { open(portName) }
+            isOpen shouldBe true
+
+            // should find it as a writable port now
+            foundPortNameAsWritablePort().shouldNotBeNull()
+        }.destroy()
     }
 
     "Open Virtual".config(enabledIf = { supportsVirtualPorts(it) }) {
