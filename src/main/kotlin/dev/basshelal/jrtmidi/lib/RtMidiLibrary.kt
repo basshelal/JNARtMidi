@@ -40,12 +40,10 @@ internal interface RtMidiLibrary {
         internal val instance: RtMidiLibrary by lazy {
             try {
                 if (!RtMidi.Config.loaded) throw RtMidiException("RtMidi.Config.load() was not called!")
-                LibraryLoader.loadLibrary(
-                        RtMidiLibrary::class.java,
+                LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
                         mapOf(LIBRARY_NAME to RtMidiBuild.libPaths),
-                        LIBRARY_NAME
-                )
+                        LIBRARY_NAME)
             } catch (e: LinkageError) {
                 System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${RtMidiBuild.libPaths.joinToString()}")
                 throw e

@@ -41,17 +41,9 @@ internal fun isWindows() = platform.os == Platform.OS.WINDOWS
 
 internal object Reflect {
 
-    fun setOS(os: Platform.OS) = Platform::class.java.run {
-        val osField = getDeclaredField("os")
-        osField.isAccessible = true
-        osField.set(platform, os)
-    }
+    fun setOS(os: Platform.OS) = Platform::class.java.setField("os", os, platform)
 
-    fun setCPU(cpu: Platform.CPU) = Platform::class.java.run {
-        val cpuField = getDeclaredField("cpu")
-        cpuField.isAccessible = true
-        cpuField.set(platform, cpu)
-    }
+    fun setCPU(cpu: Platform.CPU) = Platform::class.java.setField("cpu", cpu, platform)
 
     fun setPlatform(os: Platform.OS, cpu: Platform.CPU) = run {
         setOS(os)
@@ -68,4 +60,10 @@ internal object Reflect {
             }
         }
     }
+}
+
+internal fun Class<*>.setField(fieldName: String, value: Any?, obj: Any?) {
+    val field = getDeclaredField(fieldName)
+    field.isAccessible = true
+    field.set(obj, value)
 }
