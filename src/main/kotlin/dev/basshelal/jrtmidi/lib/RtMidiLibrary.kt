@@ -30,8 +30,6 @@ internal interface RtMidiLibrary {
         /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"
 
-        internal val libPaths = mutableListOf<String>()
-
         /**
          * The instance of [RtMidiLibrary] that corresponds to the RtMidi Native Library with functions "implemented".
          * If this is used anywhere before calling [dev.basshelal.jnartmidi.api.RtMidi.addLibrarySearchPath]
@@ -45,11 +43,11 @@ internal interface RtMidiLibrary {
                 LibraryLoader.loadLibrary(
                         RtMidiLibrary::class.java,
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
-                        mapOf(LIBRARY_NAME to libPaths),
+                        mapOf(LIBRARY_NAME to RtMidiBuild.libPaths),
                         LIBRARY_NAME
                 )
             } catch (e: LinkageError) {
-                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${libPaths.joinToString()}")
+                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${RtMidiBuild.libPaths.joinToString()}")
                 throw e
             }
         }

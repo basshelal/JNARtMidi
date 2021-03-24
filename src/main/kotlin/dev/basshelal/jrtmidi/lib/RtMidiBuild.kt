@@ -25,6 +25,7 @@ internal object RtMidiBuild {
 
     internal val platform: Platform = Platform.getNativePlatform()
     internal val platformName: String = platform.run { "$os-$cpu" }
+    internal val libPaths = mutableListOf<String>()
 
     enum class Type {
         ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WINMM_X86_64,

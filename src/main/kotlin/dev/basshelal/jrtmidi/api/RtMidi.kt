@@ -97,9 +97,9 @@ public object RtMidi {
         @JvmStatic
         public fun load() {
             if (useBundledLibraries) {
-                RtMidiLibrary.libPaths.add("bin/${RtMidiBuild.buildPath}")
+                RtMidiBuild.libPaths.add("bin/${RtMidiBuild.buildPath}")
             } else {
-                RtMidiLibrary.libPaths.addAll(customRtMidiLibraryPaths)
+                RtMidiBuild.libPaths.addAll(customRtMidiLibraryPaths)
             }
             loaded = true
             RtMidiLibrary.instance // initializes instance
