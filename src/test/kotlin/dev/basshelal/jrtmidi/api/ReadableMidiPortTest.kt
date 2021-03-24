@@ -38,6 +38,8 @@ private val testWritablePortName = "Test virtual port: $randomNumber"
 private lateinit var testWritablePort: WritableMidiPort
 private lateinit var compiledApis: List<RtMidiApi>
 
+private val testPortInfo: MidiPort.Info? get() = readableMidiPortInfos.find { it.name.contains(testWritablePortName) }
+
 /** Tests [ReadableMidiPort] including its supertype [MidiPort] */
 internal class ReadableMidiPortTest : StringSpec({
 
@@ -75,10 +77,9 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "PortInfo only Constructor" {
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
-        ReadableMidiPort(portInfo).apply {
-            info shouldBe portInfo
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(testPortInfo).apply {
+            info shouldBe testPortInfo
             api shouldNotBe RtMidiApi.UNSPECIFIED
             api shouldBeIn compiledApis
             clientName shouldBe null
@@ -123,11 +124,10 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "PortInfo & Client Name Constructor" {
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
+        testPortInfo.shouldNotBeNull()
         val testClientName = "Test Client $randomNumber"
-        ReadableMidiPort(portInfo = portInfo, clientName = testClientName).apply {
-            info shouldBe portInfo
+        ReadableMidiPort(portInfo = testPortInfo, clientName = testClientName).apply {
+            info shouldBe testPortInfo
             api shouldNotBe RtMidiApi.UNSPECIFIED
             api shouldBeIn compiledApis
             clientName shouldBe testClientName
@@ -140,13 +140,12 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Full Constructor" {
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
+        testPortInfo.shouldNotBeNull()
         compiledApis.isEmpty() shouldBe false
         val testApi = compiledApis.first()
         val testClientName = "Test Client $randomNumber"
-        ReadableMidiPort(portInfo = portInfo, clientName = testClientName, api = testApi).apply {
-            info shouldBe portInfo
+        ReadableMidiPort(portInfo = testPortInfo, clientName = testClientName, api = testApi).apply {
+            info shouldBe testPortInfo
             api shouldBe testApi
             api shouldBeIn compiledApis
             clientName shouldBe testClientName
@@ -170,10 +169,9 @@ internal class ReadableMidiPortTest : StringSpec({
     "Open With PortInfo" {
         val portName = "Test Port $randomNumber"
         val foundPortNameAsWritablePort = { writableMidiPortInfos.find { it.name.contains(portName) } }
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
-        ReadableMidiPort(portInfo).apply {
-            info shouldBe portInfo
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(testPortInfo).apply {
+            info shouldBe testPortInfo
             isOpen shouldBe false
 
             // should not find it as a writable port
@@ -184,6 +182,7 @@ internal class ReadableMidiPortTest : StringSpec({
 
             // should find it as a writable port now
             foundPortNameAsWritablePort().shouldNotBeNull()
+            // TODO: 24-Mar-2021 @basshelal: Darwin fails above because the opened port was virtual
         }.destroy()
     }
 
@@ -196,9 +195,8 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Close" {
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
-        ReadableMidiPort(portInfo = portInfo).apply {
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = testPortInfo).apply {
             isOpen shouldBe false
             open("Test Port name $randomNumber")
             isOpen shouldBe true
@@ -212,9 +210,8 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Destroy" {
-        readableMidiPortInfos.isEmpty() shouldBe false
-        val portInfo = readableMidiPortInfos.first()
-        ReadableMidiPort(portInfo = portInfo).apply {
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = testPortInfo).apply {
             isDestroyed shouldBe false
             open("Test Port name $randomNumber")
             isOpen shouldBe true
@@ -246,9 +243,8 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Set Callback & Remove Callback" {
-        val portInfo = readableMidiPortInfos.find { it.name.contains(testWritablePortName) }
-        portInfo.shouldNotBeNull()
-        ReadableMidiPort(portInfo = portInfo).apply {
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = testPortInfo).apply {
             hasCallback shouldBe false
             val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
             val receivedMessage = MidiMessage(size = 0)
@@ -280,9 +276,8 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Ignore Types" {
-        val portInfo = readableMidiPortInfos.find { it.name.contains(testWritablePortName) }
-        portInfo.shouldNotBeNull()
-        ReadableMidiPort(portInfo = portInfo).apply {
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(portInfo = testPortInfo).apply {
             val messageToSend = MidiMessage(byteArrayOf(MidiMessage.TIMING_CLOCK))
             val receivedMessage = MidiMessage(size = 0)
             ignoreTypes(midiSysex = true, midiTime = true, midiSense = true)
