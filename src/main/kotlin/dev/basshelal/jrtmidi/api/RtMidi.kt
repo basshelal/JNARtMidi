@@ -104,15 +104,16 @@ public object RtMidi {
 
         @JvmStatic
         public fun load() {
-            if (useBundledLibraries) RtMidiBuild.libPaths.add("bin/${RtMidiBuild.buildPath}")
-            else RtMidiBuild.libPaths.addAll(customRtMidiLibraryPaths)
+            val libPaths = mutableListOf<String>()
+            if (useBundledLibraries) libPaths.add("bin/${RtMidiBuild.buildPath}")
+            else libPaths.addAll(customRtMidiLibraryPaths)
             library = try {
                 LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
-                        mapOf(RtMidiLibrary.LIBRARY_NAME to RtMidiBuild.libPaths),
+                        mapOf(RtMidiLibrary.LIBRARY_NAME to libPaths),
                         RtMidiLibrary.LIBRARY_NAME)
             } catch (e: LinkageError) {
-                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${RtMidiBuild.libPaths.joinToString()}")
+                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${libPaths.joinToString()}")
                 throw e
             }
             loaded = true

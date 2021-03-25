@@ -186,11 +186,11 @@ internal class ReadableMidiPortTest : StringSpec({
         }.destroy()
     }
 
-    "Open Virtual".config(enabledIf = { supportsVirtualPorts(it) }) {
+    "Open Virtual".config(enabledIf = ::supportsVirtualPorts) {
 
     }
 
-    "Open Port After Info Index Change".config(enabledIf = { supportsVirtualPorts(it) }) {
+    "Open Port After Info Index Change".config(enabledIf = ::supportsVirtualPorts) {
 
     }
 

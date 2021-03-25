@@ -8,35 +8,35 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 
-/**
- * Tests [MidiMessage]
- * @author Bassam Helal
- */
+/** Tests [MidiMessage] */
 internal class MidiMessageTest : StringSpec({
     beforeSpec { defaultBeforeAll() }
 
     afterSpec { }
 
     "Empty Constructor" {
-        val midiMessage = MidiMessage()
-        midiMessage.data.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
-        midiMessage.data.forEach { it shouldBe 0 }
+        MidiMessage().apply {
+            data.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
+            data.forEach { it shouldBe 0 }
+        }
     }
 
     "Size Constructor" {
         val size = 9
-        val midiMessage = MidiMessage(size)
-        midiMessage.data.size shouldBe size
-        midiMessage.data.forEach { it shouldBe 0 }
+        MidiMessage(size).apply {
+            data.size shouldBe size
+            data.forEach { it shouldBe 0 }
+        }
     }
 
     "Array Constructor" {
         val size = 7
         val array = ByteArray(size) { it.toByte() }
-        val midiMessage = MidiMessage(array)
-        midiMessage.data.size shouldBe size
-        midiMessage.data shouldBe array
-        midiMessage.data shouldNotBeSameInstanceAs array
+        MidiMessage(array).apply {
+            data.size shouldBe size
+            data shouldBe array
+            data shouldNotBeSameInstanceAs array
+        }
     }
 
     "MidiMessage Constructor" {

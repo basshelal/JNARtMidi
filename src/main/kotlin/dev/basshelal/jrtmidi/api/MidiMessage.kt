@@ -20,6 +20,11 @@ class MidiMessage
     var data: ByteArray = ByteArray(size)
         private set
 
+    // TODO: 24-Mar-2021 @basshelal: We need an end of data pointer! This can be size, or something else,
+    //  so that we can fill a large midiMessage with fewer values and the outside world will see it as small
+    //  like when we receive a size 3 message then a size 1 message, the message should be of size 1,
+    //  not 3 even though it's 3 internally (for performance), outside world should regard it as 1 because we resized
+
     /**
      * Gets or sets the size of this [MidiMessage],
      * resizing this [MidiMessage] will reset the contents unless the requested size is equal to the current size

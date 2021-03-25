@@ -195,7 +195,7 @@ abstract class MidiPort<P : RtMidiPtr> {
     public data class Info
     internal constructor(val name: String, val type: Type, internal var index: Int) {
 
-        override fun toString(): String = "name = '$name', index = $index, type = $type"
+        override fun toString(): String = "name = '$name', type = $type, index = $index"
 
         enum class Type {
             READABLE, WRITABLE, UNKNOWN
