@@ -1,12 +1,19 @@
+@file:Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
+
 package dev.basshelal.jrtmidi.api
 
+import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.throwables.shouldThrowUnit
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import java.util.Arrays
+import kotlin.random.Random
+
+private fun randomBytes(size: Int) = Random.nextBytes(size)
 
 /** Tests [MidiMessage] */
 internal class MidiMessageTest : StringSpec({
@@ -17,7 +24,10 @@ internal class MidiMessageTest : StringSpec({
     "Empty Constructor" {
         MidiMessage().apply {
             data.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
+            this.size shouldBe MidiMessage.DEFAULT_DATA_SIZE
+            this shouldHaveSize MidiMessage.DEFAULT_DATA_SIZE
             data.forEach { it shouldBe 0 }
+            this.forEach { it shouldBe 0 }
         }
     }
 
@@ -25,104 +35,116 @@ internal class MidiMessageTest : StringSpec({
         val size = 9
         MidiMessage(size).apply {
             data.size shouldBe size
+            this.size shouldBe size
+            this shouldHaveSize size
             data.forEach { it shouldBe 0 }
+            this.forEach { it shouldBe 0 }
         }
     }
 
     "Array Constructor" {
-        val size = 7
-        val array = ByteArray(size) { it.toByte() }
+        val size = 9
+        val array = randomBytes(size)
         MidiMessage(array).apply {
             data.size shouldBe size
+            this.size shouldBe size
+            this shouldHaveSize size
             data shouldBe array
             data shouldNotBeSameInstanceAs array
         }
     }
 
     "MidiMessage Constructor" {
-        val midiMessage = MidiMessage(ByteArray(7) { it.toByte() })
-        val newMidiMessage = MidiMessage(midiMessage)
-        midiMessage.data.size shouldBe newMidiMessage.data.size
-        midiMessage.data shouldBe newMidiMessage.data
-        midiMessage.data shouldNotBeSameInstanceAs newMidiMessage.data
-        midiMessage shouldBe midiMessage
+        val midiMessage = MidiMessage(randomBytes(9))
+        val newMessage = MidiMessage(midiMessage)
+        newMessage.data.size shouldBe midiMessage.data.size
+        newMessage.size shouldBe midiMessage.size
+        newMessage.data shouldBe midiMessage.data
+        newMessage.data shouldNotBeSameInstanceAs midiMessage.data
+        newMessage shouldBe midiMessage
+        newMessage shouldNotBeSameInstanceAs midiMessage
     }
 
     "Operator functions Set & Get" {
         val size = 9
-        val value = 100
+        val value = 100.toByte()
         val midiMessage = MidiMessage(size)
         midiMessage[0] = value
         midiMessage[8] = value
-        shouldThrowUnit<IndexOutOfBoundsException> {
-            midiMessage[9] = value
-        }
-        midiMessage[0].toInt() shouldBe value
-        midiMessage[8].toInt() shouldBe value
-        shouldThrow<IndexOutOfBoundsException> {
-            midiMessage[9]
+        midiMessage[0] shouldBe value
+        midiMessage[8] shouldBe value
+        allShouldThrow<IndexOutOfBoundsException>(
+                listOf({ midiMessage[9] = value }, { midiMessage[9] })
+        )
+    }
+
+    "Increase Size" {
+        var size = 9
+        MidiMessage(size).apply {
+            this.size shouldBe size
+            data.size shouldBe size
+            dataCopy.size shouldBe size
+            size = 100
+            this.size = size
+            size shouldBe size
+            data.size shouldBe size
+            dataCopy.size shouldBe size
         }
     }
 
-    "Size" {
-        var size = 9
-        val midiMessage = MidiMessage(size)
-        midiMessage.size shouldBe size
-        size = 100
-        midiMessage.size = size
-        midiMessage.size shouldBe size
-        midiMessage.data.size shouldBe size
+    "Decrease Size" {
+        var size = 100
+        MidiMessage(size).apply {
+            this.size shouldBe size
+            data.size shouldBe size
+            dataCopy.size shouldBe size
+            size = 10
+            this.size = size
+            this.size shouldBe size
+            data.size shouldNotBe size
+            dataCopy.size shouldBe size
+        }
     }
 
     "Set Data" {
         val default = ByteArray(MidiMessage.DEFAULT_DATA_SIZE)
-        val midiMessage = MidiMessage()
-        val data = byteArrayOf(0, 1, 2, 3, 4)
-        midiMessage.data shouldBe default
-        midiMessage.setData(data)
-        midiMessage.data shouldBe data
-        midiMessage.data shouldNotBeSameInstanceAs data
-        midiMessage.setData(default, 3)
-        default.copyInto(data, endIndex = 3)
-        midiMessage.data shouldBe data
+        val data = randomBytes(9)
+        MidiMessage().apply {
+            this.data shouldBe default
+            setData(data)
+            this.data shouldBe data
+            this.data shouldNotBeSameInstanceAs data
+            setData(default, 3)
+            this.data shouldBe default.copyInto(data, endIndex = 3)
+        }
     }
 
     "Set Data From MidiMessage" {
-        val data = byteArrayOf(0, 1, 2, 3, 4)
+        val data = randomBytes(9)
         val midiMessage = MidiMessage(data)
-        val copy = MidiMessage()
-        copy.data shouldNotBe data
-        copy.setDataFrom(midiMessage)
-        copy.data shouldBe data
-        copy.data shouldBe midiMessage.data
-        copy.data shouldNotBeSameInstanceAs data
-        copy.data shouldNotBeSameInstanceAs midiMessage.data
-    }
-
-    "Modify data" {
-        val value = 69
-        val midiMessage = MidiMessage(2)
-        midiMessage.data[0] = value.toByte()
-        midiMessage[0].toInt() shouldBe value
-        midiMessage[1].toInt() shouldBe 0
+        MidiMessage().apply {
+            this.data shouldNotBe data
+            this.setData(midiMessage)
+            this.data shouldBe data
+            this.data shouldBe midiMessage.data
+            this.data shouldNotBeSameInstanceAs data
+            this.data shouldNotBeSameInstanceAs midiMessage.data
+        }
     }
 
     "Get Data Copies" {
-        val data = byteArrayOf(0, 1, 2, 3, 4)
+        val data = randomBytes(9)
         val midiMessage = MidiMessage(data)
         midiMessage.data shouldBe data
         midiMessage.data shouldNotBeSameInstanceAs data
         midiMessage.data shouldBe midiMessage.dataCopy
         midiMessage.data shouldNotBeSameInstanceAs midiMessage.dataCopy
 
-        var copyBuffer = ByteArray(0)
-        shouldThrow<IllegalArgumentException> {
-            midiMessage.getDataCopy(copyBuffer)
-        }
-        copyBuffer = ByteArray(data.size * 2)
+        shouldThrow<IllegalArgumentException> { midiMessage.getDataCopy(ByteArray(0)) }
+        val copyBuffer = ByteArray(midiMessage.size * 2)
         midiMessage.getDataCopy(copyBuffer)
-        midiMessage.data.forEachIndexed { index, it -> copyBuffer[index] shouldBe it }
-        copyBuffer.size shouldNotBe data.size
+        Arrays.equals(midiMessage.data, 0, midiMessage.size, copyBuffer, 0, midiMessage.size) shouldBe true
+        copyBuffer.size shouldNotBe midiMessage.size
         copyBuffer[data.lastIndex + 1] shouldBe 0
     }
 

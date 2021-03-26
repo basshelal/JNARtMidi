@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 /** Tests [WritableMidiPort] including its supertype [MidiPort] */
 internal class WritableMidiPortTest : StringSpec({
-    
+
     beforeSpec { defaultBeforeAll() }
 
     afterSpec { }
@@ -253,7 +253,7 @@ internal class WritableMidiPortTest : StringSpec({
         val readablePort = ReadableMidiPort(foundReadableInfo)
         readablePort.open(readablePortName)
         readablePort.setCallback(MidiMessageCallback { message: MidiMessage ->
-            receivedMessage.setDataFrom(message)
+            receivedMessage.setData(message)
         })
 
         writablePort.sendMessage(midiMessage)
@@ -298,7 +298,7 @@ internal class WritableMidiPortTest : StringSpec({
         val readablePort = ReadableMidiPort(foundReadableInfo)
         readablePort.open(readablePortName)
         readablePort.setCallback(MidiMessageCallback { message: MidiMessage ->
-            receivedMessage.setDataFrom(message)
+            receivedMessage.setData(message)
         })
 
         // close and try to send

@@ -248,7 +248,7 @@ internal class ReadableMidiPortTest : StringSpec({
             hasCallback shouldBe false
             val messageToSend = MidiMessage(byteArrayOf(MidiMessage.NOTE_ON, 69, 69))
             val receivedMessage = MidiMessage(size = 0)
-            setCallback(MidiMessageCallback { message -> receivedMessage.setDataFrom(message) })
+            setCallback(MidiMessageCallback { message -> receivedMessage.setData(message) })
             hasCallback shouldBe true
             open("Readable Port $randomNumber")
             isOpen shouldBe true
@@ -281,13 +281,13 @@ internal class ReadableMidiPortTest : StringSpec({
             val messageToSend = MidiMessage(byteArrayOf(MidiMessage.TIMING_CLOCK))
             val receivedMessage = MidiMessage(size = 0)
             ignoreTypes(midiSysex = true, midiTime = true, midiSense = true)
-            setCallback(MidiMessageCallback { message -> receivedMessage.setDataFrom(message) })
+            setCallback(MidiMessageCallback { message -> receivedMessage.setData(message) })
             open("Readable Port $randomNumber")
             testWritablePort.sendMessage(messageToSend)
             waitToReceiveMessage()
             receivedMessage shouldNotBe messageToSend
             midiMessage shouldNotBe messageToSend
-            //     midiMessage shouldBe null // TODO: 23-Mar-2021 @basshelal: Uncomment when fixed
+            midiMessage shouldBe null
 
             // don't ignore
             ignoreTypes(midiSysex = false, midiTime = false, midiSense = false)

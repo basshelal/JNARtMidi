@@ -1,4 +1,9 @@
+@file:Suppress("unused", "ReplaceJavaStaticMethodWithKotlinAnalog")
+
 package dev.basshelal.jrtmidi.api
+
+import java.util.Arrays
+import java.util.Objects
 
 /**
  * Represents a MIDI message of arbitrary size, wraps a [ByteArray] in [data].
@@ -9,7 +14,7 @@ package dev.basshelal.jrtmidi.api
  * @author Bassam Helal
  */
 class MidiMessage
-@JvmOverloads constructor(size: Int = DEFAULT_DATA_SIZE) {
+@JvmOverloads constructor(size: Int = DEFAULT_DATA_SIZE) : Iterable<Byte> {
 
     /**
      * @return the [ByteArray] backing this [MidiMessage]
@@ -20,21 +25,16 @@ class MidiMessage
     var data: ByteArray = ByteArray(size)
         private set
 
-    // TODO: 24-Mar-2021 @basshelal: We need an end of data pointer! This can be size, or something else,
-    //  so that we can fill a large midiMessage with fewer values and the outside world will see it as small
-    //  like when we receive a size 3 message then a size 1 message, the message should be of size 1,
-    //  not 3 even though it's 3 internally (for performance), outside world should regard it as 1 because we resized
-
     /**
      * Gets or sets the size of this [MidiMessage],
      * resizing this [MidiMessage] will reset the contents unless the requested size is equal to the current size
      * in which case nothing happens
      */
-    var size: Int
-        get() = data.size
+    var size: Int = size
         set(value) {
             require(value >= 0) { "Size cannot be less than 0: $value" }
-            if (value != data.size) data = ByteArray(value)
+            if (data.size < value) data = ByteArray(value) { if (it in data.indices) data[it] else 0 }
+            field = value
         }
 
     /** Create a new [MidiMessage] with the data initialized from the passed in array */
@@ -43,17 +43,14 @@ class MidiMessage
     }
 
     /** Create a new [MidiMessage] from the data of another [midiMessage] */
-    constructor(midiMessage: MidiMessage) : this(midiMessage.data)
-
-    init {
-        this.size = size
-    }
+    constructor(midiMessage: MidiMessage) : this(midiMessage.dataCopy)
 
     /**
      * Sets the value at [index] to [value]
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     operator fun set(index: Int, value: Byte) {
+        boundsCheck(index)
         data[index] = value
     }
 
@@ -67,7 +64,10 @@ class MidiMessage
      * @return the value at [index]
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
-    operator fun get(index: Int): Byte = data[index]
+    operator fun get(index: Int): Byte {
+        boundsCheck(index)
+        return data[index]
+    }
 
     /**
      * Copies the data from [data] until [length] into this [MidiMessage]'s data
@@ -75,7 +75,7 @@ class MidiMessage
      */
     fun setData(data: ByteArray, length: Int) {
         if (length < 0 || length > data.size) throw IndexOutOfBoundsException("Length out of bounds: $length")
-        if (this.data.size < length) this.data = ByteArray(length)
+        if (this.size < length) this.size = length
         data.copyInto(this.data, endIndex = length)
     }
 
@@ -83,28 +83,42 @@ class MidiMessage
     fun setData(data: ByteArray) = this.setData(data, data.size)
 
     /** Copies the data from [midiMessage] into this [MidiMessage] without modifying [midiMessage]'s data */
-    fun setDataFrom(midiMessage: MidiMessage) = this.setData(midiMessage.data)
+    fun setData(midiMessage: MidiMessage) = this.setData(midiMessage.dataCopy)
 
     /**
      * @return a *copy* of the [data] of this [MidiMessage] into the passed in [buffer]
      * @throws IllegalArgumentException if the passed in [buffer]'s length is less than this [size]
      */
     fun getDataCopy(buffer: ByteArray): ByteArray {
-        require(buffer.size >= data.size) {
-            "Passed in buffer is not large enough to contain data, buffer length: ${buffer.size} data size: ${data.size}"
+        require(buffer.size >= size) {
+            "Passed in buffer is not large enough to contain message, " +
+                    "buffer length: ${buffer.size} message size: ${data.size}"
         }
-        return data.copyInto(buffer)
+        return data.copyInto(buffer, endIndex = size)
     }
 
     /** Gets a *copy* of the [data] in this [MidiMessage] */
-    val dataCopy: ByteArray
-        get() = this.getDataCopy(ByteArray(data.size))
+    val dataCopy: ByteArray get() = this.getDataCopy(ByteArray(size))
 
-    override fun hashCode(): Int = data.contentHashCode()
+    private fun boundsCheck(index: Int) {
+        if (index + 1 > size)
+            throw IndexOutOfBoundsException("Passed in index: $index, greater than MidiMessage size of: $size" +
+                    "\nGrow MidiMessage size by calling MidiMessage.setSize()")
+    }
 
-    override fun equals(other: Any?): Boolean = other is MidiMessage && this.data contentEquals other.data
+    override fun iterator() = object : Iterator<Byte> {
+        var index: Int = 0
+        override fun hasNext(): Boolean = index < size
+        override fun next(): Byte = data[index++]
+    }
 
-    override fun toString(): String = "MidiMessage: ${data.contentToString()}"
+    override fun hashCode(): Int = Objects.hash(this)
+
+    override fun equals(other: Any?): Boolean = other is MidiMessage &&
+            this.size == other.size &&
+            Arrays.equals(this.data, 0, size, other.data, 0, size)
+
+    override fun toString(): String = "MidiMessage: [${this.joinToString()}]"
 
     companion object {
 
