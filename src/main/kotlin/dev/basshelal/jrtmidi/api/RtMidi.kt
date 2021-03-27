@@ -92,7 +92,7 @@ public object RtMidi {
         private var useBundledLibraries: Boolean = true
 
         // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
-        private var customRtMidiLibraryPaths: MutableList<String> = mutableListOf()
+        private var customLibraryPaths: MutableList<String> = mutableListOf()
 
         // Do not use a build with JACK even if JACK exists on the system, because if a JACK server is not found, you
         // cannot do anything, use JNAJack to interact with JACK on the JVM
@@ -106,7 +106,7 @@ public object RtMidi {
         public fun load() {
             val libPaths = mutableListOf<String>()
             if (useBundledLibraries) libPaths.add("bin/${RtMidiBuild.buildPath}")
-            else libPaths.addAll(customRtMidiLibraryPaths)
+            else libPaths.addAll(customLibraryPaths)
             library = try {
                 LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
@@ -129,6 +129,6 @@ public object RtMidi {
         internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
         @JvmStatic // Experimental
-        internal fun customRtMidiLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customRtMidiLibraryPaths = value }
+        internal fun customLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customLibraryPaths = value }
     }
 }

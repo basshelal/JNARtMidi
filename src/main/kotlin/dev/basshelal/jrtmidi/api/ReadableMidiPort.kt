@@ -93,12 +93,11 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
         cCallback = object : RtMidiCCallback {
             override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
                 // RealTimeCritical
-                if (message == null || messageSize == null) return  // prevent NPE or worse segfault
+                if (message == null || messageSize == null) return  // prevent NPE or worse, segfault!
                 val size = messageSize.toInt()
-                if (midiMessage == null) midiMessage = MidiMessage()
+                if (midiMessage == null) midiMessage = MidiMessage() // happens only once, upon first received message
                 midiMessage?.also { midiMessage ->
-                    // rare but necessary memalloc in RealTimeCritical code
-                    midiMessage.size = size
+                    midiMessage.size = size // possible memalloc in RealTimeCritical code, rare but necessary
                     for (i in 0 until size) midiMessage[i] = message.getByte(i.toLong())
                     midiMessageCallback?.onMessage(midiMessage, timeStamp)
                 }
