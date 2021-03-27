@@ -49,7 +49,7 @@ class RtMidiApi private constructor(api: Int) {
          * otherwise if none was found [RtMidiApi.UNSPECIFIED]
          */
         @JvmStatic
-        fun fromInt(api: Int): RtMidiApi = when (api) {
+        internal fun fromInt(api: Int): RtMidiApi = when (api) {
             RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE -> MACOSX_CORE
             RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA -> LINUX_ALSA
             RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK -> UNIX_JACK

@@ -12,7 +12,7 @@ private var lib: RtMidiLibrary? = null
 internal var library: RtMidiLibrary
     /** Set in [dev.basshelal.jrtmidi.api.RtMidi.Config.load] */
     set(value) = run { lib = value }
-    get() = lib ?: throw RtMidiException("Library not initialized! Did you forget to call RtMidi.Config.load() ?")
+    get() = lib ?: throw RtMidiException("Library not loaded! Did you forget to call RtMidi.Config.load() ?")
 
 /**
  * [JNA Direct mapping](https://github.com/java-native-access/jna/blob/master/www/DirectMapping.md)
