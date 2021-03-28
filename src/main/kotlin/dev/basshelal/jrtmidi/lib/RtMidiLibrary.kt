@@ -28,6 +28,8 @@ internal var library: RtMidiLibrary
 @jnr.ffi.annotations.IgnoreError
 internal interface RtMidiLibrary {
 
+    // TODO: 28-Mar-2021 @basshelal: Add a library wrapper instead of using this directly!
+
     companion object {
         /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"

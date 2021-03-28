@@ -25,6 +25,7 @@ open class RtMidiPtr(rt: Runtime) : Struct(rt) {
     /** C type : const char* */
     @JvmField
     internal val msg: String = AsciiString(16)
+    // TODO: 28-Mar-2021 @basshelal: Convert to Pointer!
 }
 
 /** Used for functions expecting an in device like [RtMidiLibrary.rtmidi_in_free] */
