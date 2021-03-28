@@ -180,9 +180,10 @@ internal class ReadableMidiPortTest : StringSpec({
             shouldNotThrow<RtMidiPortException> { open(portName) }
             isOpen shouldBe true
 
-            // should find it as a writable port now
-            foundPortNameAsWritablePort().shouldNotBeNull()
-            // TODO: 24-Mar-2021 @basshelal: Darwin fails above because the opened port was virtual
+            if (!testWritablePort.isVirtual) {
+                // should find it as a writable port now
+                foundPortNameAsWritablePort().shouldNotBeNull()
+            }
         }.destroy()
     }
 
