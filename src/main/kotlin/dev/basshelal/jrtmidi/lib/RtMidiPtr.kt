@@ -24,8 +24,7 @@ open class RtMidiPtr(rt: Runtime) : Struct(rt) {
 
     /** C type : const char* */
     @JvmField
-    internal val msg: String = AsciiString(16)
-    // TODO: 28-Mar-2021 @basshelal: Convert to Pointer!
+    internal val msg: Pointer = Pointer() // use extension function for a kotlin.String
 }
 
 /** Used for functions expecting an in device like [RtMidiLibrary.rtmidi_in_free] */
@@ -33,3 +32,5 @@ class RtMidiInPtr(rt: Runtime) : RtMidiPtr(rt)
 
 /** Used for functions expecting an out device like [RtMidiLibrary.rtmidi_out_free] */
 class RtMidiOutPtr(rt: Runtime) : RtMidiPtr(rt)
+
+internal inline val RtMidiPtr.message: String get() = msg.get().getString(0L)

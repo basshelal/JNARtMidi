@@ -4,8 +4,6 @@ package dev.basshelal.jrtmidi.lib
 
 import dev.basshelal.jrtmidi.api.RtMidiException
 import jnr.ffi.Pointer
-import jnr.ffi.annotations.Delegate
-import jnr.ffi.types.size_t
 
 private var lib: RtMidiLibrary? = null
 
@@ -28,48 +26,9 @@ internal var library: RtMidiLibrary
 @jnr.ffi.annotations.IgnoreError
 internal interface RtMidiLibrary {
 
-    // TODO: 28-Mar-2021 @basshelal: Add a library wrapper instead of using this directly!
-
     companion object {
         /** The name of the native shared library */
         const val LIBRARY_NAME = "rtmidi"
-    }
-
-    //=============================================================================================
-    //====================================     Types     ==========================================
-    //=============================================================================================
-
-    /** MIDI API specifier arguments. See RtMidi::Api */
-    object RtMidiApi {
-        /** Search for a working compiled API */
-        const val RTMIDI_API_UNSPECIFIED = 0
-
-        /** Macintosh OS-X CoreMIDI API */
-        const val RTMIDI_API_MACOSX_CORE = 1
-
-        /** The Advanced Linux Sound Architecture API */
-        const val RTMIDI_API_LINUX_ALSA = 2
-
-        /** The Jack Low-Latency MIDI Server API */
-        const val RTMIDI_API_UNIX_JACK = 3
-
-        /** The Microsoft Multimedia MIDI API */
-        const val RTMIDI_API_WINDOWS_MM = 4
-
-        /** A compilable but non-functional API */
-        const val RTMIDI_API_RTMIDI_DUMMY = 5
-
-        /** Number of values in this enum */
-        const val RTMIDI_API_NUM = 6
-    }
-
-    /**
-     * typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message, size_t messageSize, void* userData)
-     */
-    @jnr.ffi.annotations.IgnoreError
-    interface RtMidiCCallback {
-        @Delegate
-        operator fun invoke(timeStamp: Double, message: Pointer?, @size_t messageSize: Long?, userData: Pointer?)
     }
 
     //=============================================================================================
@@ -79,12 +38,12 @@ internal interface RtMidiLibrary {
     /**
      * Determine the available compiled MIDI APIs.
      * If the given `apis` parameter is `null`, returns the number of available APIs.
-     * Otherwise, fill the given `apis` array with the [RtMidiApi] values.
+     * Otherwise, fill the given `apis` array with the [RtMidiApis] values.
      *
      * Original signature : `int rtmidi_get_compiled_api(RtMidiApi*, unsigned int)`
      *
      * @param apis An array to be filled or `null`,
-     * ensure the array is at least [RtMidiApi.RTMIDI_API_NUM] in size.
+     * ensure the array is at least [RtMidiApis.RTMIDI_API_NUM] in size.
      * @param apis_size size of the passed in array `apis`, ignored if `apis` is `null`
      * @return number of items needed for `apis` array if `apis == null`, or
      * number of items written to `apis` array otherwise.
@@ -96,13 +55,13 @@ internal interface RtMidiLibrary {
      * See RtMidi::getApiName()
      * Original signature : `char* rtmidi_api_name(RtMidiApi)`
      */
-    fun rtmidi_api_name(api: Int): String
+    fun rtmidi_api_name(api: RtMidiApi): String
 
     /**
      * See RtMidi::getApiDisplayName()
      * Original signature : `char* rtmidi_api_display_name(RtMidiApi)`
      */
-    fun rtmidi_api_display_name(api: Int): String
+    fun rtmidi_api_display_name(api: RtMidiApi): String
 
     /**
      * Open a MIDI port
@@ -157,7 +116,7 @@ internal interface RtMidiLibrary {
      * Create a [RtMidiInPtr] value, with given api, clientName and queueSizeLimit.
      * Original signature : `RtMidiInPtr rtmidi_in_create(RtMidiApi, const char*, unsigned int)`<br></br>
      *
-     * @param api An [RtMidiApi] to use or 0 ie [RtMidiApi.RTMIDI_API_UNSPECIFIED] to let RtMidi choose the first
+     * @param api An [RtMidiApis] to use or 0 ie [RtMidiApis.RTMIDI_API_UNSPECIFIED] to let RtMidi choose the first
      * suitable API
      * @param clientName Non null client name, this will be used to group the ports that are created by the
      * application
@@ -175,7 +134,7 @@ internal interface RtMidiLibrary {
     //  The only thing we can do is allow it to flood our output, a solution would be to have the error logging be
     //  conditional in the C++ code so that a version can be built where this will be silent
     //  I have created an issue on RtMidi's GitHub about this
-    fun rtmidi_in_create(api: Int, clientName: String, queueSizeLimit: Int): RtMidiInPtr
+    fun rtmidi_in_create(api: RtMidiApi, clientName: String, queueSizeLimit: Int): RtMidiInPtr
 
     /**
      * Free the given [RtMidiInPtr].
@@ -231,7 +190,7 @@ internal interface RtMidiLibrary {
      * See RtMidiOut::RtMidiOut()
      * Original signature : `RtMidiOutPtr rtmidi_out_create(RtMidiApi, const char*)`
      */
-    fun rtmidi_out_create(api: Int, clientName: String): RtMidiOutPtr
+    fun rtmidi_out_create(api: RtMidiApi, clientName: String): RtMidiOutPtr
 
     /**
      * Free the given [RtMidiOutPtr].

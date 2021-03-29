@@ -1,5 +1,6 @@
 package dev.basshelal.jrtmidi.api
 
+import dev.basshelal.jrtmidi.lib.RtMidiApis
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.library
 import java.util.Objects
@@ -22,27 +23,27 @@ class RtMidiApi private constructor(api: Int) {
          * this tells RtMidi to choose the first working API it finds
          */
         @JvmField
-        val UNSPECIFIED = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED)
+        val UNSPECIFIED = RtMidiApi(RtMidiApis.RTMIDI_API_UNSPECIFIED)
 
         /** Macintosh OS-X CoreMIDI API */
         @JvmField
-        val MACOSX_CORE = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE)
+        val MACOSX_CORE = RtMidiApi(RtMidiApis.RTMIDI_API_MACOSX_CORE)
 
         /** The Advanced Linux Sound Architecture API */
         @JvmField
-        val LINUX_ALSA = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA)
+        val LINUX_ALSA = RtMidiApi(RtMidiApis.RTMIDI_API_LINUX_ALSA)
 
         /** The Jack Low-Latency MIDI Server API */
         @JvmField
-        val UNIX_JACK = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK)
+        val UNIX_JACK = RtMidiApi(RtMidiApis.RTMIDI_API_UNIX_JACK)
 
         /** The Microsoft Multimedia MIDI API */
         @JvmField
-        val WINDOWS_MM = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM)
+        val WINDOWS_MM = RtMidiApi(RtMidiApis.RTMIDI_API_WINDOWS_MM)
 
         /** A compilable but non-functional API */
         @JvmField
-        val RTMIDI_DUMMY = RtMidiApi(RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY)
+        val RTMIDI_DUMMY = RtMidiApi(RtMidiApis.RTMIDI_API_RTMIDI_DUMMY)
 
         /**
          * @return the [RtMidiApi] corresponding to the given [api] such that its number will equal [api],
@@ -50,17 +51,17 @@ class RtMidiApi private constructor(api: Int) {
          */
         @JvmStatic
         internal fun fromInt(api: Int): RtMidiApi = when (api) {
-            RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE -> MACOSX_CORE
-            RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA -> LINUX_ALSA
-            RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK -> UNIX_JACK
-            RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM -> WINDOWS_MM
-            RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY -> RTMIDI_DUMMY
+            RtMidiApis.RTMIDI_API_MACOSX_CORE -> MACOSX_CORE
+            RtMidiApis.RTMIDI_API_LINUX_ALSA -> LINUX_ALSA
+            RtMidiApis.RTMIDI_API_UNIX_JACK -> UNIX_JACK
+            RtMidiApis.RTMIDI_API_WINDOWS_MM -> WINDOWS_MM
+            RtMidiApis.RTMIDI_API_RTMIDI_DUMMY -> RTMIDI_DUMMY
             else -> UNSPECIFIED
         }
     }
 
     /**
-     * The number of this [RtMidiApi] as used internally by RtMidi, see [RtMidiLibrary.RtMidiApi]
+     * The number of this [RtMidiApi] as used internally by RtMidi, see [RtMidiLibrary.RtMidiApis]
      */
     val number: Int = api
 

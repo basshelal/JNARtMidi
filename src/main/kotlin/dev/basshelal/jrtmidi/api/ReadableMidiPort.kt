@@ -2,8 +2,8 @@
 
 package dev.basshelal.jrtmidi.api
 
+import dev.basshelal.jrtmidi.lib.RtMidiCCallback
 import dev.basshelal.jrtmidi.lib.RtMidiInPtr
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary.RtMidiCCallback
 import dev.basshelal.jrtmidi.lib.library
 import jnr.ffi.Pointer
 

@@ -1,7 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.lib.RtMidiLibrary
+import dev.basshelal.jrtmidi.lib.RtMidiApis
 import dev.basshelal.jrtmidi.lib.library
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -18,7 +18,7 @@ internal class RtMidiApiTest : StringSpec({
     afterSpec { }
 
     "Unspecified" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNSPECIFIED
+        val number = RtMidiApis.RTMIDI_API_UNSPECIFIED
         val api = RtMidiApi.UNSPECIFIED
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -27,7 +27,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "MacOSX Core" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_MACOSX_CORE
+        val number = RtMidiApis.RTMIDI_API_MACOSX_CORE
         val api = RtMidiApi.MACOSX_CORE
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -36,7 +36,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "Linux ALSA" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_LINUX_ALSA
+        val number = RtMidiApis.RTMIDI_API_LINUX_ALSA
         val api = RtMidiApi.LINUX_ALSA
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -45,7 +45,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "Unix JACK" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_UNIX_JACK
+        val number = RtMidiApis.RTMIDI_API_UNIX_JACK
         val api = RtMidiApi.UNIX_JACK
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -54,7 +54,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "Windows MM" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_WINDOWS_MM
+        val number = RtMidiApis.RTMIDI_API_WINDOWS_MM
         val api = RtMidiApi.WINDOWS_MM
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -63,7 +63,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "RTMidi Dummy"{
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY
+        val number = RtMidiApis.RTMIDI_API_RTMIDI_DUMMY
         val api = RtMidiApi.RTMIDI_DUMMY
         api shouldBeSameInstanceAs RtMidiApi.fromInt(number)
         api.number shouldBe number
@@ -72,7 +72,7 @@ internal class RtMidiApiTest : StringSpec({
     }
 
     "From Int" {
-        val number = RtMidiLibrary.RtMidiApi.RTMIDI_API_RTMIDI_DUMMY
+        val number = RtMidiApis.RTMIDI_API_RTMIDI_DUMMY
         val api = RtMidiApi.fromInt(number)
         api shouldBeSameInstanceAs RtMidiApi.RTMIDI_DUMMY
         api.number shouldBe number

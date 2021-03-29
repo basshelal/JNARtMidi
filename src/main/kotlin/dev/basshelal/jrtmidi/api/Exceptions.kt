@@ -1,6 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
+import dev.basshelal.jrtmidi.lib.message
 
 /**
  * Superclass of all exceptions in JRtMidi, this is never actually thrown, instead, its subclasses are thrown
@@ -21,7 +22,7 @@ class RtMidiNativeException : RtMidiException {
 
     constructor(msg: String) : super(msg)
 
-    internal constructor(ptr: RtMidiPtr) : this("An error occurred in the native code of RtMidi:\n${ptr.msg}")
+    internal constructor(ptr: RtMidiPtr) : this("An error occurred in the native code of RtMidi:\n${ptr.message}")
 
 }
 
