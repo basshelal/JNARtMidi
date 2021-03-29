@@ -2,7 +2,7 @@
 
 package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jrtmidi.lib.LibraryWrapper
+import dev.basshelal.jrtmidi.lib.RtMidiApis
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.library
@@ -44,7 +44,13 @@ public object RtMidi {
      * @throws RtMidiNativeException if an error occurred in RtMidi's native code
      */
     @JvmStatic
-    public fun compiledApis(): List<RtMidiApi> = LibraryWrapper.compiledApis().map { RtMidiApi.fromInt(it) }
+    public fun compiledApis(): List<RtMidiApi> {
+        val arr = IntArray(RtMidiApis.RTMIDI_API_NUM)
+        return library.rtmidi_get_compiled_api(arr, arr.size).let { size ->
+            if (size < 0) throw RtMidiNativeException("Error trying to get compiled apis")
+            else List(size) { RtMidiApi.fromInt(arr[it]) }
+        }
+    }
 
     /**
      * @return a list of [MidiPort.Info]s for all [ReadableMidiPort]s on the system
