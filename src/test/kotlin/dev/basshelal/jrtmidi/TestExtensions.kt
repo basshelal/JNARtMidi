@@ -21,9 +21,13 @@ internal inline fun <reified T : Throwable> allShouldThrow(funcs: Iterable<() ->
     funcs.forEach { shouldThrow<T>(it) }
 }
 
+internal inline fun allShouldThrowAny(funcs: Iterable<() -> Any?>) = allShouldThrow<Throwable>(funcs)
+
 internal inline fun <reified T : Throwable> allShouldNotThrow(funcs: Iterable<() -> Any?>) {
     funcs.forEach { shouldNotThrow<T>(it) }
 }
+
+internal inline fun allShouldNotThrowAny(funcs: Iterable<() -> Any?>) = allShouldNotThrow<Throwable>(funcs)
 
 // Utils
 

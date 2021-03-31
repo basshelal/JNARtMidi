@@ -1,6 +1,6 @@
 package dev.basshelal.jrtmidi.api
 
-import dev.basshelal.jrtmidi.allShouldNotThrow
+import dev.basshelal.jrtmidi.allShouldNotThrowAny
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
 import dev.basshelal.jrtmidi.lib.RtMidiBuild
@@ -194,7 +194,26 @@ internal class ReadableMidiPortTest : StringSpec({
     }
 
     "Open Virtual".config(enabledIf = ::supportsVirtualPorts) {
+        val portName = "Test Port $randomNumber"
+        val foundPortNameAsWritablePort = { writableMidiPortInfos.find { it.name.contains(portName) } }
+        testPortInfo.shouldNotBeNull()
+        ReadableMidiPort(testPortInfo).apply {
+            info shouldBe testPortInfo
+            isOpen shouldBe false
+            isVirtual shouldBe false
 
+            // should not find it as a writable port
+            foundPortNameAsWritablePort().shouldBeNull()
+
+            shouldNotThrow<RtMidiPortException> { openVirtual(portName) }
+            isOpen shouldBe true
+            isVirtual shouldBe true
+
+            if (!testWritablePort.isVirtual) {
+                // should find it as a writable port now
+                foundPortNameAsWritablePort().shouldNotBeNull()
+            }
+        }.destroy()
     }
 
     "Open Port After Info Index Change".config(enabledIf = ::supportsVirtualPorts) {
@@ -240,7 +259,7 @@ internal class ReadableMidiPortTest : StringSpec({
                     { ignoreTypes(midiSysex = false, midiTime = false, midiSense = false) }
             ))
             // querying data shouldn't throw exceptions
-            allShouldNotThrow<Throwable>(listOf(
+            allShouldNotThrowAny(listOf(
                     { api }, { info }, { midiMessage }, { clientName },
                     { isOpen }, { isVirtual }, { isDestroyed }, { hasCallback },
                     // kotlin.Any functions shouldn't throw exceptions either
