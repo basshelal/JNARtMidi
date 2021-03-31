@@ -10,6 +10,8 @@ import io.kotest.matchers.shouldBe
 @Order(1)
 internal class RtMidiConfigTest : StringSpec({
 
+    // TODO: 31-Mar-2021 @basshelal: Test!
+
     defaultTestConfig = TestCaseConfig(enabled = !RtMidi.Config.loaded)
 
     "Config" {

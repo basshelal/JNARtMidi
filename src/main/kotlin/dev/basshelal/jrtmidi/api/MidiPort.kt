@@ -84,7 +84,7 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     public fun open(portName: String) {
         checkIsDestroyed()
-        checkHasInfo("Cannot open MidiPort:\n$this\nno RtMidiPort.Info was provided")
+        checkHasInfo("Cannot open MidiPort:\n$this\nno RtMidiPort.Info was provided in this MidiPort's constructor")
         if (!isOpen && info != null) {
             resetInfoIndex()
             library.rtmidi_open_port(ptr, info.index, portName)

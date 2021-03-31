@@ -20,7 +20,7 @@ internal class RtMidiTest : StringSpec({
     }
 
     "Supports Virtual Ports" {
-        RtMidi.supportsVirtualPorts() shouldBe RtMidiBuild.supportsVirtualPorts
+        RtMidi.supportsVirtualPorts() shouldBe (RtMidiBuild.supportsVirtualPorts && !RtMidi.Config.disallowVirtualPorts)
     }
 
     "Compiled APIs" {

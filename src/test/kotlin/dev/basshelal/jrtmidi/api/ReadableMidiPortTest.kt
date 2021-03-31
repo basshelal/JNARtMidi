@@ -45,17 +45,23 @@ internal class ReadableMidiPortTest : StringSpec({
 
     beforeSpec {
         defaultBeforeAll()
-        if (RtMidi.supportsVirtualPorts()) {
-            testWritablePort = WritableMidiPort(clientName = testWritablePortClientName)
-            testWritablePort.openVirtual(testWritablePortName)
-            compiledApis = RtMidi.compiledApis()
-        } else if (!RtMidi.supportsVirtualPorts() && RtMidi.writableMidiPorts().isNotEmpty()) {
-            testWritablePort = WritableMidiPort(clientName = testWritablePortClientName, portInfo = RtMidi.writableMidiPorts().first())
-            testWritablePort.open(testWritablePortName)
-            compiledApis = RtMidi.compiledApis()
-        } else throw RuntimeException("""Unable to run tests!
-            |Platform: ${RtMidiBuild.platformName} does not support virtual ports AND no writable Midi Ports were found
-            |To test this platform, please connect some physical Midi devices""".trimMargin())
+        when {
+            RtMidi.writableMidiPorts().isNotEmpty() -> {
+                testWritablePort = WritableMidiPort(clientName = testWritablePortClientName,
+                        portInfo = RtMidi.writableMidiPorts().first())
+                testWritablePort.open(testWritablePortName)
+                compiledApis = RtMidi.compiledApis()
+            }
+            RtMidi.supportsVirtualPorts() -> {
+                testWritablePort = WritableMidiPort(clientName = testWritablePortClientName)
+                testWritablePort.openVirtual(testWritablePortName)
+                compiledApis = RtMidi.compiledApis()
+            }
+            else -> throw RuntimeException("""Unable to run tests!
+            |No Writable Midi Ports were found AND Platform: ${RtMidiBuild.platformName} 
+            |does not support virtual ports!
+            |To test this platform, please connect some physical Midi (In and Out) devices""".trimMargin())
+        }
     }
 
     afterSpec {
