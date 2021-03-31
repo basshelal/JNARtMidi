@@ -107,7 +107,7 @@ public object RtMidi {
         @JvmStatic
         public fun load() {
             val libPaths = mutableListOf<String>()
-            if (useBundledLibraries) libPaths.add("bin/${RtMidiBuild.buildPath}")
+            if (useBundledLibraries) libPaths.add("lib/${RtMidiBuild.buildPath}")
             else libPaths.addAll(customLibraryPaths)
             library = try {
                 LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
