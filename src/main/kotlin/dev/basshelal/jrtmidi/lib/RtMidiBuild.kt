@@ -12,7 +12,6 @@ import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_X86_64
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.UNKNOWN
 import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.WINMM_X86_64
 import jnr.ffi.Platform
-import jnr.ffi.byref.PointerByReference
 import java.io.File
 
 /** `true` if *any* of the passed in [paths] refers to an existing file, `false` otherwise */
@@ -45,39 +44,7 @@ internal object RtMidiBuild {
         }
     }
 
-    internal val isJackInstalled: Boolean = platform.run {
-        val libFile = "libjack" + when (os) {
-            Platform.OS.LINUX -> ".so"
-            Platform.OS.DARWIN -> ".dylib"
-            else -> ""
-        }
-        val usrLocalLibPath = "/usr/local/lib/"
-        val usrLibPath = "/usr/lib/"
-        val libPath = "/lib/"
-        val linuxArch = when (cpu) {
-            Platform.CPU.X86_64 -> "x86_64-linux-gnu"
-            Platform.CPU.ARM -> "arm-linux-gnueabihf"
-            Platform.CPU.AARCH64 -> "aarch64-linux-gnu"
-            else -> ""
-        }
-        // basic unix including darwin, order is intentional!
-        val unixLibPaths = listOf(usrLocalLibPath, usrLibPath, libPath).map { "$it$libFile" }
-
-        // linux is unix + all the paths with the corresponding arch since we support multiple arch
-        val linuxLibPaths = unixLibPaths +
-                listOf(usrLocalLibPath, usrLibPath, libPath).map { "$it$linuxArch$libFile" }
-        when (os) {
-            Platform.OS.LINUX -> when (cpu) {
-                Platform.CPU.X86_64, Platform.CPU.ARM, Platform.CPU.AARCH64 -> anyFileExists(linuxLibPaths)
-                else -> false
-            }
-            Platform.OS.DARWIN -> when (cpu) {
-                Platform.CPU.X86_64 -> anyFileExists(unixLibPaths)
-                else -> false
-            }
-            else -> false
-        }
-    }
+    internal val isJackInstalled: Boolean = platform.libraryLocations("jack", null).isNotEmpty()
 
     /**
      * Dynamic way of finding what APIs are installed on the system by attempting to load each library.
@@ -140,29 +107,4 @@ internal object RtMidiBuild {
     }
 
     internal val supportsVirtualPorts: Boolean = WINMM !in installedApis
-}
-
-// Below are minimal mappings of each API, I picked the simplest functions I could find quickly
-// I have tested ALSA and JACK, need to test the proprietary OSes
-// 07-Mar-2021 Bassam Helal
-// TODO: 20/03/2021 We may no longer need this, test first on all systems before deleting
-
-@Suppress("FunctionName")
-internal interface Alsa {
-    fun snd_asoundlib_version(): String
-}
-
-@Suppress("FunctionName")
-internal interface Core {
-    fun MIDIGetNumberOfDevices(): Int
-}
-
-@Suppress("FunctionName")
-internal interface Jack {
-    fun jack_activate(client: PointerByReference): Int
-}
-
-@Suppress("FunctionName")
-internal interface WinMM {
-    fun midiInGetNumDevs(): Int
 }

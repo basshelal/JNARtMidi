@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation("com.github.jnr:jnr-ffi:2.2.1")
+    implementation("com.github.jnr:jnr-ffi:2.2.4")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.4.3")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.4.3")
     testImplementation("io.kotest:kotest-property-jvm:4.4.3")
