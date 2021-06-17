@@ -87,21 +87,15 @@ public object RtMidi {
     }
 
     public object Config {
-        // When true, no more configuring is allowed
+        /** When true, no more configuring is allowed */
         internal var loaded: Boolean = false
 
-        // Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths`
         private var useBundledLibraries: Boolean = true
 
-        // Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false
         private var customLibraryPaths: MutableList<String> = mutableListOf()
 
-        // Do not use a build with JACK even if JACK exists on the system, because if a JACK server is not found, you
-        // cannot do anything, use JNAJack to interact with JACK on the JVM
         internal var disallowJACK: Boolean = false
 
-        // Disallow virtual ports to keep code truly cross-platform because RtMidi doesn't support virtual ports on
-        // Windows
         internal var disallowVirtualPorts: Boolean = false
 
         @JvmStatic
@@ -121,16 +115,29 @@ public object RtMidi {
             loaded = true
         }
 
+        // TODO: 17-Jun-2021 @basshelal: Add Unload and reload?
+
+        /**
+         * Do not use a build with JACK even if JACK exists on the system, because if a JACK server is not found,
+         * you cannot do anything, use [JNAJack](https://github.com/jaudiolibs/jnajack) to interact with JACK on the JVM
+         */
         @JvmStatic
         public fun disallowJACK(value: Boolean): Config = apply { if (!loaded) disallowJACK = value }
 
+        /**
+         * Disallow virtual ports to keep code truly cross-platform because RtMidi doesn't support virtual ports
+         * on Windows
+         */
         @JvmStatic
         public fun disallowVirtualPorts(value: Boolean): Config = apply { if (!loaded) disallowVirtualPorts = value }
 
+        /** Use the bundled RtMidi native libraries, else use `customRtMidiLibraryPaths` */
         @JvmStatic // Experimental
         internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
+        /** Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false */
         @JvmStatic // Experimental
         internal fun customLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customLibraryPaths = value }
     }
+
 }
