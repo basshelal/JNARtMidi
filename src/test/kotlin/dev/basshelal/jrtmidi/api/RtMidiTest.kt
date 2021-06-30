@@ -1,7 +1,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.lib.RtMidiBuild
+import dev.basshelal.jrtmidi.lib.Build
 import dev.basshelal.jrtmidi.lib.library
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -16,11 +16,11 @@ internal class RtMidiTest : StringSpec({
     afterSpec { }
 
     "Is Platform Supported" {
-        RtMidi.isPlatformSupported() shouldBe RtMidiBuild.isPlatformSupported
+        RtMidi.isPlatformSupported() shouldBe Build.isPlatformSupported
     }
 
     "Supports Virtual Ports" {
-        RtMidi.supportsVirtualPorts() shouldBe (RtMidiBuild.supportsVirtualPorts && !RtMidi.Config.disallowVirtualPorts)
+        RtMidi.supportsVirtualPorts() shouldBe (Build.supportsVirtualPorts && !RtMidi.Config.disallowVirtualPorts)
     }
 
     "Compiled APIs" {

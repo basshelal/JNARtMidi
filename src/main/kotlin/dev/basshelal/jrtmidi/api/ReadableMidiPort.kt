@@ -91,9 +91,9 @@ public class ReadableMidiPort : MidiPort<RtMidiInPtr> {
             throw RtMidiPortException("Cannot set callback there is an existing callback registered, call removeCallback() to remove.")
         midiMessageCallback = callback
         cCallback = object : RtMidiCCallback {
-            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long?, userData: Pointer?) {
+            override fun invoke(timeStamp: Double, message: Pointer?, messageSize: Long, userData: Pointer?) {
                 // RealTimeCritical
-                if (message == null || messageSize == null) return  // prevent NPE or worse, segfault!
+                if (message == null) return  // prevent NPE or worse, segfault!
                 val size = messageSize.toInt()
                 if (midiMessage == null) midiMessage = MidiMessage() // happens only once, upon first received message
                 midiMessage?.also { midiMessage ->

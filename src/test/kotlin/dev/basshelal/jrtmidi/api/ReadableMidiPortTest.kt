@@ -3,7 +3,7 @@ package dev.basshelal.jrtmidi.api
 import dev.basshelal.jrtmidi.allShouldNotThrowAny
 import dev.basshelal.jrtmidi.allShouldThrow
 import dev.basshelal.jrtmidi.defaultBeforeAll
-import dev.basshelal.jrtmidi.lib.RtMidiBuild
+import dev.basshelal.jrtmidi.lib.Build
 import dev.basshelal.jrtmidi.wait
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldNotThrowAny
@@ -19,7 +19,7 @@ import kotlin.random.Random
 
 private fun supportsVirtualPorts(testCase: TestCase): Boolean {
     return RtMidi.supportsVirtualPorts().also {
-        if (!it) System.err.println("Platform ${RtMidiBuild.platformName} does not support virtual ports\n" +
+        if (!it) System.err.println("Platform ${Build.platformName} does not support virtual ports\n" +
                 "Cannot run test: ${testCase.source.fileName} ${testCase.displayName}")
     }
 }
@@ -58,7 +58,7 @@ internal class ReadableMidiPortTest : StringSpec({
                 compiledApis = RtMidi.compiledApis()
             }
             else -> throw RuntimeException("""Unable to run tests!
-            |No Writable Midi Ports were found AND Platform: ${RtMidiBuild.platformName} 
+            |No Writable Midi Ports were found AND Platform: ${Build.platformName} 
             |does not support virtual ports!
             |To test this platform, please connect some physical Midi (In and Out) devices""".trimMargin())
         }

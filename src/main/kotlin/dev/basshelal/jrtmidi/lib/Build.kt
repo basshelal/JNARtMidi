@@ -1,33 +1,31 @@
 package dev.basshelal.jrtmidi.lib
 
 import dev.basshelal.jrtmidi.api.RtMidi
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_AARCH64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_ARM
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_JACK_AARCH64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_JACK_ARM
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_JACK_X86_64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.ALSA_X86_64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_JACK_X86_64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.CORE_X86_64
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.UNKNOWN
-import dev.basshelal.jrtmidi.lib.RtMidiBuild.Type.WINMM_X86_64
+import dev.basshelal.jrtmidi.lib.Build.Type.AARCH64_ALSA
+import dev.basshelal.jrtmidi.lib.Build.Type.AARCH64_ALSA_JACK
+import dev.basshelal.jrtmidi.lib.Build.Type.ARM_ALSA
+import dev.basshelal.jrtmidi.lib.Build.Type.ARM_ALSA_JACK
+import dev.basshelal.jrtmidi.lib.Build.Type.UNKNOWN
+import dev.basshelal.jrtmidi.lib.Build.Type.X86_64_ALSA
+import dev.basshelal.jrtmidi.lib.Build.Type.X86_64_ALSA_JACK
+import dev.basshelal.jrtmidi.lib.Build.Type.X86_64_CORE
+import dev.basshelal.jrtmidi.lib.Build.Type.X86_64_CORE_JACK
+import dev.basshelal.jrtmidi.lib.Build.Type.X86_64_WINMM
 import jnr.ffi.Platform
-import java.io.File
 
-/** `true` if *any* of the passed in [paths] refers to an existing file, `false` otherwise */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun anyFileExists(paths: Iterable<String>): Boolean = paths.any { path: String ->
-    File(path).let { it.exists() && it.isFile }
-}
-
-internal object RtMidiBuild {
+// TODO: 30-Jun-2021 @basshelal: Test this using reflection for platform, library doesn't need to load
+//  may need to convert these to dynamic vals (use get()) instead of statics, this is useful for helping with unload
+//  and reload in RtMidi file as well
+internal object Build {
 
     internal val platform: Platform = Platform.getNativePlatform()
     internal val platformName: String = platform.run { "$os-$cpu" }
 
+    // TODO: 30-Jun-2021 @basshelal: Maybe allow users to query their build type at runtime
     enum class Type {
-        ALSA_X86_64, ALSA_JACK_X86_64, CORE_X86_64, CORE_JACK_X86_64, WINMM_X86_64,
-        ALSA_ARM, ALSA_JACK_ARM, ALSA_AARCH64, ALSA_JACK_AARCH64,
+        X86_64_ALSA, X86_64_ALSA_JACK, X86_64_CORE, X86_64_CORE_JACK, X86_64_WINMM,
+        ARM_ALSA, ARM_ALSA_JACK,
+        AARCH64_ALSA, AARCH64_ALSA_JACK,
         UNKNOWN;
     }
 
@@ -66,21 +64,21 @@ internal object RtMidiBuild {
         when (platform.cpu) {
             Platform.CPU.X86_64 -> {
                 when {
-                    ALSA in apis -> if (JACK in apis) ALSA_JACK_X86_64 else ALSA_X86_64
-                    CORE in apis -> if (JACK in apis) CORE_JACK_X86_64 else CORE_X86_64
-                    WINMM in apis -> WINMM_X86_64
+                    ALSA in apis -> if (JACK in apis) X86_64_ALSA_JACK else X86_64_ALSA
+                    CORE in apis -> if (JACK in apis) X86_64_CORE_JACK else X86_64_CORE
+                    WINMM in apis -> X86_64_WINMM
                     else -> UNKNOWN
                 }
             }
             Platform.CPU.ARM -> {
                 when {
-                    ALSA in apis -> if (JACK in apis) ALSA_JACK_ARM else ALSA_ARM
+                    ALSA in apis -> if (JACK in apis) ARM_ALSA_JACK else ARM_ALSA
                     else -> UNKNOWN
                 }
             }
             Platform.CPU.AARCH64 -> {
                 when {
-                    ALSA in apis -> if (JACK in apis) ALSA_JACK_AARCH64 else ALSA_AARCH64
+                    ALSA in apis -> if (JACK in apis) AARCH64_ALSA_JACK else AARCH64_ALSA
                     else -> UNKNOWN
                 }
             }
@@ -93,15 +91,15 @@ internal object RtMidiBuild {
      */
     internal val buildPath: String = buildType.let {
         when (it) {
-            ALSA_X86_64 -> "alsa-x86_64"
-            ALSA_JACK_X86_64 -> "alsa-jack-x86_64"
-            CORE_X86_64 -> "core-x86_64"
-            CORE_JACK_X86_64 -> "core-jack-x86_64"
-            WINMM_X86_64 -> "winmm-x86_64"
-            ALSA_ARM -> "alsa-arm"
-            ALSA_JACK_ARM -> "alsa-jack-arm"
-            ALSA_AARCH64 -> "alsa-aarch64"
-            ALSA_JACK_AARCH64 -> "alsa-jack-aarch64"
+            X86_64_ALSA -> "x86_64-alsa"
+            X86_64_ALSA_JACK -> "x86_64-alsa-jack"
+            X86_64_CORE -> "x86_64-core"
+            X86_64_CORE_JACK -> "x86_64-core-jack"
+            X86_64_WINMM -> "x86_64-winmm"
+            ARM_ALSA -> "arm-alsa"
+            ARM_ALSA_JACK -> "arm-alsa-jack"
+            AARCH64_ALSA -> "aarch64-alsa"
+            AARCH64_ALSA_JACK -> "aarch64-alsa-jack"
             UNKNOWN -> throw IllegalStateException("Unknown/unsupported build type!\nPlatform: $platformName")
         }
     }

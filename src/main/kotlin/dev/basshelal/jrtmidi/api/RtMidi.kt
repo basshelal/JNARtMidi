@@ -2,8 +2,8 @@
 
 package dev.basshelal.jrtmidi.api
 
+import dev.basshelal.jrtmidi.lib.Build
 import dev.basshelal.jrtmidi.lib.RtMidiApis
-import dev.basshelal.jrtmidi.lib.RtMidiBuild
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.library
 import jnr.ffi.LibraryLoader
@@ -27,14 +27,14 @@ import jnr.ffi.LibraryOption
 public object RtMidi {
 
     @JvmStatic
-    public fun isPlatformSupported(): Boolean = RtMidiBuild.isPlatformSupported
+    public fun isPlatformSupported(): Boolean = Build.isPlatformSupported
 
     /**
      * @return true if this platform supports virtual ports, false otherwise,
      * currently only Windows does not support virtual ports
      */
     @JvmStatic
-    public fun supportsVirtualPorts(): Boolean = RtMidiBuild.supportsVirtualPorts && !Config.disallowVirtualPorts
+    public fun supportsVirtualPorts(): Boolean = Build.supportsVirtualPorts && !Config.disallowVirtualPorts
 
     /**
      * @return the list of all [RtMidiApi]s that RtMidi detected when the native library of RtMidi was compiled that
@@ -101,22 +101,28 @@ public object RtMidi {
         @JvmStatic
         public fun load() {
             val libPaths = mutableListOf<String>()
-            if (useBundledLibraries) libPaths.add("lib/${RtMidiBuild.buildPath}")
+            if (useBundledLibraries) libPaths.add("libs/${Build.buildPath}")
             else libPaths.addAll(customLibraryPaths)
             library = try {
                 LibraryLoader.loadLibrary(RtMidiLibrary::class.java,
                         mapOf(LibraryOption.LoadNow to true, LibraryOption.IgnoreError to true),
                         mapOf(RtMidiLibrary.LIBRARY_NAME to libPaths),
                         RtMidiLibrary.LIBRARY_NAME)
+                // TODO: 30-Jun-2021 @basshelal: When jnr-ffi 2.2.5 releases ensure that
+                //  we have indeed loaded the correct library and force using ours over system for GNU/Linux
             } catch (e: LinkageError) {
-                System.err.println("Error linking RtMidi:\nPlatform: ${RtMidiBuild.platformName}\nLibPaths:\n${libPaths.joinToString()}")
+                System.err.println("Error linking RtMidi:\nPlatform: ${Build.platformName}\nLibPaths:\n${libPaths.joinToString()}")
                 throw e
             }
             loaded = true
         }
 
-        // TODO: 17-Jun-2021 @basshelal: Add Unload and reload?
+        // TODO: 17-Jun-2021 @basshelal: Add Unload and reload? Useful for config changes,
+        //  ie user doesn't want JACK anymore or wants to use custom paths etc
 
+
+        // TODO: 30-Jun-2021 @basshelal: Instead of disallow JACK we can make users pick a more generic build type
+        //  even before load(), which will pick their preferred API combo for each platform
         /**
          * Do not use a build with JACK even if JACK exists on the system, because if a JACK server is not found,
          * you cannot do anything, use [JNAJack](https://github.com/jaudiolibs/jnajack) to interact with JACK on the JVM

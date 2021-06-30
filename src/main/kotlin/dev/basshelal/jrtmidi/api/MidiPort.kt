@@ -4,7 +4,7 @@
 package dev.basshelal.jrtmidi.api
 
 import dev.basshelal.jrtmidi.api.MidiPort.Info.Type
-import dev.basshelal.jrtmidi.lib.RtMidiBuild
+import dev.basshelal.jrtmidi.lib.Build
 import dev.basshelal.jrtmidi.lib.RtMidiLibrary
 import dev.basshelal.jrtmidi.lib.RtMidiPtr
 import dev.basshelal.jrtmidi.lib.library
@@ -104,8 +104,8 @@ abstract class MidiPort<P : RtMidiPtr> {
      */
     public fun openVirtual(portName: String) {
         checkIsDestroyed()
-        if (!RtMidi.supportsVirtualPorts()) throw RtMidiPortException(if (!RtMidiBuild.supportsVirtualPorts)
-            "Platform ${RtMidiBuild.platformName} does not support virtual ports"
+        if (!RtMidi.supportsVirtualPorts()) throw RtMidiPortException(if (!Build.supportsVirtualPorts)
+            "Platform ${Build.platformName} does not support virtual ports"
         else "Virtual ports have been disabled by config in RtMidi.Config.disallowVirtualPorts()")
         if (!isOpen) {
             library.rtmidi_open_virtual_port(ptr, portName)

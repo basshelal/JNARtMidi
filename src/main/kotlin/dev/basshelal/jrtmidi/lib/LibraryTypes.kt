@@ -7,7 +7,7 @@ import jnr.ffi.types.size_t
 typealias RtMidiApi = Int
 
 /** MIDI API specifier arguments. See RtMidi::Api */
-object RtMidiApis {
+internal object RtMidiApis {
     /** Search for a working compiled API */
     const val RTMIDI_API_UNSPECIFIED: RtMidiApi = 0
 
@@ -34,7 +34,7 @@ object RtMidiApis {
  * typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message, size_t messageSize, void* userData)
  */
 @jnr.ffi.annotations.IgnoreError
-interface RtMidiCCallback {
+internal interface RtMidiCCallback {
     @Delegate
-    operator fun invoke(timeStamp: Double, message: Pointer?, @size_t messageSize: Long?, userData: Pointer?)
+    operator fun invoke(timeStamp: Double, message: Pointer?, @size_t messageSize: Long, userData: Pointer?)
 }
