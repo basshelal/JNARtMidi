@@ -19,7 +19,7 @@ import jnr.ffi.Platform
 internal object Build {
 
     internal val platform: Platform = Platform.getNativePlatform()
-    internal val platformName: String = platform.run { "$os-$cpu" }
+    internal val platformName: String = platform.run { "$cpu-$os" }
 
     // TODO: 30-Jun-2021 @basshelal: Maybe allow users to query their build type at runtime
     enum class Type {

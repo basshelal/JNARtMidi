@@ -141,6 +141,9 @@ public object RtMidi {
         @JvmStatic // Experimental
         internal fun useBundledLibraries(value: Boolean): Config = apply { if (!loaded) useBundledLibraries = value }
 
+        // TODO: 30-Jun-2021 @basshelal: Probably disallow this, we might bundle custom versions so user-specified
+        //  paths may fail
+
         /** Paths to custom RtMidi libraries, only used if `useBundledLibraries` is false */
         @JvmStatic // Experimental
         internal fun customLibraryPaths(value: MutableList<String>): Config = apply { if (!loaded) customLibraryPaths = value }
